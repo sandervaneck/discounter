@@ -46,17 +46,26 @@ const discountsMock = [
   },
 ];
 
+export type DiscountType ={
+        username: 'influencer_eric',
+        views: 18200,
+        likes: 2400,
+        comments: 310,
+        reposts: 120,
+        discount: '30%',
+        items: ['Focaccia Truffle', 'Focaccia Caprese'],
+        restaurant: 'Focacceria Milano',
+        code: 'DISCOUNT-ER-18200',
+      }
 export default function UserPage() {
   const [reelLink, setReelLink] = useState('');
-  const [submitted, setSubmitted] = useState(false);
   const [verifying, setVerifying] = useState(false);
-  const [result, setResult] = useState<any | null>(null);
+  const [result, setResult] = useState<DiscountType | null>(null);
   const [tab, setTab] = useState<0 | 1>(0);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setVerifying(true);
-    setSubmitted(true);
 
     setTimeout(() => {
       setResult({
@@ -76,7 +85,6 @@ export default function UserPage() {
 
   const [search, setSearch] = useState('');
   const [filterCity, setFilterCity] = useState('All');
-  const [discounts, setDiscounts] = useState(discountsMock);
   const [collapsedIndexes, setCollapsedIndexes] = useState<number[]>([]);
   const toggleCollapse = (index: number) => {
     setCollapsedIndexes((prev) =>
@@ -88,7 +96,7 @@ export default function UserPage() {
 
   const user = { name: 'influencer_eric' };
 
-  const filteredDiscounts = discounts.filter((d) => {
+  const filteredDiscounts = discountsMock.filter((d) => {
     const matchesSearch = d.restaurant.toLowerCase().includes(search.toLowerCase());
     const matchesCity = filterCity === 'All' || d.location === filterCity;
     return matchesSearch && matchesCity;

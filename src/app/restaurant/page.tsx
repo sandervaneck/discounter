@@ -76,7 +76,7 @@ export default function RestaurantDiscountDashboard() {
   function updateCode(
     id: number,
     field: keyof DiscountCode,
-    value: any
+    value: number | string | string[]
   ) {
     setDiscountCodes((codes) =>
       codes.map((code) =>
