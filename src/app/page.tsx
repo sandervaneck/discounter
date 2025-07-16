@@ -51,20 +51,20 @@ export default function Home() {
 
         {showLoginFields && (
           <div className="flex flex-col gap-4 items-center">
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full max-w-sm px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full max-w-sm px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            />
+   <input
+  type="email"
+  placeholder="Email"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+  className="w-full max-w-sm px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
+/>
+<input
+  type="password"
+  placeholder="password"
+  value={password}
+  onChange={(e) => setPassword(e.target.value)}
+  className="w-full max-w-sm px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
+/>
             <Button
               onClick={handleContinue}
               className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-md shadow"
