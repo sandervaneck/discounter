@@ -144,14 +144,15 @@ export default function UserPage() {
                   Reel URL
                 </label>
                 <input
-                  type="text"
-                  required
-                  placeholder="www.instagram.com/reel/xyz..."
-                  value={reelLink}
-                  onChange={(e) => setReelLink(e.target.value)}
-                  pattern="(https?:\/\/)?(www\.)?[a-zA-Z0-9\-]+\.[a-z]{2,}.*"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#ff715b] text-sm"
-                />
+  type="text"
+  required
+  placeholder="www.instagram.com/reel/xyz..."
+  value={reelLink}
+  onChange={(e) => setReelLink(e.target.value)}
+  pattern="(https?:\/\/)?(www\.)?[a-zA-Z0-9\-]+\.[a-z]{2,}.*"
+  className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#ff715b] text-sm"
+/>
+
 
                 <button
                   type="submit"
@@ -194,12 +195,13 @@ export default function UserPage() {
 
           <div className="mb-4 flex flex-col gap-3">
             <input
-              type="text"
-              placeholder="Search restaurant..."
-              className="w-full px-4 py-2 rounded-xl border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#ff715b]"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+  type="text"
+  placeholder="Search restaurant..."
+  className="w-full px-4 py-2 rounded-xl border border-gray-300 bg-white text-gray-800 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#ff715b]"
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+/>
+
             <select
               className="w-full px-4 py-2 rounded-xl border border-gray-300 text-sm text-gray-600"
               value={filterCity}

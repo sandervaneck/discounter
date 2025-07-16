@@ -258,17 +258,20 @@ export default function RestaurantDiscountDashboard() {
               <tr key={code.id} style={{ borderBottom: "1px solid #ddd" }}>
                 <td style={{ padding: 10, border: "1px solid #ccc" }}>
                   <input
-                    type="text"
-                    value={code.code}
-                    onChange={(e) => updateCode(code.id, "code", e.target.value)}
-                    style={{
-                      width: "100%",
-                      padding: 6,
-                      borderRadius: 4,
-                      border: "1px solid #bbb",
-                      fontSize: 14,
-                    }}
-                  />
+  type="text"
+  value={code.code}
+  onChange={(e) => updateCode(code.id, "code", e.target.value)}
+  style={{
+    width: "100%",
+    padding: 6,
+    borderRadius: 4,
+    border: "1px solid #bbb",
+    fontSize: 14,
+    backgroundColor: "#ffffff",  // Ensures white background
+    color: "#1f2937",            // Equivalent to Tailwind's text-gray-800
+  }}
+/>
+
                 </td>
 
                 <td style={{ padding: 10, border: "1px solid #ccc" }}>
@@ -281,35 +284,40 @@ export default function RestaurantDiscountDashboard() {
                     }}
                   >
                     <input
-                      type="number"
-                      value={code.discount}
-                      min={0}
-                      max={100}
-                      onChange={(e) =>
-                        updateCode(code.id, "discount", Number(e.target.value))
-                      }
-                      style={{
-                        width: 60,
-                        padding: 6,
-                        borderRadius: 4,
-                        border: "1px solid #bbb",
-                      }}
-                    />
-                    <span>% for</span>
-                    <input
-                      type="number"
-                      value={code.viewsRequired}
-                      min={0}
-                      onChange={(e) =>
-                        updateCode(code.id, "viewsRequired", Number(e.target.value))
-                      }
-                      style={{
-                        width: 80,
-                        padding: 6,
-                        borderRadius: 4,
-                        border: "1px solid #bbb",
-                      }}
-                    />
+  type="number"
+  value={code.discount}
+  min={0}
+  max={100}
+  onChange={(e) =>
+    updateCode(code.id, "discount", Number(e.target.value))
+  }
+  style={{
+    width: 60,
+    padding: 6,
+    borderRadius: 4,
+    border: "1px solid #bbb",
+    backgroundColor: "#ffffff",
+    color: "#1f2937", // Tailwind's text-gray-800
+  }}
+/>
+<span>% for</span>
+<input
+  type="number"
+  value={code.viewsRequired}
+  min={0}
+  onChange={(e) =>
+    updateCode(code.id, "viewsRequired", Number(e.target.value))
+  }
+  style={{
+    width: 80,
+    padding: 6,
+    borderRadius: 4,
+    border: "1px solid #bbb",
+    backgroundColor: "#ffffff",
+    color: "#1f2937", // Tailwind's text-gray-800
+  }}
+/>
+
                     <span>views</span>
                   </div>
                 </td>
@@ -357,34 +365,39 @@ export default function RestaurantDiscountDashboard() {
                 </td>
 
                 <td style={{ padding: 10, border: "1px solid #ccc" }}>
-                  <input
-                    type="date"
-                    value={code.expiryDate}
-                    onChange={(e) => updateCode(code.id, "expiryDate", e.target.value)}
-                    style={{
-                      padding: 6,
-                      borderRadius: 4,
-                      border: "1px solid #bbb",
-                      width: "100%",
-                      fontSize: 14,
-                    }}
-                  />
-                </td>
+  <input
+    type="date"
+    value={code.expiryDate}
+    onChange={(e) => updateCode(code.id, "expiryDate", e.target.value)}
+    style={{
+      padding: 6,
+      borderRadius: 4,
+      border: "1px solid #bbb",
+      width: "100%",
+      fontSize: 14,
+      backgroundColor: "#ffffff",
+      color: "#1f2937", // Tailwind's text-gray-800
+    }}
+  />
+</td>
 
-                <td style={{ padding: 10, border: "1px solid #ccc" }}>
-                  <input
-                    type="text"
-                    value={code.location}
-                    onChange={(e) => updateCode(code.id, "location", e.target.value)}
-                    style={{
-                      width: "100%",
-                      padding: 6,
-                      borderRadius: 4,
-                      border: "1px solid #bbb",
-                      fontSize: 14,
-                    }}
-                  />
-                </td>
+<td style={{ padding: 10, border: "1px solid #ccc" }}>
+  <input
+    type="text"
+    value={code.location}
+    onChange={(e) => updateCode(code.id, "location", e.target.value)}
+    style={{
+      width: "100%",
+      padding: 6,
+      borderRadius: 4,
+      border: "1px solid #bbb",
+      fontSize: 14,
+      backgroundColor: "#ffffff",
+      color: "#1f2937", // Tailwind's text-gray-800
+    }}
+  />
+</td>
+
 
                 <td style={{ padding: 10, border: "1px solid #ccc" }}>
                   <select
@@ -478,86 +491,97 @@ export default function RestaurantDiscountDashboard() {
           <label>
             Code
             <input
-              type="text"
-              value={newCode}
-              onChange={(e) => setNewCode(e.target.value)}
-              placeholder="e.g. FOCA-XXXX1234"
-              style={{
-                width: "100%",
-                padding: 8,
-                borderRadius: 6,
-                border: "1px solid #117a65",
-                fontSize: 14,
-              }}
-            />
-          </label>
+  type="text"
+  value={newCode}
+  onChange={(e) => setNewCode(e.target.value)}
+  placeholder="e.g. FOCA-XXXX1234"
+  style={{
+    width: "100%",
+    padding: 8,
+    borderRadius: 6,
+    border: "1px solid #117a65",
+    fontSize: 14,
+    backgroundColor: "#ffffff",
+    color: "#1f2937",
+  }}
+/>
+</label>
 
-          <label>
-            Discount %
-            <input
-              type="number"
-              min={1}
-              max={100}
-              value={newDiscount}
-              onChange={(e) => setNewDiscount(Number(e.target.value))}
-              style={{
-                width: "100%",
-                padding: 8,
-                borderRadius: 6,
-                border: "1px solid #117a65",
-                fontSize: 14,
-              }}
-            />
-          </label>
+<label>
+  Discount %
+  <input
+    type="number"
+    min={1}
+    max={100}
+    value={newDiscount}
+    onChange={(e) => setNewDiscount(Number(e.target.value))}
+    style={{
+      width: "100%",
+      padding: 8,
+      borderRadius: 6,
+      border: "1px solid #117a65",
+      fontSize: 14,
+      backgroundColor: "#ffffff",
+      color: "#1f2937",
+    }}
+  />
+</label>
 
-          <label>
-            Views Required
-            <input
-              type="number"
-              min={1}
-              value={newViewsRequired}
-              onChange={(e) => setNewViewsRequired(Number(e.target.value))}
-              style={{
-                width: "100%",
-                padding: 8,
-                borderRadius: 6,
-                border: "1px solid #117a65",
-                fontSize: 14,
-              }}
-            />
-          </label>
+<label>
+  Views Required
+  <input
+    type="number"
+    min={1}
+    value={newViewsRequired}
+    onChange={(e) => setNewViewsRequired(Number(e.target.value))}
+    style={{
+      width: "100%",
+      padding: 8,
+      borderRadius: 6,
+      border: "1px solid #117a65",
+      fontSize: 14,
+      backgroundColor: "#ffffff",
+      color: "#1f2937",
+    }}
+  />
+</label>
 
-          <label>
-            Expiry Date
-            <input
-              type="date"
-              value={newExpiryDate}
-              onChange={(e) => setNewExpiryDate(e.target.value)}
-              style={{
-                width: "100%",
-                padding: 8,
-                borderRadius: 6,
-                border: "1px solid #117a65",
-                fontSize: 14,
-              }}
-            />
-          </label>
+<label>
+  Expiry Date
+  <input
+    type="date"
+    value={newExpiryDate}
+    onChange={(e) => setNewExpiryDate(e.target.value)}
+    style={{
+      width: "100%",
+      padding: 8,
+      borderRadius: 6,
+      border: "1px solid #117a65",
+      fontSize: 14,
+      backgroundColor: "#ffffff",
+      color: "#1f2937",
+    }}
+  />
+</label>
 
-          <label>
-            Location
-            <input
-              type="text"
-              value={newLocation}
-              onChange={(e) => setNewLocation(e.target.value)}
-              style={{
-                width: "100%",
-                padding: 8,
-                borderRadius: 6,
-                border: "1px solid #117a65",
-                fontSize: 14,
-              }}
-            />
-          </label>
+<label>
+  Location
+  <input
+    type="text"
+    value={newLocation}
+    onChange={(e) => setNewLocation(e.target.value)}
+    style={{
+      width: "100%",
+      padding: 8,
+      borderRadius: 6,
+      border: "1px solid #117a65",
+      fontSize: 14,
+      backgroundColor: "#ffffff",
+      color: "#1f2937",
+    }}
+  />
+</label>
+
 
           <label>
             Status

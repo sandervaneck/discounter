@@ -127,26 +127,29 @@ export default function CashierDiscountScanner() {
       </h1>
 
       <input
-        type="text"
-        placeholder="Enter discount code"
-        value={inputCode}
-        onChange={(e) => setInputCode(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") validateCode();
-        }}
-        style={{
-          width: "100%",
-          padding: "14px 20px",
-          fontSize: 18,
-          borderRadius: 12,
-          border: "2px solid #117a65",
-          boxSizing: "border-box",
-          marginBottom: 12,
-          textTransform: "uppercase",
-          letterSpacing: 2,
-          fontWeight: "bold",
-        }}
-      />
+  type="text"
+  placeholder="Enter discount code"
+  value={inputCode}
+  onChange={(e) => setInputCode(e.target.value)}
+  onKeyDown={(e) => {
+    if (e.key === "Enter") validateCode();
+  }}
+  style={{
+    width: "100%",
+    padding: "14px 20px",
+    fontSize: 18,
+    borderRadius: 12,
+    border: "2px solid #117a65",
+    boxSizing: "border-box",
+    marginBottom: 12,
+    textTransform: "uppercase",
+    letterSpacing: 2,
+    fontWeight: "bold",
+    backgroundColor: "#ffffff", // ✅ Ensures white background
+    color: "#1f2937",            // ✅ Ensures dark text
+  }}
+/>
+
 
       <button
         onClick={validateCode}
