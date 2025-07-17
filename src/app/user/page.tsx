@@ -249,6 +249,13 @@ export default function UserPage() {
                     <QRCode value={result.code} size={120} />
                   </div>
                 </div>
+                <button
+                  type="submit"
+                  onClick={() => window.location.reload()}
+                  className="w-full py-3 bg-[#ff715b] hover:bg-[#e25e4b] text-white font-semibold rounded-xl text-sm transition-all duration-200"
+                >
+                  Submit Another Post
+                </button>
               </div>
             )}
           </div>
