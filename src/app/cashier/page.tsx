@@ -54,6 +54,26 @@ const discountCodes: DiscountCode[] = [
     location: "Amsterdam, NL",
     status: "used",
   },
+  {
+    id: 4,
+    code: "ANYCODE",
+    discount: 5,
+    viewsRequired: 1000,
+    items: ["All foods"],
+    expiryDate: "2026-06-30",
+    location: "Amsterdam, NL",
+    status: "awarded",
+  },
+  {
+    id: 5,
+    code: "FREECODE",
+    discount: 50,
+    viewsRequired: 8000,
+    items: ["All foods"],
+    expiryDate: "2025-06-30",
+    location: "Berlin, GE",
+    status: "open",
+  },
 ];
 
 // Dummy awarded posts mapped by discount code for demo
@@ -63,7 +83,16 @@ const awardedPostsMap: Record<string, AwardedPost> = {
     reelViews: 5234,
     userAccountId: "user_12345",
   },
-  // other codes may or may not have an awarded post
+  "ANYCODE": {
+    username: "milanofocaccia",
+    reelViews: 1023,
+    userAccountId: "user_12345",
+  },
+  "FREECODE": {
+    username: "milanofocaccia",
+    reelViews: 12345,
+    userAccountId: "user_12345",
+  },
 };
 
 export default function CashierDiscountScanner() {
@@ -286,9 +315,29 @@ export default function CashierDiscountScanner() {
               <p style={{ fontSize: 16 }}>
                 Reel views: <strong>{validationResult.awardedPost.reelViews.toLocaleString()}</strong>
               </p>
+              <p style={{ fontSize: 16 }}>
+                Restaurant tagged: <strong>✅</strong>
+              </p>
               <p style={{ fontSize: 14, color: "#555" }}>
                 User account ID: {validationResult.awardedPost.userAccountId}
               </p>
+              <button
+        style={{
+          width: "100%",
+          padding: 14,
+          backgroundColor: "#117a65",
+          border: "none",
+          borderRadius: 12,
+          color: "white",
+          fontSize: 18,
+          fontWeight: "bold",
+          cursor: "pointer",
+          marginBottom: 12,
+          transition: "background-color 0.3s",
+        }}
+      >
+        View post
+      </button>
             </>
           ) : (
             <p style={{ fontSize: 16, fontStyle: "italic", color: "#666", marginTop: 20 }}>
