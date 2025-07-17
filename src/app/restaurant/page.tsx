@@ -70,7 +70,7 @@ export default function RestaurantDiscountDashboard() {
   const [newExpiryDate, setNewExpiryDate] = useState("");
   const [newLocation, setNewLocation] = useState("Amsterdam, NL");
   const [newStatus, setNewStatus] = useState<DiscountStatus>("open");
-
+  const [tab, setTab] = useState(0)
   // Helpers
 
   function updateCode(
@@ -148,7 +148,7 @@ export default function RestaurantDiscountDashboard() {
         padding: "0 16px",
       }}
     >
-      <RestaurantToolbar/>
+      <RestaurantToolbar tab={tab} setTab={setTab}/>
       <header
         style={{
           marginBottom: 32,

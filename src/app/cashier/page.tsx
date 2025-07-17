@@ -68,6 +68,7 @@ const awardedPostsMap: Record<string, AwardedPost> = {
 
 export default function CashierDiscountScanner() {
   const [inputCode, setInputCode] = useState("");
+  const [tab, setTab] = useState(1); 
   const [validationResult, setValidationResult] = useState<{
     code: DiscountCode;
     awardedPost?: AwardedPost;
@@ -121,7 +122,7 @@ export default function CashierDiscountScanner() {
         backgroundColor: "#e0f2f1",
       }}
     >
-      <RestaurantToolbar />
+      <RestaurantToolbar tab={tab} setTab={setTab}/>
       <h1 style={{ color: "#117a65", marginBottom: 24, textAlign: "center" }}>
         Scan or Enter Discount Code
       </h1>

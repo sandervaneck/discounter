@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { CheckCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { QRCode } from 'react-qrcode-logo';
+
 const discountsMock = [
   {
     code: 'DISC-20245',
@@ -57,11 +58,14 @@ export type DiscountType ={
         restaurant: 'Focacceria Milano',
         code: 'DISCOUNT-ER-18200',
       }
+
 export default function UserPage() {
   const [reelLink, setReelLink] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [result, setResult] = useState<DiscountType | null>(null);
   const [tab, setTab] = useState<0 | 1>(0);
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [platform, setPlatform] = useState<'instagram' | 'tiktok'>('instagram');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,7 +109,6 @@ export default function UserPage() {
 
   return (
     <main className="min-h-screen bg-[#f6f6f6] px-4 py-6 font-sans">
-      {/* Toolbar */}
       <div className="max-w-md mx-auto mb-6 bg-white rounded-3xl shadow-md px-6 py-5">
         <div className="text-center text-xs text-gray-500 font-semibold mb-3">
           Logged in as <strong className="text-gray-700">{user.name}</strong>
@@ -131,8 +134,8 @@ export default function UserPage() {
           <div className="bg-gradient-to-br from-[#ffffff] to-[#f3f3f3] p-6 text-center">
             <h1 className="text-3xl font-extrabold text-gray-800 tracking-tight leading-tight">
               🎥 Submit Reel
-            </h1>
-            <p className="text-xs text-gray-500 mt-2">
+            </h1>click to 
+            <p className="text-s text-gray-500 mt-2">
               Turn your reel views into exclusive rewards
             </p>
           </div>
@@ -140,25 +143,74 @@ export default function UserPage() {
           <div className="p-6 sm:p-7">
             {!result && (
               <form onSubmit={handleSubmit} className="space-y-5">
-                <label htmlFor="reel" className="block text-gray-600 font-semibold text-xs">
-                  Reel URL
-                </label>
-                <input
-  type="text"
-  required
-  placeholder="www.instagram.com/reel/xyz..."
-  value={reelLink}
-  onChange={(e) => setReelLink(e.target.value)}
-  pattern="(https?:\/\/)?(www\.)?[a-zA-Z0-9\-]+\.[a-z]{2,}.*"
-  className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#ff715b] text-sm"
-/>
+                <div className="flex gap-3 justify-center">
+                  <button
+                    type="button"
+                    className={`flex items-center gap-1 px-4 py-2 rounded-lg border text-sm font-medium ${platform === 'instagram' ? 'bg-[#ff715b] text-white' : 'bg-white border-[#ccc] text-gray-700'}`}
+                    onClick={() => setPlatform('instagram')}
+                  >
+                    📸 Instagram
+                  </button>
+                  <button
+                    type="button"
+                    className={`flex items-center gap-1 px-4 py-2 rounded-lg border text-sm font-medium ${platform === 'tiktok' ? 'bg-[#ff715b] text-white' : 'bg-white border-[#ccc] text-gray-700'}`}
+                    onClick={() => setPlatform('tiktok')}
+                  >
+                    🎵 TikTok
+                  </button>
+                </div>
 
+                {platform === 'tiktok' ? (
+                  <>
+                    <label htmlFor="reel" className="block text-gray-600 font-semibold text-xs">
+                      TikTok Post URL
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="https://www.tiktok.com/@user/video/xyz"
+                      value={reelLink}
+                      onChange={(e) => setReelLink(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#ff715b] text-sm"
+                    />
+                  </>
+                ) : (
+                  <>
+                    <div className="relative inline-block">
+                      <label htmlFor="qr" className="block text-gray-600 font-semibold text-m flex items-start gap-2">
+                        <span className="flex items-center gap-1">
+                          <span className="w-5 h-5 flex items-center justify-center rounded-full bg-gray-300 text-white text-xs font-bold">i</span>
+                        </span>
+                        <span className="pt-0.5">Upload QR code of your Instagram post</span>
+                        <div className="absolute -top-1 left-0 z-10 w-64 p-2 text-xs text-white bg-gray-800 rounded-lg opacity-0 hover:opacity-100 transition-opacity duration-200 mt-6">
+                          To upload the QR code of your instagram post, navigate to your post, hit the ... on the top right of the post, choose "QR Code" and then "Save to camera roll". Then upload the saved QR code right here below.
+                        </div>
+                      </label>
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      required
+                      onChange={(e) => setUploadedImage(e.target.files?.[0] || null)}
+                      className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#ff715b] text-sm"
+                    />
+                    {uploadedImage && (
+                      <div className="mt-4 flex justify-center">
+                        <img
+                          src={URL.createObjectURL(uploadedImage)}
+                          alt="QR Preview"
+                          className="max-w-full max-h-40 rounded-xl border border-gray-300"
+                        />
+                      </div>
+                    )}
+                  </>
+                )}
 
                 <button
                   type="submit"
                   className="w-full py-3 bg-[#ff715b] hover:bg-[#e25e4b] text-white font-semibold rounded-xl text-sm transition-all duration-200"
                 >
-                  {verifying ? '⏳ Verifying post...' : '🔍 Check for Discount'}
+                  {verifying ? '⏳ Verifying post...' : '🎬 Submit post'}
                 </button>
               </form>
             )}
@@ -195,12 +247,12 @@ export default function UserPage() {
 
           <div className="mb-4 flex flex-col gap-3">
             <input
-  type="text"
-  placeholder="Search restaurant..."
-  className="w-full px-4 py-2 rounded-xl border border-gray-300 bg-white text-gray-800 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#ff715b]"
-  value={search}
-  onChange={(e) => setSearch(e.target.value)}
-/>
+              type="text"
+              placeholder="Search restaurant..."
+              className="w-full px-4 py-2 rounded-xl border border-gray-300 bg-white text-gray-800 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#ff715b]"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
 
             <select
               className="w-full px-4 py-2 rounded-xl border border-gray-300 text-sm text-gray-600"
@@ -213,7 +265,7 @@ export default function UserPage() {
               <option value="Utrecht">Utrecht</option>
             </select>
           </div>
-        <ul className="space-y-3">
+          <ul className="space-y-3">
             {filteredDiscounts.map((d, idx) => {
               const isCollapsed = collapsedIndexes.includes(idx);
               return (
@@ -247,7 +299,7 @@ export default function UserPage() {
               );
             })}
           </ul>
-          </div>
+        </div>
       )}
     </main>
   );
