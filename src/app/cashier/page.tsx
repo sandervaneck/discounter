@@ -109,6 +109,7 @@ export default function CashierDiscountScanner() {
     setValidationResult(null);
 
     const code = inputCode.trim().toUpperCase();
+    if (isCameraOpen) {}
     if (!code) return setError("Please enter a discount code.");
 
     const foundCode = discountCodes.find(
