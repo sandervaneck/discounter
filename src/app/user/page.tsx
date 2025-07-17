@@ -66,6 +66,7 @@ export default function UserPage() {
   const [tab, setTab] = useState<0 | 1>(0);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [platform, setPlatform] = useState<'instagram' | 'tiktok'>('instagram');
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -161,6 +162,7 @@ export default function UserPage() {
                 </div>
 
                 {platform === 'tiktok' ? (
+                  // TikTok input
                   <>
                     <label htmlFor="reel" className="block text-gray-600 font-semibold text-xs">
                       TikTok Post URL
@@ -176,25 +178,34 @@ export default function UserPage() {
                   </>
                 ) : (
                   <>
-                    <div className="relative inline-block">
-                      <label htmlFor="qr" className="block text-gray-600 font-semibold text-m flex items-start gap-2">
-                        <span className="flex items-center gap-1">
-                          <span className="w-5 h-5 flex items-center justify-center rounded-full bg-gray-300 text-white text-xs font-bold">i</span>
-                        </span>
-                        <span className="pt-0.5">Upload QR code of your Instagram post</span>
-                        <div className="absolute -top-1 left-0 z-10 w-64 p-2 text-xs text-white bg-gray-800 rounded-lg opacity-0 hover:opacity-100 transition-opacity duration-200 mt-6">
-  To upload the QR code of your Instagram post, navigate to your post, hit the ... on the top right of the post, choose &quot;QR Code&quot; and then &quot;Save to camera roll&quot;. Then upload the saved QR code right here below.
-</div>
-
-                      </label>
-                    </div>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      required
-                      onChange={(e) => setUploadedImage(e.target.files?.[0] || null)}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#ff715b] text-sm"
-                    />
+                    <label htmlFor="qr" className="block text-gray-600 font-semibold text-m flex items-start gap-2 relative">
+                      <span className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => setShowTooltip((prev) => !prev)}
+                          className="w-5 h-5 flex items-center justify-center rounded-full bg-gray-300 text-white text-xs font-bold focus:outline-none"
+                          aria-label="Help"
+                        >
+                          i
+                        </button>
+                      </span>
+                      <span className="pt-0.5">Upload QR code of your Instagram post</span>
+                      {showTooltip && (
+                        <div className="absolute top-8 left-0 z-10 w-64 p-2 text-xs text-white bg-gray-800 rounded-lg shadow-lg">
+                          To upload the QR code of your Instagram post, navigate to your post, hit the ... on the top right of the post, choose &quot;QR Code&quot; and then &quot;Save to camera roll&quot;. Then upload the saved QR code right here below.
+                        </div>
+                      )}
+                    </label>
+                    <label htmlFor="qr-file" className="block w-full">
+                      <input
+                        id="qr-file"
+                        type="file"
+                        accept="image/*"
+                        required
+                        onChange={(e) => setUploadedImage(e.target.files?.[0] || null)}
+                        className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#ff715b] text-sm"
+                      />
+                    </label>
                     {uploadedImage && (
                       <div className="mt-4 flex justify-center">
                         <img
