@@ -17,6 +17,7 @@ export const RestaurantToolbar = ({ tab, setTab }: { tab: number; setTab: (n: nu
               ? 'text-white bg-[#ff715b]'
               : 'bg-white text-[#ff715b] border border-[#ff715b] hover:bg-[#fff2f0]'
           } px-4 py-2 rounded-lg text-sm font-medium transition`}
+          onClick={() => setTab(0)}
         >
           Manage Discount Codes
         </a>
@@ -27,6 +28,8 @@ export const RestaurantToolbar = ({ tab, setTab }: { tab: number; setTab: (n: nu
               ? 'text-white bg-[#ff715b]'
               : 'bg-white text-[#ff715b] border border-[#ff715b] hover:bg-[#fff2f0]'
           } px-4 py-2 rounded-lg text-sm font-medium transition`}
+                    onClick={() => setTab(1)}
+
         >
           Validate Discount Code
         </a>
