@@ -101,7 +101,6 @@ export default function CashierDiscountScanner() {
     awardedPost?: AwardedPost;
   } | null>(null);
   const [error, setError] = useState("");
-  const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
 
   function validateCode() {
@@ -109,7 +108,7 @@ export default function CashierDiscountScanner() {
     setValidationResult(null);
 
     const code = inputCode.trim().toUpperCase();
-    if (isCameraOpen) {}
+    
     if (!code) return setError("Please enter a discount code.");
 
     const foundCode = discountCodes.find(
@@ -133,9 +132,11 @@ export default function CashierDiscountScanner() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setCapturedImage(reader.result as string);
-        setIsCameraOpen(false);
+        
       };
       reader.readAsDataURL(file);
+      setInputCode(discountCodes[0].code);
+      validateCode();
     }
   };
 
