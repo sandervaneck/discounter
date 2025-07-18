@@ -180,7 +180,7 @@ export default function UserPage() {
                     <span className="pt-0.5">Upload QR code of your Instagram post</span>
                     {showTooltip && (
                       <div className="absolute top-8 left-0 z-10 w-64 p-2 text-xs text-white bg-emerald-700 rounded-lg shadow-lg">
-                        To upload the QR code of your Instagram post, navigate to your post, hit the ... on the top right of the post, choose "QR Code" and then "Save to camera roll". Then upload the saved QR code right here below.
+                        To upload the QR code of your Instagram post, navigate to your post, hit the &ldquo;***&rdquo; on the top right of the post, choose &ldquo;QR Code&rdquo; and then &ldquo;Save to Camera Roll&rdquo;. Then upload the saved QR code right here below.
                       </div>
                     )}
                   </label>
