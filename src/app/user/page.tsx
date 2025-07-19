@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CheckCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { QRCode } from 'react-qrcode-logo';
 import { DiscountType } from '../types/DiscountType';
@@ -89,7 +89,22 @@ export default function UserPage() {
     );
   };
 
-  const user = { name: 'influencer_eric' };
+  const [user, setUser] = useState<{ email: string } | null>(null);
+
+  useEffect(() => {
+    // Fetch the authenticated user info from your API/session endpoint
+    fetch('/api/auth/me')
+      .then((res) => res.json())
+      .then((data) => {
+
+        if (data) {
+          setUser(data);
+        }
+      })
+      .catch(() => {
+        setUser(null);
+      });
+  }, []);
 
   const filteredDiscounts = discountsMock.filter((d) => {
     const matchesSearch = d.restaurant.toLowerCase().includes(search.toLowerCase());
@@ -99,58 +114,77 @@ export default function UserPage() {
 
 
   return (
-  <main className="min-h-screen bg-gradient-to-br from-emerald-50 to-white flex flex-col items-center px-4 py-6 font-sans">
-    <div className="max-w-md w-full bg-white rounded-3xl shadow-md px-6 py-6 border border-emerald-100">
-      <div className="text-center text-xs text-emerald-600 font-semibold mb-3">
-        Logged in as <strong className="text-emerald-800">{user.name}</strong>
-      </div>
-      <div className="flex gap-3">
-        <button
-          onClick={() => setTab(0)}
-          className={`flex-1 text-center py-2.5 rounded-xl font-semibold text-sm transition-all ${tab === 0 ? 'text-white bg-emerald-600' : 'bg-white text-emerald-700 border border-emerald-600 hover:bg-emerald-50'}`}
-        >
-          📤 Upload Post
-        </button>
-        <button
-          onClick={() => setTab(1)}
-          className={`flex-1 text-center py-2.5 rounded-xl font-semibold text-sm transition-all ${tab === 1 ? 'text-white bg-emerald-600' : 'bg-white text-emerald-700 border border-emerald-600 hover:bg-emerald-50'}`}
-        >
-          🎁 My Discount Codes
-        </button>
-      </div>
-    </div>
-
-    {/* CONTENT BASED ON TAB */}
-    {tab === 0 ? (
-      <div className="max-w-md mx-auto bg-white rounded-[2rem] shadow-lg overflow-hidden border border-emerald-100 mt-6">
-        <div className="bg-gradient-to-br from-white to-emerald-50 p-6 text-center">
-          <h1 className="text-3xl font-extrabold text-emerald-800 tracking-tight leading-tight">
-            🎥 Submit Reel
-          </h1>
-          <p className="text-sm text-emerald-700 mt-2">
-            Turn your reel views into exclusive rewards
-          </p>
+    <main className="min-h-screen bg-gradient-to-br from-emerald-50 to-white flex flex-col items-center px-4 py-6 font-sans">
+      <div className="max-w-md w-full bg-white rounded-3xl shadow-md px-6 py-6 border border-emerald-100">
+        <div className="text-center text-xs text-emerald-600 font-semibold mb-3">
+          Logged in as{' '}
+          <strong className="text-emerald-800">
+            {user ? user.email : 'Loading...'}
+          </strong>
         </div>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setTab(0)}
+            className={`flex-1 text-center py-2.5 rounded-xl font-semibold text-sm transition-all ${
+              tab === 0
+                ? 'text-white bg-emerald-600'
+                : 'bg-white text-emerald-700 border border-emerald-600 hover:bg-emerald-50'
+            }`}
+          >
+            📤 Upload Post
+          </button>
+          <button
+            onClick={() => setTab(1)}
+            className={`flex-1 text-center py-2.5 rounded-xl font-semibold text-sm transition-all ${
+              tab === 1
+                ? 'text-white bg-emerald-600'
+                : 'bg-white text-emerald-700 border border-emerald-600 hover:bg-emerald-50'
+            }`}
+          >
+            🎁 My Discount Codes
+          </button>
+        </div>
+      </div>
 
-        <div className="p-6 sm:p-7">
-          {!result && (
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="flex gap-3 justify-center">
-                <button
-                  type="button"
-                  className={`flex items-center gap-1 px-4 py-2 rounded-lg border text-sm font-medium ${platform === 'instagram' ? 'bg-emerald-600 text-white' : 'bg-white border-emerald-300 text-emerald-700'}`}
-                  onClick={() => setPlatform('instagram')}
-                >
-                  📸 Instagram
-                </button>
-                <button
-                  type="button"
-                  className={`flex items-center gap-1 px-4 py-2 rounded-lg border text-sm font-medium ${platform === 'tiktok' ? 'bg-emerald-600 text-white' : 'bg-white border-emerald-300 text-emerald-700'}`}
-                  onClick={() => setPlatform('tiktok')}
-                >
-                  🎵 TikTok
-                </button>
-              </div>
+      {/* CONTENT BASED ON TAB */}
+      {tab === 0 ? (
+        <div className="max-w-md mx-auto bg-white rounded-[2rem] shadow-lg overflow-hidden border border-emerald-100 mt-6">
+          <div className="bg-gradient-to-br from-white to-emerald-50 p-6 text-center">
+            <h1 className="text-3xl font-extrabold text-emerald-800 tracking-tight leading-tight">
+              🎥 Submit Reel
+            </h1>
+            <p className="text-sm text-emerald-700 mt-2">
+              Turn your reel views into exclusive rewards
+            </p>
+          </div>
+
+          <div className="p-6 sm:p-7">
+            {!result && (
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="flex gap-3 justify-center">
+                  <button
+                    type="button"
+                    className={`flex items-center gap-1 px-4 py-2 rounded-lg border text-sm font-medium ${
+                      platform === 'instagram'
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-white border-emerald-300 text-emerald-700'
+                    }`}
+                    onClick={() => setPlatform('instagram')}
+                  >
+                    📸 Instagram
+                  </button>
+                  <button
+                    type="button"
+                    className={`flex items-center gap-1 px-4 py-2 rounded-lg border text-sm font-medium ${
+                      platform === 'tiktok'
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-white border-emerald-300 text-emerald-700'
+                    }`}
+                    onClick={() => setPlatform('tiktok')}
+                  >
+                    🎵 TikTok
+                  </button>
+                </div>
 
               {platform === 'tiktok' ? (
                 <>

@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 export default function Home() {
   const router = useRouter();
   const [userType, setUserType] = useState<"influencer" | "restaurant" | null>(null);
+  const [openSignUp, setOpenSignUp] = useState(false);
   const [showLoginFields, setShowLoginFields] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,11 +18,54 @@ export default function Home() {
     }
   }, [userType]);
 
-  const handleContinue = () => {
-    if (userType === "influencer") {
-      router.push("/user");
-    } else if (userType === "restaurant") {
-      router.push("/restaurant");
+  const handleLogin = async () => {
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (res.ok) {
+      if (userType === "influencer") {
+        router.push("/user");
+      } else if (userType === "restaurant") {
+        router.push("/restaurant");
+      }
+    } else {
+      alert("Login failed");
+    }
+  };
+
+  const handleSignUp = async () => {
+    if (!email || !password || !userType) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    const mappedUserType = userType === "restaurant" ? "business" : "influencer";
+
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password, userType: mappedUserType }),
+    });
+
+    if (res.ok) {
+      alert("Signed up successfully! Please log in.");
+      setOpenSignUp(false);
+    } else {
+      let errorMsg = "Unknown error";
+      try {
+        const error = await res.json();
+        errorMsg = error?.error || errorMsg;
+      } catch (e) {
+        console.error("Failed to parse error response:", e);
+      }
+      alert(`Sign up failed: ${errorMsg}`);
     }
   };
 
@@ -51,26 +95,44 @@ export default function Home() {
 
         {showLoginFields && (
           <div className="flex flex-col gap-4 items-center">
-   <input
-  type="email"
-  placeholder="Email"
-  value={email}
-  onChange={(e) => setEmail(e.target.value)}
-  className="w-full max-w-sm px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
-/>
-<input
-  type="password"
-  placeholder="password"
-  value={password}
-  onChange={(e) => setPassword(e.target.value)}
-  className="w-full max-w-sm px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
-/>
-            <Button
-              onClick={handleContinue}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-md shadow"
-            >
-              Continue
-            </Button>
+            {openSignUp && (<>Please enter your details to sign up</>)}
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full max-w-sm px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full max-w-sm px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
+            />
+            {!openSignUp ? (
+              <>
+                <Button
+                  onClick={handleLogin}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-md shadow"
+                >
+                  Continue
+                </Button>
+                <Button
+                  onClick={() => setOpenSignUp(true)}
+                  className="px-6 py-3 text-lg rounded-xl shadow-lg bg-white text-emerald-700 border border-emerald-600 hover:bg-emerald-50"
+                >
+                  Click to Register
+                </Button>
+              </>
+            ) : (
+              <Button
+                onClick={handleSignUp}
+                className="px-6 py-3 text-lg rounded-xl shadow-lg bg-white text-emerald-700 border border-emerald-600 hover:bg-emerald-50"
+              >
+                Sign Up
+              </Button>
+            )}
           </div>
         )}
       </div>
