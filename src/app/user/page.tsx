@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { CheckCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { QRCode } from 'react-qrcode-logo';
 import { DiscountType } from '../types/DiscountType';
+import { useRouter } from "next/navigation";
 
 const discountsMock = [
   {
@@ -50,6 +51,8 @@ const discountsMock = [
 
 
 export default function UserPage() {
+    const router = useRouter();
+  
   const [reelLink, setReelLink] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [result, setResult] = useState<DiscountType | null>(null);
@@ -106,6 +109,9 @@ export default function UserPage() {
       });
   }, []);
 
+  const userDefined =  user && !(user as any).error;
+
+
   const filteredDiscounts = discountsMock.filter((d) => {
     const matchesSearch = d.restaurant.toLowerCase().includes(search.toLowerCase());
     const matchesCity = filterCity === 'All' || d.location === filterCity;
@@ -115,14 +121,17 @@ export default function UserPage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-emerald-50 to-white flex flex-col items-center px-4 py-6 font-sans">
+      
       <div className="max-w-md w-full bg-white rounded-3xl shadow-md px-6 py-6 border border-emerald-100">
         <div className="text-center text-xs text-emerald-600 font-semibold mb-3">
-          Logged in as{' '}
+          {userDefined ? <>Logged in as{' '}</> : <><button 
+                          className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-all duration-200"
+          onClick={() => router.push("/")}>Register and manage your discount codes!</button></>}
           <strong className="text-emerald-800">
             {user ? user.email : 'Loading...'}
           </strong>
         </div>
-        <div className="flex gap-3">
+        {userDefined && <div className="flex gap-3">
           <button
             onClick={() => setTab(0)}
             className={`flex-1 text-center py-2.5 rounded-xl font-semibold text-sm transition-all ${
@@ -143,7 +152,7 @@ export default function UserPage() {
           >
             🎁 My Discount Codes
           </button>
-        </div>
+        </div>}
       </div>
 
       {/* CONTENT BASED ON TAB */}

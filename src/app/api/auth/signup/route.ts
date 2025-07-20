@@ -1,22 +1,22 @@
 // File: src/app/api/auth/signup/route.ts
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "../../../../generated/client";
 import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const { email, password, userType } = await req.json();
 
     if (!email || !password || !userType) {
-      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+      return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
-      return NextResponse.json({ error: "User already exists" }, { status: 400 });
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      return NextResponse.json({ error: 'User already exists' }, { status: 409 });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -29,9 +29,9 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json({ success: true, user: { id: user.id, email: user.email, userType: user.userType } });
-  } catch (error) {
-    console.error("Signup error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ id: user.id, email: user.email, userType: user.userType });
+  } catch (err) {
+    console.error('Signup error:', err);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
