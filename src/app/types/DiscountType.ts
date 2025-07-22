@@ -10,3 +10,16 @@ export type DiscountType ={
         restaurant: 'Focacceria Milano',
         code: 'DISCOUNT-ER-18200',
       }
+
+      export type DiscountStatus = "open" | "awarded" | "used" | "expired";
+
+export interface DiscountCode {
+  id: number;
+  code: string;
+  discount: number;
+  viewsRequired: number;
+  items: string[];
+  expiryDate: string;
+  location: string;
+  status: DiscountStatus;
+}

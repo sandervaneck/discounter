@@ -124,9 +124,39 @@ exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
   password: 'password',
-  userType: 'userType',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  userType: 'userType'
+};
+
+exports.Prisma.ItemScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  price: 'price',
+  restaurantId: 'restaurantId'
+};
+
+exports.Prisma.DiscountCodeScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  activationTime: 'activationTime',
+  expirationTime: 'expirationTime',
+  discountPercent: 'discountPercent',
+  requirements: 'requirements',
+  restaurantId: 'restaurantId'
+};
+
+exports.Prisma.DiscountCodeItemScalarFieldEnum = {
+  id: 'id',
+  discountCodeId: 'discountCodeId',
+  itemId: 'itemId'
+};
+
+exports.Prisma.RedemptionScalarFieldEnum = {
+  id: 'id',
+  influencerId: 'influencerId',
+  discountCodeId: 'discountCodeId',
+  status: 'status',
+  redeemedAt: 'redeemedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -134,17 +164,43 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
+};
+
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
+};
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
 };
 exports.UserType = exports.$Enums.UserType = {
   influencer: 'influencer',
   business: 'business'
 };
 
+exports.DiscountStatus = exports.$Enums.DiscountStatus = {
+  available: 'available',
+  awarded: 'awarded',
+  used: 'used',
+  expired: 'expired'
+};
+
 exports.Prisma.ModelName = {
-  User: 'User'
+  User: 'User',
+  Item: 'Item',
+  DiscountCode: 'DiscountCode',
+  DiscountCodeItem: 'DiscountCodeItem',
+  Redemption: 'Redemption'
 };
 
 /**

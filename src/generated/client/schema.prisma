@@ -15,11 +15,65 @@ enum UserType {
   business
 }
 
+enum DiscountStatus {
+  available
+  awarded
+  used
+  expired
+}
+
+enum Platform {
+  Instagram
+  TikTok
+}
+
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  userType  UserType
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          Int            @id @default(autoincrement())
+  email       String         @unique
+  password    String
+  userType    UserType
+  discounts   DiscountCode[] @relation("RestaurantDiscounts")
+  redemptions Redemption[]
+  items       Item[]
+}
+
+model Item {
+  id           Int                @id @default(autoincrement())
+  name         String
+  description  String?
+  price        Float
+  restaurant   User               @relation(fields: [restaurantId], references: [id])
+  restaurantId Int
+  discounts    DiscountCodeItem[]
+}
+
+model DiscountCode {
+  id              Int                @id @default(autoincrement())
+  code            String             @unique
+  activationTime  DateTime
+  expirationTime  DateTime
+  discountPercent Float
+  requirements    Json
+  restaurant      User               @relation("RestaurantDiscounts", fields: [restaurantId], references: [id])
+  restaurantId    Int
+  applicableItems DiscountCodeItem[]
+  redemptions     Redemption[]
+}
+
+model DiscountCodeItem {
+  id             Int          @id @default(autoincrement())
+  discountCode   DiscountCode @relation(fields: [discountCodeId], references: [id])
+  discountCodeId Int
+  item           Item         @relation(fields: [itemId], references: [id])
+  itemId         Int
+}
+
+model Redemption {
+  id             Int            @id @default(autoincrement())
+  influencer     User           @relation(fields: [influencerId], references: [id])
+  influencerId   Int
+  discountCode   DiscountCode   @relation(fields: [discountCodeId], references: [id])
+  discountCodeId Int
+  status         DiscountStatus
+  redeemedAt     DateTime?
 }

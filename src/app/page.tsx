@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Button } from "./components/Button";
 import { useEffect, useState } from "react";
+import { signIn } from "next-auth/react";
 
 export default function Home() {
   const router = useRouter();
@@ -20,24 +21,19 @@ export default function Home() {
   }, [userType]);
 
   const handleLogin = async () => {
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
+  const res = await signIn("credentials", {
+    redirect: false,
+    email,
+    password,
+  });
 
-    if (res.ok) {
-      if (userType === "influencer") {
-        router.push("/user");
-      } else if (userType === "restaurant") {
-        router.push("/restaurant");
-      }
-    } else {
-      alert("Login failed");
-    }
-  };
+  if (res?.ok) {
+    if (userType === "influencer") router.push("/user");
+    else if (userType === "restaurant") router.push("/restaurant");
+  } else {
+    alert("Login failed");
+  }
+};
 
   const handleSignUp = async () => {
     if (!registerForm?.email || !registerForm.password || !registerForm.userType) {
