@@ -5,19 +5,13 @@ import { RestaurantToolbar } from "../components/Toolbar";
 import { useSession } from "next-auth/react";
 import { DiscountCode, DiscountStatus } from "@/generated/client";
 
-const availableItems = [
-  "Focaccia Classic",
-  "Focaccia Cheese",
-  "Focaccia Vegan",
-  "Panini",
-  "Salad Bowl",
-];
 
 type DiscountForm = {
   code: string;
   discount: number;
   requirements: DiscountRequirements[];
   items: string[];
+  wait: number;
   expiryDate: string;
   location: string;
   status: DiscountStatus;
@@ -30,11 +24,11 @@ type DiscountRequirements = {
   likes: number;
   comments: number;
   reposts: number;
-  discount: string;
 }
 
 const emptyForm: DiscountForm = {
   code: "",
+  wait: 0,
   discount: 10,
   requirements: [
     {
@@ -43,7 +37,6 @@ const emptyForm: DiscountForm = {
       likes: 1000,
       comments: 100,
       reposts: 50,
-      discount: "10%",
     },
   ],
   items: [],
@@ -54,33 +47,41 @@ const emptyForm: DiscountForm = {
 
 export default function RestaurantDiscountDashboard() {
   const { data: session, status } = useSession();
-
+  const [form, setForm] = useState<DiscountForm>(emptyForm);
   const [discountCodes, setDiscountCodes] = useState<DiscountCode[]>([]);
   const [filterStatus, setFilterStatus] = useState<DiscountStatus | "all">("all");
-  const [newCode, setNewCode] = useState("");
-  const [newDiscount, setNewDiscount] = useState(10);
-  const [newViewsRequired, setNewViewsRequired] = useState(5000);
+  const [availableItems, setAvailableItems] = useState<string[]>([]);
+
   const [newItems, setNewItems] = useState<string[]>([]);
-  const [newExpiryDate, setNewExpiryDate] = useState("");
-  const [newLocation, setNewLocation] = useState("Amsterdam, NL");
-  const [newStatus, setNewStatus] = useState<DiscountStatus>("available");
   const [tab, setTab] = useState(0);
 
-  useEffect(() => {
+ useEffect(() => {
   const fetchDiscounts = async () => {
     const res = await fetch("/api/discounts", {
       method: "GET",
-      credentials: "include", // ✅ ensures session cookies are sent
+      credentials: "include",
     });
 
     const data = await res.json();
     setDiscountCodes(data);
   };
 
+  const fetchItems = async () => {
+    const res = await fetch("/api/items", {
+      method: "GET",
+      credentials: "include",
+    });
+
+    const items = await res.json();
+    setAvailableItems(items.map((item: { name: string }) => item.name));
+  };
+
   if (status === "authenticated") {
     fetchDiscounts();
+    fetchItems();
   }
 }, [status]);
+
 
 
   function updateCode(id: number, field: keyof DiscountCode, value: number | string | string[]) {
@@ -99,27 +100,53 @@ export default function RestaurantDiscountDashboard() {
     );
   }
 
-  function addNewCode() {
-    if (
-      !newCode.trim() ||
-      newDiscount <= 0 ||
-      newViewsRequired <= 0 ||
-      newItems.length === 0 ||
-      !newExpiryDate.trim() ||
-      !newLocation.trim()
-    ) {
-      alert("Please fill in all fields correctly.");
+  async function addNewCode() {
+  const activationTime = new Date();
+  activationTime.setDate(activationTime.getDate() + form.wait);
+
+  if (
+    !form.code.trim() ||
+    !form.expiryDate.trim() ||
+    form.discount <= 0 ||
+    newItems.length === 0
+  ) {
+    alert("Please fill all fields correctly.");
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/discounts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        code: form.code,
+        discountPercent: form.discount,
+        activationTime: activationTime.toISOString(),
+        expirationTime: new Date(form.expiryDate).toISOString(),
+        requirements: form.requirements,
+        applicableItemIds: newItems, // you may map names to IDs server-side
+        location: form.location,
+        status: form.status,
+      }),
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      console.error("Create error:", error);
+      alert("Failed to add discount.");
       return;
     }
 
-    setNewCode("");
-    setNewDiscount(10);
-    setNewViewsRequired(5000);
+    const newDiscount = await res.json();
+    setDiscountCodes([...discountCodes, newDiscount]);
+    setForm(emptyForm);
     setNewItems([]);
-    setNewExpiryDate("");
-    setNewLocation("Amsterdam, NL");
-    setNewStatus("available");
+  } catch (err) {
+    console.error("Unexpected error:", err);
+    alert("Something went wrong. Check console for details.");
   }
+}
 
   const filteredCodes =
     filterStatus === "all"
@@ -285,88 +312,186 @@ export default function RestaurantDiscountDashboard() {
 
         {/* Add New Discount Code */}
         <section className="mt-10 bg-emerald-50 border border-emerald-300 p-6 rounded-lg">
-          <h2 className="text-emerald-800 text-xl font-semibold mb-4">Add New Discount Code</h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            <input
-              type="text"
-              value={newCode}
-              onChange={(e) => setNewCode(e.target.value)}
-              placeholder="Discount Code"
-              className="p-2 border border-emerald-300 rounded text-emerald-900"
-            />
-            <input
-              type="number"
-              value={newDiscount}
-              onChange={(e) => setNewDiscount(Number(e.target.value))}
-              placeholder="Discount %"
-              className="p-2 border border-emerald-300 rounded text-emerald-900"
-            />
-            <input
-              type="number"
-              value={newViewsRequired}
-              onChange={(e) => setNewViewsRequired(Number(e.target.value))}
-              placeholder="Views Required"
-              className="p-2 border border-emerald-300 rounded text-emerald-900"
-            />
-            <input
-              type="date"
-              value={newExpiryDate}
-              onChange={(e) => setNewExpiryDate(e.target.value)}
-              className="p-2 border border-emerald-300 rounded text-emerald-900"
-            />
-            <input
-              type="text"
-              value={newLocation}
-              onChange={(e) => setNewLocation(e.target.value)}
-              placeholder="Location"
-              className="p-2 border border-emerald-300 rounded text-emerald-900"
-            />
-            <select
-              value={newStatus}
-              onChange={(e) => setNewStatus(e.target.value as DiscountStatus)}
-              className="p-2 border border-emerald-300 rounded text-emerald-900"
-            >
-              <option value="open">Open</option>
-              <option value="awarded">Awarded</option>
-              <option value="used">Used</option>
-              <option value="expired">Expired</option>
-            </select>
-          </div>
+  <h2 className="text-emerald-800 text-xl font-semibold mb-4">Add New Discount Code</h2>
+  <div className="grid md:grid-cols-2 gap-6">
+    <label className="flex flex-col text-emerald-900 font-medium">
+      Code
+      <input
+        type="text"
+        value={form.code}
+        onChange={(e) => setForm({ ...form, code: e.target.value })}
+        placeholder="Discount Code"
+        className="p-2 border border-emerald-300 rounded text-emerald-900 mt-1"
+      />
+    </label>
+    <label className="flex flex-col text-emerald-900 font-medium">
+      Discount %
+      <input
+        type="number"
+        value={form.discount}
+        onChange={(e) => setForm({ ...form, discount: Number(e.target.value) })}
+        placeholder="Discount %"
+        className="p-2 border border-emerald-300 rounded text-emerald-900 mt-1"
+      />
+    </label>
+    <label className="flex flex-col text-emerald-900 font-medium">
+      Days till Activation
+      <input
+        type="number"
+        value={form.wait}
+        onChange={(e) => setForm({ ...form, wait: Number(e.target.value) })}
+        className="p-2 border border-emerald-300 rounded text-emerald-900 mt-1"
+      />
+    </label>
+    <label className="flex flex-col text-emerald-900 font-medium">
+      Expiry Date
+      <input
+        type="date"
+        value={form.expiryDate}
+        onChange={(e) => setForm({ ...form, expiryDate: e.target.value })}
+        className="p-2 border border-emerald-300 rounded text-emerald-900 mt-1"
+      />
+    </label>
+    <label className="flex flex-col text-emerald-900 font-medium">
+      Location
+      <input
+        type="text"
+        value={form.location}
+        onChange={(e) => setForm({ ...form, location: e.target.value })}
+        placeholder="Location"
+        className="p-2 border border-emerald-300 rounded text-emerald-900 mt-1"
+      />
+    </label>
+    <label className="flex flex-col text-emerald-900 font-medium col-span-2">
+      Status
+      <select
+        value={form.status}
+        onChange={(e) => setForm({ ...form, status: e.target.value as DiscountStatus })}
+        className="p-2 border border-emerald-300 rounded text-emerald-900 mt-1"
+      >
+        <option value="available">Available</option>
+        <option value="awarded">Awarded</option>
+        <option value="used">Used</option>
+        <option value="expired">Expired</option>
+      </select>
+    </label>
+  </div>
 
-          <div className="mt-6">
-            <label className="font-medium text-emerald-800">Applicable Items:</label>
-            <div className="flex flex-wrap gap-3 mt-2">
-              {availableItems.map((item) => {
-                const selected = newItems.includes(item);
-                return (
-                  <label
-                    key={item}
-                    className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
-                      selected
-                        ? "bg-emerald-100 border-2 border-emerald-600"
-                        : "bg-gray-50 border border-gray-300"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selected}
-                      onChange={() => toggleNewItem(item)}
-                      className="mr-2"
-                    />
-                    {item}
-                  </label>
-                );
-              })}
-            </div>
-          </div>
-
-          <button
-            onClick={addNewCode}
-            className="mt-6 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded font-bold"
+  <div className="mt-6">
+    <label className="font-medium text-emerald-800">Applicable Items:</label>
+    <div className="flex flex-wrap gap-3 mt-2">
+      {availableItems.map((item) => {
+        const selected = newItems.includes(item);
+        return (
+          <label
+            key={item}
+            className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
+              selected
+                ? "bg-emerald-100 border-2 border-emerald-600"
+                : "bg-gray-50 border border-gray-300"
+            }`}
           >
-            Add Discount Code
-          </button>
-        </section>
+            <input
+              type="checkbox"
+              checked={selected}
+              onChange={() => toggleNewItem(item)}
+              className="mr-2"
+            />
+            {item}
+          </label>
+        );
+      })}
+    </div>
+  </div>
+
+  <div className="mt-10 border-t border-emerald-300 pt-6">
+    <h3 className="text-lg font-semibold text-emerald-800 mb-4">Requirements</h3>
+    {form.requirements.map((req, index) => (
+      <div key={index} className="grid md:grid-cols-3 gap-4 mb-4">
+        <label className="flex flex-col text-emerald-900 font-medium">
+      Platform
+        <select
+          value={req.platform}
+          onChange={(e) => {
+            const newReqs = [...form.requirements];
+            newReqs[index].platform = e.target.value;
+            setForm({ ...form, requirements: newReqs });
+          }}
+          className="p-2 border border-emerald-300 rounded text-emerald-900"
+        >
+          <option value="Instagram">Instagram</option>
+          <option value="TikTok">TikTok</option>
+        </select>
+        </label>
+        <label className="flex flex-col text-emerald-900 font-medium">
+      #Views
+        <input
+          type="number"
+          placeholder="Views"
+          value={req.views}
+          onChange={(e) => {
+            const newReqs = [...form.requirements];
+            newReqs[index].views = Number(e.target.value);
+            setForm({ ...form, requirements: newReqs });
+          }}
+          className="p-2 border border-emerald-300 rounded text-emerald-900"
+        />
+        </label>
+        <label className="flex flex-col text-emerald-900 font-medium">
+      #Likes
+        <input
+          type="number"
+          placeholder="Likes"
+          value={req.likes}
+          onChange={(e) => {
+            const newReqs = [...form.requirements];
+            newReqs[index].likes = Number(e.target.value);
+            setForm({ ...form, requirements: newReqs });
+          }}
+          className="p-2 border border-emerald-300 rounded text-emerald-900"
+        />
+        </label>
+        <label className="flex flex-col text-emerald-900 font-medium">
+      #Comments
+        <input
+          type="number"
+          placeholder="Comments"
+          value={req.comments}
+          onChange={(e) => {
+            const newReqs = [...form.requirements];
+            newReqs[index].comments = Number(e.target.value);
+            setForm({ ...form, requirements: newReqs });
+          }}
+          className="p-2 border border-emerald-300 rounded text-emerald-900"
+        />
+        </label>
+        <label className="flex flex-col text-emerald-900 font-medium">
+      #Reposts
+        <input
+          type="number"
+          placeholder="Reposts"
+          value={req.reposts}
+          onChange={(e) => {
+            const newReqs = [...form.requirements];
+            newReqs[index].reposts = Number(e.target.value);
+            setForm({ ...form, requirements: newReqs });
+          }}
+          className="p-2 border border-emerald-300 rounded text-emerald-900"
+        />
+        </label>
+        
+      </div>
+    ))}
+  </div>
+
+  <button
+    onClick={addNewCode}
+    className="mt-6 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded font-bold"
+  >
+    Add Discount Code
+  </button>
+</section>
+
       </div>
     </main>
   );

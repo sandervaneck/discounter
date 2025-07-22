@@ -1,14 +1,61 @@
-// prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/client"  // or wherever you want it
+  output   = "../src/generated/client"
 }
 
-
 datasource db {
-  provider = "postgresql"  // or your database provider
+  provider = "postgresql"
   url      = env("PRISMA_DATABASE_URL")
+}
+
+model User {
+  id          Int            @id @default(autoincrement())
+  email       String         @unique
+  password    String
+  userType    UserType
+  discounts   DiscountCode[] @relation("RestaurantDiscounts")
+  items       Item[]
+  redemptions Redemption[]
+}
+
+model Item {
+  id           Int                @id @default(autoincrement())
+  name         String
+  description  String?
+  restaurantId Int
+  discounts    DiscountCodeItem[]
+  restaurant   User               @relation(fields: [restaurantId], references: [id])
+}
+
+model DiscountCode {
+  id              Int                @id @default(autoincrement())
+  code            String             @unique
+  activationTime  DateTime
+  expirationTime  DateTime
+  discountPercent Float
+  requirements    Json
+  restaurantId    Int
+  restaurant      User               @relation("RestaurantDiscounts", fields: [restaurantId], references: [id])
+  applicableItems DiscountCodeItem[]
+  redemptions     Redemption[]
+}
+
+model DiscountCodeItem {
+  id             Int          @id @default(autoincrement())
+  discountCodeId Int
+  itemId         Int
+  discountCode   DiscountCode @relation(fields: [discountCodeId], references: [id])
+  item           Item         @relation(fields: [itemId], references: [id])
+}
+
+model Redemption {
+  id             Int            @id @default(autoincrement())
+  influencerId   Int
+  discountCodeId Int
+  status         DiscountStatus
+  redeemedAt     DateTime?
+  discountCode   DiscountCode   @relation(fields: [discountCodeId], references: [id])
+  influencer     User           @relation(fields: [influencerId], references: [id])
 }
 
 enum UserType {
@@ -26,55 +73,4 @@ enum DiscountStatus {
 enum Platform {
   Instagram
   TikTok
-}
-
-model User {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique
-  password  String
-  userType  UserType
-  discounts DiscountCode[] @relation("RestaurantDiscounts")
-  redemptions Redemption[]
-  items     Item[]
-}
-
-model Item {
-  id           Int            @id @default(autoincrement())
-  name         String
-  description  String?
-  price        Float
-  restaurant   User           @relation(fields: [restaurantId], references: [id])
-  restaurantId Int
-  discounts    DiscountCodeItem[]
-}
-
-model DiscountCode {
-  id              Int                 @id @default(autoincrement())
-  code            String             @unique
-  activationTime  DateTime
-  expirationTime  DateTime
-  discountPercent Float
-  requirements    Json
-  restaurant      User               @relation("RestaurantDiscounts", fields: [restaurantId], references: [id])
-  restaurantId    Int
-  applicableItems DiscountCodeItem[]
-  redemptions     Redemption[]
-}
-
-model DiscountCodeItem {
-  id             Int          @id @default(autoincrement())
-  discountCode   DiscountCode @relation(fields: [discountCodeId], references: [id])
-  discountCodeId Int
-  item           Item         @relation(fields: [itemId], references: [id])
-  itemId         Int
-}
-
-model Redemption {
-  id             Int             @id @default(autoincrement())
-  influencer     User            @relation(fields: [influencerId], references: [id])
-  influencerId   Int
-  discountCode   DiscountCode    @relation(fields: [discountCodeId], references: [id])
-  discountCodeId Int
-  status         DiscountStatus
-  redeemedAt     DateTime?
 }

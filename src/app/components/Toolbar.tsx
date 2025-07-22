@@ -33,6 +33,20 @@ export const RestaurantToolbar = ({ tab, setTab }: { tab: number; setTab: (n: nu
           Validate Discount Code
         </a>
       </div>
+      <div className="flex gap-4">
+        
+        <a
+          href="/items"
+          className={`${
+            tab === 2
+              ? 'text-white bg-emerald-600 hover:bg-emerald-700'
+              : 'bg-white text-emerald-700 border border-emerald-600 hover:bg-emerald-50'
+          } px-4 py-2 rounded-lg text-sm font-medium transition`}
+          onClick={() => setTab(2)}
+        >
+          Manage Items
+        </a>
+      </div>
     </div>
   );
 };

@@ -131,7 +131,6 @@ exports.Prisma.ItemScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
-  price: 'price',
   restaurantId: 'restaurantId'
 };
 

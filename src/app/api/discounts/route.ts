@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
       requirements,
       applicableItemIds,
     } = body;
-
+    
     // Validate all required fields
     if (
       typeof code !== "string" ||
@@ -56,6 +56,7 @@ export async function POST(req: NextRequest) {
       isNaN(Date.parse(activationTime)) ||
       isNaN(Date.parse(expirationTime))
     ) {
+        console.log("Creating discount with body:", body);
       return NextResponse.json({ error: "Invalid or missing fields" }, { status: 400 });
     }
 

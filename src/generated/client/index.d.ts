@@ -1277,14 +1277,14 @@ export namespace Prisma {
 
   export type UserCountOutputType = {
     discounts: number
-    redemptions: number
     items: number
+    redemptions: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     discounts?: boolean | UserCountOutputTypeCountDiscountsArgs
-    redemptions?: boolean | UserCountOutputTypeCountRedemptionsArgs
     items?: boolean | UserCountOutputTypeCountItemsArgs
+    redemptions?: boolean | UserCountOutputTypeCountRedemptionsArgs
   }
 
   // Custom InputTypes
@@ -1308,15 +1308,15 @@ export namespace Prisma {
   /**
    * UserCountOutputType without action
    */
-  export type UserCountOutputTypeCountRedemptionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: RedemptionWhereInput
+  export type UserCountOutputTypeCountItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ItemWhereInput
   }
 
   /**
    * UserCountOutputType without action
    */
-  export type UserCountOutputTypeCountItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ItemWhereInput
+  export type UserCountOutputTypeCountRedemptionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RedemptionWhereInput
   }
 
 
@@ -1586,8 +1586,8 @@ export namespace Prisma {
     password?: boolean
     userType?: boolean
     discounts?: boolean | User$discountsArgs<ExtArgs>
-    redemptions?: boolean | User$redemptionsArgs<ExtArgs>
     items?: boolean | User$itemsArgs<ExtArgs>
+    redemptions?: boolean | User$redemptionsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -1615,8 +1615,8 @@ export namespace Prisma {
   export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "userType", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     discounts?: boolean | User$discountsArgs<ExtArgs>
-    redemptions?: boolean | User$redemptionsArgs<ExtArgs>
     items?: boolean | User$itemsArgs<ExtArgs>
+    redemptions?: boolean | User$redemptionsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -1626,8 +1626,8 @@ export namespace Prisma {
     name: "User"
     objects: {
       discounts: Prisma.$DiscountCodePayload<ExtArgs>[]
-      redemptions: Prisma.$RedemptionPayload<ExtArgs>[]
       items: Prisma.$ItemPayload<ExtArgs>[]
+      redemptions: Prisma.$RedemptionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -2029,8 +2029,8 @@ export namespace Prisma {
   export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     discounts<T extends User$discountsArgs<ExtArgs> = {}>(args?: Subset<T, User$discountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscountCodePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    redemptions<T extends User$redemptionsArgs<ExtArgs> = {}>(args?: Subset<T, User$redemptionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RedemptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     items<T extends User$itemsArgs<ExtArgs> = {}>(args?: Subset<T, User$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    redemptions<T extends User$redemptionsArgs<ExtArgs> = {}>(args?: Subset<T, User$redemptionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RedemptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2476,30 +2476,6 @@ export namespace Prisma {
   }
 
   /**
-   * User.redemptions
-   */
-  export type User$redemptionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Redemption
-     */
-    select?: RedemptionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Redemption
-     */
-    omit?: RedemptionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RedemptionInclude<ExtArgs> | null
-    where?: RedemptionWhereInput
-    orderBy?: RedemptionOrderByWithRelationInput | RedemptionOrderByWithRelationInput[]
-    cursor?: RedemptionWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: RedemptionScalarFieldEnum | RedemptionScalarFieldEnum[]
-  }
-
-  /**
    * User.items
    */
   export type User$itemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2521,6 +2497,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ItemScalarFieldEnum | ItemScalarFieldEnum[]
+  }
+
+  /**
+   * User.redemptions
+   */
+  export type User$redemptionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Redemption
+     */
+    select?: RedemptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Redemption
+     */
+    omit?: RedemptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RedemptionInclude<ExtArgs> | null
+    where?: RedemptionWhereInput
+    orderBy?: RedemptionOrderByWithRelationInput | RedemptionOrderByWithRelationInput[]
+    cursor?: RedemptionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: RedemptionScalarFieldEnum | RedemptionScalarFieldEnum[]
   }
 
   /**
@@ -2556,13 +2556,11 @@ export namespace Prisma {
 
   export type ItemAvgAggregateOutputType = {
     id: number | null
-    price: number | null
     restaurantId: number | null
   }
 
   export type ItemSumAggregateOutputType = {
     id: number | null
-    price: number | null
     restaurantId: number | null
   }
 
@@ -2570,7 +2568,6 @@ export namespace Prisma {
     id: number | null
     name: string | null
     description: string | null
-    price: number | null
     restaurantId: number | null
   }
 
@@ -2578,7 +2575,6 @@ export namespace Prisma {
     id: number | null
     name: string | null
     description: string | null
-    price: number | null
     restaurantId: number | null
   }
 
@@ -2586,7 +2582,6 @@ export namespace Prisma {
     id: number
     name: number
     description: number
-    price: number
     restaurantId: number
     _all: number
   }
@@ -2594,13 +2589,11 @@ export namespace Prisma {
 
   export type ItemAvgAggregateInputType = {
     id?: true
-    price?: true
     restaurantId?: true
   }
 
   export type ItemSumAggregateInputType = {
     id?: true
-    price?: true
     restaurantId?: true
   }
 
@@ -2608,7 +2601,6 @@ export namespace Prisma {
     id?: true
     name?: true
     description?: true
-    price?: true
     restaurantId?: true
   }
 
@@ -2616,7 +2608,6 @@ export namespace Prisma {
     id?: true
     name?: true
     description?: true
-    price?: true
     restaurantId?: true
   }
 
@@ -2624,7 +2615,6 @@ export namespace Prisma {
     id?: true
     name?: true
     description?: true
-    price?: true
     restaurantId?: true
     _all?: true
   }
@@ -2719,7 +2709,6 @@ export namespace Prisma {
     id: number
     name: string
     description: string | null
-    price: number
     restaurantId: number
     _count: ItemCountAggregateOutputType | null
     _avg: ItemAvgAggregateOutputType | null
@@ -2746,10 +2735,9 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     description?: boolean
-    price?: boolean
     restaurantId?: boolean
-    restaurant?: boolean | UserDefaultArgs<ExtArgs>
     discounts?: boolean | Item$discountsArgs<ExtArgs>
+    restaurant?: boolean | UserDefaultArgs<ExtArgs>
     _count?: boolean | ItemCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["item"]>
 
@@ -2757,7 +2745,6 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     description?: boolean
-    price?: boolean
     restaurantId?: boolean
     restaurant?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["item"]>
@@ -2766,7 +2753,6 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     description?: boolean
-    price?: boolean
     restaurantId?: boolean
     restaurant?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["item"]>
@@ -2775,14 +2761,13 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     description?: boolean
-    price?: boolean
     restaurantId?: boolean
   }
 
-  export type ItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "price" | "restaurantId", ExtArgs["result"]["item"]>
+  export type ItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "restaurantId", ExtArgs["result"]["item"]>
   export type ItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    restaurant?: boolean | UserDefaultArgs<ExtArgs>
     discounts?: boolean | Item$discountsArgs<ExtArgs>
+    restaurant?: boolean | UserDefaultArgs<ExtArgs>
     _count?: boolean | ItemCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ItemIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2795,14 +2780,13 @@ export namespace Prisma {
   export type $ItemPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Item"
     objects: {
-      restaurant: Prisma.$UserPayload<ExtArgs>
       discounts: Prisma.$DiscountCodeItemPayload<ExtArgs>[]
+      restaurant: Prisma.$UserPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
       name: string
       description: string | null
-      price: number
       restaurantId: number
     }, ExtArgs["result"]["item"]>
     composites: {}
@@ -3198,8 +3182,8 @@ export namespace Prisma {
    */
   export interface Prisma__ItemClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    restaurant<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     discounts<T extends Item$discountsArgs<ExtArgs> = {}>(args?: Subset<T, Item$discountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscountCodeItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    restaurant<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3232,7 +3216,6 @@ export namespace Prisma {
     readonly id: FieldRef<"Item", 'Int'>
     readonly name: FieldRef<"Item", 'String'>
     readonly description: FieldRef<"Item", 'String'>
-    readonly price: FieldRef<"Item", 'Float'>
     readonly restaurantId: FieldRef<"Item", 'Int'>
   }
     
@@ -6140,8 +6123,8 @@ export namespace Prisma {
     discountCodeId?: boolean
     status?: boolean
     redeemedAt?: boolean
-    influencer?: boolean | UserDefaultArgs<ExtArgs>
     discountCode?: boolean | DiscountCodeDefaultArgs<ExtArgs>
+    influencer?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["redemption"]>
 
   export type RedemptionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -6150,8 +6133,8 @@ export namespace Prisma {
     discountCodeId?: boolean
     status?: boolean
     redeemedAt?: boolean
-    influencer?: boolean | UserDefaultArgs<ExtArgs>
     discountCode?: boolean | DiscountCodeDefaultArgs<ExtArgs>
+    influencer?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["redemption"]>
 
   export type RedemptionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -6160,8 +6143,8 @@ export namespace Prisma {
     discountCodeId?: boolean
     status?: boolean
     redeemedAt?: boolean
-    influencer?: boolean | UserDefaultArgs<ExtArgs>
     discountCode?: boolean | DiscountCodeDefaultArgs<ExtArgs>
+    influencer?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["redemption"]>
 
   export type RedemptionSelectScalar = {
@@ -6174,23 +6157,23 @@ export namespace Prisma {
 
   export type RedemptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "influencerId" | "discountCodeId" | "status" | "redeemedAt", ExtArgs["result"]["redemption"]>
   export type RedemptionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    influencer?: boolean | UserDefaultArgs<ExtArgs>
     discountCode?: boolean | DiscountCodeDefaultArgs<ExtArgs>
+    influencer?: boolean | UserDefaultArgs<ExtArgs>
   }
   export type RedemptionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    influencer?: boolean | UserDefaultArgs<ExtArgs>
     discountCode?: boolean | DiscountCodeDefaultArgs<ExtArgs>
+    influencer?: boolean | UserDefaultArgs<ExtArgs>
   }
   export type RedemptionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    influencer?: boolean | UserDefaultArgs<ExtArgs>
     discountCode?: boolean | DiscountCodeDefaultArgs<ExtArgs>
+    influencer?: boolean | UserDefaultArgs<ExtArgs>
   }
 
   export type $RedemptionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Redemption"
     objects: {
-      influencer: Prisma.$UserPayload<ExtArgs>
       discountCode: Prisma.$DiscountCodePayload<ExtArgs>
+      influencer: Prisma.$UserPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -6592,8 +6575,8 @@ export namespace Prisma {
    */
   export interface Prisma__RedemptionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    influencer<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     discountCode<T extends DiscountCodeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DiscountCodeDefaultArgs<ExtArgs>>): Prisma__DiscountCodeClient<$Result.GetResult<Prisma.$DiscountCodePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    influencer<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7070,7 +7053,6 @@ export namespace Prisma {
     id: 'id',
     name: 'name',
     description: 'description',
-    price: 'price',
     restaurantId: 'restaurantId'
   };
 
@@ -7198,20 +7180,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Float'
-   */
-  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
-    
-
-
-  /**
-   * Reference to a field of type 'Float[]'
-   */
-  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
-    
-
-
-  /**
    * Reference to a field of type 'DateTime'
    */
   export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -7222,6 +7190,20 @@ export namespace Prisma {
    * Reference to a field of type 'DateTime[]'
    */
   export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 
@@ -7265,8 +7247,8 @@ export namespace Prisma {
     password?: StringFilter<"User"> | string
     userType?: EnumUserTypeFilter<"User"> | $Enums.UserType
     discounts?: DiscountCodeListRelationFilter
-    redemptions?: RedemptionListRelationFilter
     items?: ItemListRelationFilter
+    redemptions?: RedemptionListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -7275,8 +7257,8 @@ export namespace Prisma {
     password?: SortOrder
     userType?: SortOrder
     discounts?: DiscountCodeOrderByRelationAggregateInput
-    redemptions?: RedemptionOrderByRelationAggregateInput
     items?: ItemOrderByRelationAggregateInput
+    redemptions?: RedemptionOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -7288,8 +7270,8 @@ export namespace Prisma {
     password?: StringFilter<"User"> | string
     userType?: EnumUserTypeFilter<"User"> | $Enums.UserType
     discounts?: DiscountCodeListRelationFilter
-    redemptions?: RedemptionListRelationFilter
     items?: ItemListRelationFilter
+    redemptions?: RedemptionListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -7321,20 +7303,18 @@ export namespace Prisma {
     id?: IntFilter<"Item"> | number
     name?: StringFilter<"Item"> | string
     description?: StringNullableFilter<"Item"> | string | null
-    price?: FloatFilter<"Item"> | number
     restaurantId?: IntFilter<"Item"> | number
-    restaurant?: XOR<UserScalarRelationFilter, UserWhereInput>
     discounts?: DiscountCodeItemListRelationFilter
+    restaurant?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
 
   export type ItemOrderByWithRelationInput = {
     id?: SortOrder
     name?: SortOrder
     description?: SortOrderInput | SortOrder
-    price?: SortOrder
     restaurantId?: SortOrder
-    restaurant?: UserOrderByWithRelationInput
     discounts?: DiscountCodeItemOrderByRelationAggregateInput
+    restaurant?: UserOrderByWithRelationInput
   }
 
   export type ItemWhereUniqueInput = Prisma.AtLeast<{
@@ -7344,17 +7324,15 @@ export namespace Prisma {
     NOT?: ItemWhereInput | ItemWhereInput[]
     name?: StringFilter<"Item"> | string
     description?: StringNullableFilter<"Item"> | string | null
-    price?: FloatFilter<"Item"> | number
     restaurantId?: IntFilter<"Item"> | number
-    restaurant?: XOR<UserScalarRelationFilter, UserWhereInput>
     discounts?: DiscountCodeItemListRelationFilter
+    restaurant?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id">
 
   export type ItemOrderByWithAggregationInput = {
     id?: SortOrder
     name?: SortOrder
     description?: SortOrderInput | SortOrder
-    price?: SortOrder
     restaurantId?: SortOrder
     _count?: ItemCountOrderByAggregateInput
     _avg?: ItemAvgOrderByAggregateInput
@@ -7370,7 +7348,6 @@ export namespace Prisma {
     id?: IntWithAggregatesFilter<"Item"> | number
     name?: StringWithAggregatesFilter<"Item"> | string
     description?: StringNullableWithAggregatesFilter<"Item"> | string | null
-    price?: FloatWithAggregatesFilter<"Item"> | number
     restaurantId?: IntWithAggregatesFilter<"Item"> | number
   }
 
@@ -7506,8 +7483,8 @@ export namespace Prisma {
     discountCodeId?: IntFilter<"Redemption"> | number
     status?: EnumDiscountStatusFilter<"Redemption"> | $Enums.DiscountStatus
     redeemedAt?: DateTimeNullableFilter<"Redemption"> | Date | string | null
-    influencer?: XOR<UserScalarRelationFilter, UserWhereInput>
     discountCode?: XOR<DiscountCodeScalarRelationFilter, DiscountCodeWhereInput>
+    influencer?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
 
   export type RedemptionOrderByWithRelationInput = {
@@ -7516,8 +7493,8 @@ export namespace Prisma {
     discountCodeId?: SortOrder
     status?: SortOrder
     redeemedAt?: SortOrderInput | SortOrder
-    influencer?: UserOrderByWithRelationInput
     discountCode?: DiscountCodeOrderByWithRelationInput
+    influencer?: UserOrderByWithRelationInput
   }
 
   export type RedemptionWhereUniqueInput = Prisma.AtLeast<{
@@ -7529,8 +7506,8 @@ export namespace Prisma {
     discountCodeId?: IntFilter<"Redemption"> | number
     status?: EnumDiscountStatusFilter<"Redemption"> | $Enums.DiscountStatus
     redeemedAt?: DateTimeNullableFilter<"Redemption"> | Date | string | null
-    influencer?: XOR<UserScalarRelationFilter, UserWhereInput>
     discountCode?: XOR<DiscountCodeScalarRelationFilter, DiscountCodeWhereInput>
+    influencer?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id">
 
   export type RedemptionOrderByWithAggregationInput = {
@@ -7562,8 +7539,8 @@ export namespace Prisma {
     password: string
     userType: $Enums.UserType
     discounts?: DiscountCodeCreateNestedManyWithoutRestaurantInput
-    redemptions?: RedemptionCreateNestedManyWithoutInfluencerInput
     items?: ItemCreateNestedManyWithoutRestaurantInput
+    redemptions?: RedemptionCreateNestedManyWithoutInfluencerInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -7572,8 +7549,8 @@ export namespace Prisma {
     password: string
     userType: $Enums.UserType
     discounts?: DiscountCodeUncheckedCreateNestedManyWithoutRestaurantInput
-    redemptions?: RedemptionUncheckedCreateNestedManyWithoutInfluencerInput
     items?: ItemUncheckedCreateNestedManyWithoutRestaurantInput
+    redemptions?: RedemptionUncheckedCreateNestedManyWithoutInfluencerInput
   }
 
   export type UserUpdateInput = {
@@ -7581,8 +7558,8 @@ export namespace Prisma {
     password?: StringFieldUpdateOperationsInput | string
     userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
     discounts?: DiscountCodeUpdateManyWithoutRestaurantNestedInput
-    redemptions?: RedemptionUpdateManyWithoutInfluencerNestedInput
     items?: ItemUpdateManyWithoutRestaurantNestedInput
+    redemptions?: RedemptionUpdateManyWithoutInfluencerNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -7591,8 +7568,8 @@ export namespace Prisma {
     password?: StringFieldUpdateOperationsInput | string
     userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
     discounts?: DiscountCodeUncheckedUpdateManyWithoutRestaurantNestedInput
-    redemptions?: RedemptionUncheckedUpdateManyWithoutInfluencerNestedInput
     items?: ItemUncheckedUpdateManyWithoutRestaurantNestedInput
+    redemptions?: RedemptionUncheckedUpdateManyWithoutInfluencerNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -7618,16 +7595,14 @@ export namespace Prisma {
   export type ItemCreateInput = {
     name: string
     description?: string | null
-    price: number
-    restaurant: UserCreateNestedOneWithoutItemsInput
     discounts?: DiscountCodeItemCreateNestedManyWithoutItemInput
+    restaurant: UserCreateNestedOneWithoutItemsInput
   }
 
   export type ItemUncheckedCreateInput = {
     id?: number
     name: string
     description?: string | null
-    price: number
     restaurantId: number
     discounts?: DiscountCodeItemUncheckedCreateNestedManyWithoutItemInput
   }
@@ -7635,16 +7610,14 @@ export namespace Prisma {
   export type ItemUpdateInput = {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    price?: FloatFieldUpdateOperationsInput | number
-    restaurant?: UserUpdateOneRequiredWithoutItemsNestedInput
     discounts?: DiscountCodeItemUpdateManyWithoutItemNestedInput
+    restaurant?: UserUpdateOneRequiredWithoutItemsNestedInput
   }
 
   export type ItemUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    price?: FloatFieldUpdateOperationsInput | number
     restaurantId?: IntFieldUpdateOperationsInput | number
     discounts?: DiscountCodeItemUncheckedUpdateManyWithoutItemNestedInput
   }
@@ -7653,21 +7626,18 @@ export namespace Prisma {
     id?: number
     name: string
     description?: string | null
-    price: number
     restaurantId: number
   }
 
   export type ItemUpdateManyMutationInput = {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    price?: FloatFieldUpdateOperationsInput | number
   }
 
   export type ItemUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    price?: FloatFieldUpdateOperationsInput | number
     restaurantId?: IntFieldUpdateOperationsInput | number
   }
 
@@ -7786,8 +7756,8 @@ export namespace Prisma {
   export type RedemptionCreateInput = {
     status: $Enums.DiscountStatus
     redeemedAt?: Date | string | null
-    influencer: UserCreateNestedOneWithoutRedemptionsInput
     discountCode: DiscountCodeCreateNestedOneWithoutRedemptionsInput
+    influencer: UserCreateNestedOneWithoutRedemptionsInput
   }
 
   export type RedemptionUncheckedCreateInput = {
@@ -7801,8 +7771,8 @@ export namespace Prisma {
   export type RedemptionUpdateInput = {
     status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
     redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    influencer?: UserUpdateOneRequiredWithoutRedemptionsNestedInput
     discountCode?: DiscountCodeUpdateOneRequiredWithoutRedemptionsNestedInput
+    influencer?: UserUpdateOneRequiredWithoutRedemptionsNestedInput
   }
 
   export type RedemptionUncheckedUpdateInput = {
@@ -7873,27 +7843,27 @@ export namespace Prisma {
     none?: DiscountCodeWhereInput
   }
 
-  export type RedemptionListRelationFilter = {
-    every?: RedemptionWhereInput
-    some?: RedemptionWhereInput
-    none?: RedemptionWhereInput
-  }
-
   export type ItemListRelationFilter = {
     every?: ItemWhereInput
     some?: ItemWhereInput
     none?: ItemWhereInput
   }
 
+  export type RedemptionListRelationFilter = {
+    every?: RedemptionWhereInput
+    some?: RedemptionWhereInput
+    none?: RedemptionWhereInput
+  }
+
   export type DiscountCodeOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
-  export type RedemptionOrderByRelationAggregateInput = {
+  export type ItemOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
-  export type ItemOrderByRelationAggregateInput = {
+  export type RedemptionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -7985,26 +7955,15 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
-  export type FloatFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatFilter<$PrismaModel> | number
+  export type DiscountCodeItemListRelationFilter = {
+    every?: DiscountCodeItemWhereInput
+    some?: DiscountCodeItemWhereInput
+    none?: DiscountCodeItemWhereInput
   }
 
   export type UserScalarRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
-  }
-
-  export type DiscountCodeItemListRelationFilter = {
-    every?: DiscountCodeItemWhereInput
-    some?: DiscountCodeItemWhereInput
-    none?: DiscountCodeItemWhereInput
   }
 
   export type SortOrderInput = {
@@ -8020,13 +7979,11 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     description?: SortOrder
-    price?: SortOrder
     restaurantId?: SortOrder
   }
 
   export type ItemAvgOrderByAggregateInput = {
     id?: SortOrder
-    price?: SortOrder
     restaurantId?: SortOrder
   }
 
@@ -8034,7 +7991,6 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     description?: SortOrder
-    price?: SortOrder
     restaurantId?: SortOrder
   }
 
@@ -8042,13 +7998,11 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     description?: SortOrder
-    price?: SortOrder
     restaurantId?: SortOrder
   }
 
   export type ItemSumOrderByAggregateInput = {
     id?: SortOrder
-    price?: SortOrder
     restaurantId?: SortOrder
   }
 
@@ -8070,22 +8024,6 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
-  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedFloatFilter<$PrismaModel>
-    _min?: NestedFloatFilter<$PrismaModel>
-    _max?: NestedFloatFilter<$PrismaModel>
-  }
-
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -8095,6 +8033,17 @@ export namespace Prisma {
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
+  export type FloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
   }
   export type JsonFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -8172,6 +8121,22 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
   }
   export type JsonWithAggregatesFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -8325,18 +8290,18 @@ export namespace Prisma {
     connect?: DiscountCodeWhereUniqueInput | DiscountCodeWhereUniqueInput[]
   }
 
-  export type RedemptionCreateNestedManyWithoutInfluencerInput = {
-    create?: XOR<RedemptionCreateWithoutInfluencerInput, RedemptionUncheckedCreateWithoutInfluencerInput> | RedemptionCreateWithoutInfluencerInput[] | RedemptionUncheckedCreateWithoutInfluencerInput[]
-    connectOrCreate?: RedemptionCreateOrConnectWithoutInfluencerInput | RedemptionCreateOrConnectWithoutInfluencerInput[]
-    createMany?: RedemptionCreateManyInfluencerInputEnvelope
-    connect?: RedemptionWhereUniqueInput | RedemptionWhereUniqueInput[]
-  }
-
   export type ItemCreateNestedManyWithoutRestaurantInput = {
     create?: XOR<ItemCreateWithoutRestaurantInput, ItemUncheckedCreateWithoutRestaurantInput> | ItemCreateWithoutRestaurantInput[] | ItemUncheckedCreateWithoutRestaurantInput[]
     connectOrCreate?: ItemCreateOrConnectWithoutRestaurantInput | ItemCreateOrConnectWithoutRestaurantInput[]
     createMany?: ItemCreateManyRestaurantInputEnvelope
     connect?: ItemWhereUniqueInput | ItemWhereUniqueInput[]
+  }
+
+  export type RedemptionCreateNestedManyWithoutInfluencerInput = {
+    create?: XOR<RedemptionCreateWithoutInfluencerInput, RedemptionUncheckedCreateWithoutInfluencerInput> | RedemptionCreateWithoutInfluencerInput[] | RedemptionUncheckedCreateWithoutInfluencerInput[]
+    connectOrCreate?: RedemptionCreateOrConnectWithoutInfluencerInput | RedemptionCreateOrConnectWithoutInfluencerInput[]
+    createMany?: RedemptionCreateManyInfluencerInputEnvelope
+    connect?: RedemptionWhereUniqueInput | RedemptionWhereUniqueInput[]
   }
 
   export type DiscountCodeUncheckedCreateNestedManyWithoutRestaurantInput = {
@@ -8346,18 +8311,18 @@ export namespace Prisma {
     connect?: DiscountCodeWhereUniqueInput | DiscountCodeWhereUniqueInput[]
   }
 
-  export type RedemptionUncheckedCreateNestedManyWithoutInfluencerInput = {
-    create?: XOR<RedemptionCreateWithoutInfluencerInput, RedemptionUncheckedCreateWithoutInfluencerInput> | RedemptionCreateWithoutInfluencerInput[] | RedemptionUncheckedCreateWithoutInfluencerInput[]
-    connectOrCreate?: RedemptionCreateOrConnectWithoutInfluencerInput | RedemptionCreateOrConnectWithoutInfluencerInput[]
-    createMany?: RedemptionCreateManyInfluencerInputEnvelope
-    connect?: RedemptionWhereUniqueInput | RedemptionWhereUniqueInput[]
-  }
-
   export type ItemUncheckedCreateNestedManyWithoutRestaurantInput = {
     create?: XOR<ItemCreateWithoutRestaurantInput, ItemUncheckedCreateWithoutRestaurantInput> | ItemCreateWithoutRestaurantInput[] | ItemUncheckedCreateWithoutRestaurantInput[]
     connectOrCreate?: ItemCreateOrConnectWithoutRestaurantInput | ItemCreateOrConnectWithoutRestaurantInput[]
     createMany?: ItemCreateManyRestaurantInputEnvelope
     connect?: ItemWhereUniqueInput | ItemWhereUniqueInput[]
+  }
+
+  export type RedemptionUncheckedCreateNestedManyWithoutInfluencerInput = {
+    create?: XOR<RedemptionCreateWithoutInfluencerInput, RedemptionUncheckedCreateWithoutInfluencerInput> | RedemptionCreateWithoutInfluencerInput[] | RedemptionUncheckedCreateWithoutInfluencerInput[]
+    connectOrCreate?: RedemptionCreateOrConnectWithoutInfluencerInput | RedemptionCreateOrConnectWithoutInfluencerInput[]
+    createMany?: RedemptionCreateManyInfluencerInputEnvelope
+    connect?: RedemptionWhereUniqueInput | RedemptionWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -8382,20 +8347,6 @@ export namespace Prisma {
     deleteMany?: DiscountCodeScalarWhereInput | DiscountCodeScalarWhereInput[]
   }
 
-  export type RedemptionUpdateManyWithoutInfluencerNestedInput = {
-    create?: XOR<RedemptionCreateWithoutInfluencerInput, RedemptionUncheckedCreateWithoutInfluencerInput> | RedemptionCreateWithoutInfluencerInput[] | RedemptionUncheckedCreateWithoutInfluencerInput[]
-    connectOrCreate?: RedemptionCreateOrConnectWithoutInfluencerInput | RedemptionCreateOrConnectWithoutInfluencerInput[]
-    upsert?: RedemptionUpsertWithWhereUniqueWithoutInfluencerInput | RedemptionUpsertWithWhereUniqueWithoutInfluencerInput[]
-    createMany?: RedemptionCreateManyInfluencerInputEnvelope
-    set?: RedemptionWhereUniqueInput | RedemptionWhereUniqueInput[]
-    disconnect?: RedemptionWhereUniqueInput | RedemptionWhereUniqueInput[]
-    delete?: RedemptionWhereUniqueInput | RedemptionWhereUniqueInput[]
-    connect?: RedemptionWhereUniqueInput | RedemptionWhereUniqueInput[]
-    update?: RedemptionUpdateWithWhereUniqueWithoutInfluencerInput | RedemptionUpdateWithWhereUniqueWithoutInfluencerInput[]
-    updateMany?: RedemptionUpdateManyWithWhereWithoutInfluencerInput | RedemptionUpdateManyWithWhereWithoutInfluencerInput[]
-    deleteMany?: RedemptionScalarWhereInput | RedemptionScalarWhereInput[]
-  }
-
   export type ItemUpdateManyWithoutRestaurantNestedInput = {
     create?: XOR<ItemCreateWithoutRestaurantInput, ItemUncheckedCreateWithoutRestaurantInput> | ItemCreateWithoutRestaurantInput[] | ItemUncheckedCreateWithoutRestaurantInput[]
     connectOrCreate?: ItemCreateOrConnectWithoutRestaurantInput | ItemCreateOrConnectWithoutRestaurantInput[]
@@ -8408,6 +8359,20 @@ export namespace Prisma {
     update?: ItemUpdateWithWhereUniqueWithoutRestaurantInput | ItemUpdateWithWhereUniqueWithoutRestaurantInput[]
     updateMany?: ItemUpdateManyWithWhereWithoutRestaurantInput | ItemUpdateManyWithWhereWithoutRestaurantInput[]
     deleteMany?: ItemScalarWhereInput | ItemScalarWhereInput[]
+  }
+
+  export type RedemptionUpdateManyWithoutInfluencerNestedInput = {
+    create?: XOR<RedemptionCreateWithoutInfluencerInput, RedemptionUncheckedCreateWithoutInfluencerInput> | RedemptionCreateWithoutInfluencerInput[] | RedemptionUncheckedCreateWithoutInfluencerInput[]
+    connectOrCreate?: RedemptionCreateOrConnectWithoutInfluencerInput | RedemptionCreateOrConnectWithoutInfluencerInput[]
+    upsert?: RedemptionUpsertWithWhereUniqueWithoutInfluencerInput | RedemptionUpsertWithWhereUniqueWithoutInfluencerInput[]
+    createMany?: RedemptionCreateManyInfluencerInputEnvelope
+    set?: RedemptionWhereUniqueInput | RedemptionWhereUniqueInput[]
+    disconnect?: RedemptionWhereUniqueInput | RedemptionWhereUniqueInput[]
+    delete?: RedemptionWhereUniqueInput | RedemptionWhereUniqueInput[]
+    connect?: RedemptionWhereUniqueInput | RedemptionWhereUniqueInput[]
+    update?: RedemptionUpdateWithWhereUniqueWithoutInfluencerInput | RedemptionUpdateWithWhereUniqueWithoutInfluencerInput[]
+    updateMany?: RedemptionUpdateManyWithWhereWithoutInfluencerInput | RedemptionUpdateManyWithWhereWithoutInfluencerInput[]
+    deleteMany?: RedemptionScalarWhereInput | RedemptionScalarWhereInput[]
   }
 
   export type IntFieldUpdateOperationsInput = {
@@ -8432,20 +8397,6 @@ export namespace Prisma {
     deleteMany?: DiscountCodeScalarWhereInput | DiscountCodeScalarWhereInput[]
   }
 
-  export type RedemptionUncheckedUpdateManyWithoutInfluencerNestedInput = {
-    create?: XOR<RedemptionCreateWithoutInfluencerInput, RedemptionUncheckedCreateWithoutInfluencerInput> | RedemptionCreateWithoutInfluencerInput[] | RedemptionUncheckedCreateWithoutInfluencerInput[]
-    connectOrCreate?: RedemptionCreateOrConnectWithoutInfluencerInput | RedemptionCreateOrConnectWithoutInfluencerInput[]
-    upsert?: RedemptionUpsertWithWhereUniqueWithoutInfluencerInput | RedemptionUpsertWithWhereUniqueWithoutInfluencerInput[]
-    createMany?: RedemptionCreateManyInfluencerInputEnvelope
-    set?: RedemptionWhereUniqueInput | RedemptionWhereUniqueInput[]
-    disconnect?: RedemptionWhereUniqueInput | RedemptionWhereUniqueInput[]
-    delete?: RedemptionWhereUniqueInput | RedemptionWhereUniqueInput[]
-    connect?: RedemptionWhereUniqueInput | RedemptionWhereUniqueInput[]
-    update?: RedemptionUpdateWithWhereUniqueWithoutInfluencerInput | RedemptionUpdateWithWhereUniqueWithoutInfluencerInput[]
-    updateMany?: RedemptionUpdateManyWithWhereWithoutInfluencerInput | RedemptionUpdateManyWithWhereWithoutInfluencerInput[]
-    deleteMany?: RedemptionScalarWhereInput | RedemptionScalarWhereInput[]
-  }
-
   export type ItemUncheckedUpdateManyWithoutRestaurantNestedInput = {
     create?: XOR<ItemCreateWithoutRestaurantInput, ItemUncheckedCreateWithoutRestaurantInput> | ItemCreateWithoutRestaurantInput[] | ItemUncheckedCreateWithoutRestaurantInput[]
     connectOrCreate?: ItemCreateOrConnectWithoutRestaurantInput | ItemCreateOrConnectWithoutRestaurantInput[]
@@ -8460,10 +8411,18 @@ export namespace Prisma {
     deleteMany?: ItemScalarWhereInput | ItemScalarWhereInput[]
   }
 
-  export type UserCreateNestedOneWithoutItemsInput = {
-    create?: XOR<UserCreateWithoutItemsInput, UserUncheckedCreateWithoutItemsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutItemsInput
-    connect?: UserWhereUniqueInput
+  export type RedemptionUncheckedUpdateManyWithoutInfluencerNestedInput = {
+    create?: XOR<RedemptionCreateWithoutInfluencerInput, RedemptionUncheckedCreateWithoutInfluencerInput> | RedemptionCreateWithoutInfluencerInput[] | RedemptionUncheckedCreateWithoutInfluencerInput[]
+    connectOrCreate?: RedemptionCreateOrConnectWithoutInfluencerInput | RedemptionCreateOrConnectWithoutInfluencerInput[]
+    upsert?: RedemptionUpsertWithWhereUniqueWithoutInfluencerInput | RedemptionUpsertWithWhereUniqueWithoutInfluencerInput[]
+    createMany?: RedemptionCreateManyInfluencerInputEnvelope
+    set?: RedemptionWhereUniqueInput | RedemptionWhereUniqueInput[]
+    disconnect?: RedemptionWhereUniqueInput | RedemptionWhereUniqueInput[]
+    delete?: RedemptionWhereUniqueInput | RedemptionWhereUniqueInput[]
+    connect?: RedemptionWhereUniqueInput | RedemptionWhereUniqueInput[]
+    update?: RedemptionUpdateWithWhereUniqueWithoutInfluencerInput | RedemptionUpdateWithWhereUniqueWithoutInfluencerInput[]
+    updateMany?: RedemptionUpdateManyWithWhereWithoutInfluencerInput | RedemptionUpdateManyWithWhereWithoutInfluencerInput[]
+    deleteMany?: RedemptionScalarWhereInput | RedemptionScalarWhereInput[]
   }
 
   export type DiscountCodeItemCreateNestedManyWithoutItemInput = {
@@ -8471,6 +8430,12 @@ export namespace Prisma {
     connectOrCreate?: DiscountCodeItemCreateOrConnectWithoutItemInput | DiscountCodeItemCreateOrConnectWithoutItemInput[]
     createMany?: DiscountCodeItemCreateManyItemInputEnvelope
     connect?: DiscountCodeItemWhereUniqueInput | DiscountCodeItemWhereUniqueInput[]
+  }
+
+  export type UserCreateNestedOneWithoutItemsInput = {
+    create?: XOR<UserCreateWithoutItemsInput, UserUncheckedCreateWithoutItemsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutItemsInput
+    connect?: UserWhereUniqueInput
   }
 
   export type DiscountCodeItemUncheckedCreateNestedManyWithoutItemInput = {
@@ -8482,22 +8447,6 @@ export namespace Prisma {
 
   export type NullableStringFieldUpdateOperationsInput = {
     set?: string | null
-  }
-
-  export type FloatFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
-  }
-
-  export type UserUpdateOneRequiredWithoutItemsNestedInput = {
-    create?: XOR<UserCreateWithoutItemsInput, UserUncheckedCreateWithoutItemsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutItemsInput
-    upsert?: UserUpsertWithoutItemsInput
-    connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutItemsInput, UserUpdateWithoutItemsInput>, UserUncheckedUpdateWithoutItemsInput>
   }
 
   export type DiscountCodeItemUpdateManyWithoutItemNestedInput = {
@@ -8512,6 +8461,14 @@ export namespace Prisma {
     update?: DiscountCodeItemUpdateWithWhereUniqueWithoutItemInput | DiscountCodeItemUpdateWithWhereUniqueWithoutItemInput[]
     updateMany?: DiscountCodeItemUpdateManyWithWhereWithoutItemInput | DiscountCodeItemUpdateManyWithWhereWithoutItemInput[]
     deleteMany?: DiscountCodeItemScalarWhereInput | DiscountCodeItemScalarWhereInput[]
+  }
+
+  export type UserUpdateOneRequiredWithoutItemsNestedInput = {
+    create?: XOR<UserCreateWithoutItemsInput, UserUncheckedCreateWithoutItemsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutItemsInput
+    upsert?: UserUpsertWithoutItemsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutItemsInput, UserUpdateWithoutItemsInput>, UserUncheckedUpdateWithoutItemsInput>
   }
 
   export type DiscountCodeItemUncheckedUpdateManyWithoutItemNestedInput = {
@@ -8564,6 +8521,14 @@ export namespace Prisma {
 
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
+  }
+
+  export type FloatFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type UserUpdateOneRequiredWithoutDiscountsNestedInput = {
@@ -8658,16 +8623,16 @@ export namespace Prisma {
     update?: XOR<XOR<ItemUpdateToOneWithWhereWithoutDiscountsInput, ItemUpdateWithoutDiscountsInput>, ItemUncheckedUpdateWithoutDiscountsInput>
   }
 
-  export type UserCreateNestedOneWithoutRedemptionsInput = {
-    create?: XOR<UserCreateWithoutRedemptionsInput, UserUncheckedCreateWithoutRedemptionsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutRedemptionsInput
-    connect?: UserWhereUniqueInput
-  }
-
   export type DiscountCodeCreateNestedOneWithoutRedemptionsInput = {
     create?: XOR<DiscountCodeCreateWithoutRedemptionsInput, DiscountCodeUncheckedCreateWithoutRedemptionsInput>
     connectOrCreate?: DiscountCodeCreateOrConnectWithoutRedemptionsInput
     connect?: DiscountCodeWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutRedemptionsInput = {
+    create?: XOR<UserCreateWithoutRedemptionsInput, UserUncheckedCreateWithoutRedemptionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutRedemptionsInput
+    connect?: UserWhereUniqueInput
   }
 
   export type EnumDiscountStatusFieldUpdateOperationsInput = {
@@ -8678,20 +8643,20 @@ export namespace Prisma {
     set?: Date | string | null
   }
 
-  export type UserUpdateOneRequiredWithoutRedemptionsNestedInput = {
-    create?: XOR<UserCreateWithoutRedemptionsInput, UserUncheckedCreateWithoutRedemptionsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutRedemptionsInput
-    upsert?: UserUpsertWithoutRedemptionsInput
-    connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutRedemptionsInput, UserUpdateWithoutRedemptionsInput>, UserUncheckedUpdateWithoutRedemptionsInput>
-  }
-
   export type DiscountCodeUpdateOneRequiredWithoutRedemptionsNestedInput = {
     create?: XOR<DiscountCodeCreateWithoutRedemptionsInput, DiscountCodeUncheckedCreateWithoutRedemptionsInput>
     connectOrCreate?: DiscountCodeCreateOrConnectWithoutRedemptionsInput
     upsert?: DiscountCodeUpsertWithoutRedemptionsInput
     connect?: DiscountCodeWhereUniqueInput
     update?: XOR<XOR<DiscountCodeUpdateToOneWithWhereWithoutRedemptionsInput, DiscountCodeUpdateWithoutRedemptionsInput>, DiscountCodeUncheckedUpdateWithoutRedemptionsInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutRedemptionsNestedInput = {
+    create?: XOR<UserCreateWithoutRedemptionsInput, UserUncheckedCreateWithoutRedemptionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutRedemptionsInput
+    upsert?: UserUpsertWithoutRedemptionsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutRedemptionsInput, UserUpdateWithoutRedemptionsInput>, UserUncheckedUpdateWithoutRedemptionsInput>
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -8822,22 +8787,6 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
-  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedFloatFilter<$PrismaModel>
-    _min?: NestedFloatFilter<$PrismaModel>
-    _max?: NestedFloatFilter<$PrismaModel>
-  }
-
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -8861,6 +8810,22 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
   }
   export type NestedJsonFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -8959,6 +8924,29 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type ItemCreateWithoutRestaurantInput = {
+    name: string
+    description?: string | null
+    discounts?: DiscountCodeItemCreateNestedManyWithoutItemInput
+  }
+
+  export type ItemUncheckedCreateWithoutRestaurantInput = {
+    id?: number
+    name: string
+    description?: string | null
+    discounts?: DiscountCodeItemUncheckedCreateNestedManyWithoutItemInput
+  }
+
+  export type ItemCreateOrConnectWithoutRestaurantInput = {
+    where: ItemWhereUniqueInput
+    create: XOR<ItemCreateWithoutRestaurantInput, ItemUncheckedCreateWithoutRestaurantInput>
+  }
+
+  export type ItemCreateManyRestaurantInputEnvelope = {
+    data: ItemCreateManyRestaurantInput | ItemCreateManyRestaurantInput[]
+    skipDuplicates?: boolean
+  }
+
   export type RedemptionCreateWithoutInfluencerInput = {
     status: $Enums.DiscountStatus
     redeemedAt?: Date | string | null
@@ -8979,31 +8967,6 @@ export namespace Prisma {
 
   export type RedemptionCreateManyInfluencerInputEnvelope = {
     data: RedemptionCreateManyInfluencerInput | RedemptionCreateManyInfluencerInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type ItemCreateWithoutRestaurantInput = {
-    name: string
-    description?: string | null
-    price: number
-    discounts?: DiscountCodeItemCreateNestedManyWithoutItemInput
-  }
-
-  export type ItemUncheckedCreateWithoutRestaurantInput = {
-    id?: number
-    name: string
-    description?: string | null
-    price: number
-    discounts?: DiscountCodeItemUncheckedCreateNestedManyWithoutItemInput
-  }
-
-  export type ItemCreateOrConnectWithoutRestaurantInput = {
-    where: ItemWhereUniqueInput
-    create: XOR<ItemCreateWithoutRestaurantInput, ItemUncheckedCreateWithoutRestaurantInput>
-  }
-
-  export type ItemCreateManyRestaurantInputEnvelope = {
-    data: ItemCreateManyRestaurantInput | ItemCreateManyRestaurantInput[]
     skipDuplicates?: boolean
   }
 
@@ -9036,6 +8999,32 @@ export namespace Prisma {
     restaurantId?: IntFilter<"DiscountCode"> | number
   }
 
+  export type ItemUpsertWithWhereUniqueWithoutRestaurantInput = {
+    where: ItemWhereUniqueInput
+    update: XOR<ItemUpdateWithoutRestaurantInput, ItemUncheckedUpdateWithoutRestaurantInput>
+    create: XOR<ItemCreateWithoutRestaurantInput, ItemUncheckedCreateWithoutRestaurantInput>
+  }
+
+  export type ItemUpdateWithWhereUniqueWithoutRestaurantInput = {
+    where: ItemWhereUniqueInput
+    data: XOR<ItemUpdateWithoutRestaurantInput, ItemUncheckedUpdateWithoutRestaurantInput>
+  }
+
+  export type ItemUpdateManyWithWhereWithoutRestaurantInput = {
+    where: ItemScalarWhereInput
+    data: XOR<ItemUpdateManyMutationInput, ItemUncheckedUpdateManyWithoutRestaurantInput>
+  }
+
+  export type ItemScalarWhereInput = {
+    AND?: ItemScalarWhereInput | ItemScalarWhereInput[]
+    OR?: ItemScalarWhereInput[]
+    NOT?: ItemScalarWhereInput | ItemScalarWhereInput[]
+    id?: IntFilter<"Item"> | number
+    name?: StringFilter<"Item"> | string
+    description?: StringNullableFilter<"Item"> | string | null
+    restaurantId?: IntFilter<"Item"> | number
+  }
+
   export type RedemptionUpsertWithWhereUniqueWithoutInfluencerInput = {
     where: RedemptionWhereUniqueInput
     update: XOR<RedemptionUpdateWithoutInfluencerInput, RedemptionUncheckedUpdateWithoutInfluencerInput>
@@ -9063,31 +9052,23 @@ export namespace Prisma {
     redeemedAt?: DateTimeNullableFilter<"Redemption"> | Date | string | null
   }
 
-  export type ItemUpsertWithWhereUniqueWithoutRestaurantInput = {
-    where: ItemWhereUniqueInput
-    update: XOR<ItemUpdateWithoutRestaurantInput, ItemUncheckedUpdateWithoutRestaurantInput>
-    create: XOR<ItemCreateWithoutRestaurantInput, ItemUncheckedCreateWithoutRestaurantInput>
+  export type DiscountCodeItemCreateWithoutItemInput = {
+    discountCode: DiscountCodeCreateNestedOneWithoutApplicableItemsInput
   }
 
-  export type ItemUpdateWithWhereUniqueWithoutRestaurantInput = {
-    where: ItemWhereUniqueInput
-    data: XOR<ItemUpdateWithoutRestaurantInput, ItemUncheckedUpdateWithoutRestaurantInput>
+  export type DiscountCodeItemUncheckedCreateWithoutItemInput = {
+    id?: number
+    discountCodeId: number
   }
 
-  export type ItemUpdateManyWithWhereWithoutRestaurantInput = {
-    where: ItemScalarWhereInput
-    data: XOR<ItemUpdateManyMutationInput, ItemUncheckedUpdateManyWithoutRestaurantInput>
+  export type DiscountCodeItemCreateOrConnectWithoutItemInput = {
+    where: DiscountCodeItemWhereUniqueInput
+    create: XOR<DiscountCodeItemCreateWithoutItemInput, DiscountCodeItemUncheckedCreateWithoutItemInput>
   }
 
-  export type ItemScalarWhereInput = {
-    AND?: ItemScalarWhereInput | ItemScalarWhereInput[]
-    OR?: ItemScalarWhereInput[]
-    NOT?: ItemScalarWhereInput | ItemScalarWhereInput[]
-    id?: IntFilter<"Item"> | number
-    name?: StringFilter<"Item"> | string
-    description?: StringNullableFilter<"Item"> | string | null
-    price?: FloatFilter<"Item"> | number
-    restaurantId?: IntFilter<"Item"> | number
+  export type DiscountCodeItemCreateManyItemInputEnvelope = {
+    data: DiscountCodeItemCreateManyItemInput | DiscountCodeItemCreateManyItemInput[]
+    skipDuplicates?: boolean
   }
 
   export type UserCreateWithoutItemsInput = {
@@ -9112,23 +9093,29 @@ export namespace Prisma {
     create: XOR<UserCreateWithoutItemsInput, UserUncheckedCreateWithoutItemsInput>
   }
 
-  export type DiscountCodeItemCreateWithoutItemInput = {
-    discountCode: DiscountCodeCreateNestedOneWithoutApplicableItemsInput
-  }
-
-  export type DiscountCodeItemUncheckedCreateWithoutItemInput = {
-    id?: number
-    discountCodeId: number
-  }
-
-  export type DiscountCodeItemCreateOrConnectWithoutItemInput = {
+  export type DiscountCodeItemUpsertWithWhereUniqueWithoutItemInput = {
     where: DiscountCodeItemWhereUniqueInput
+    update: XOR<DiscountCodeItemUpdateWithoutItemInput, DiscountCodeItemUncheckedUpdateWithoutItemInput>
     create: XOR<DiscountCodeItemCreateWithoutItemInput, DiscountCodeItemUncheckedCreateWithoutItemInput>
   }
 
-  export type DiscountCodeItemCreateManyItemInputEnvelope = {
-    data: DiscountCodeItemCreateManyItemInput | DiscountCodeItemCreateManyItemInput[]
-    skipDuplicates?: boolean
+  export type DiscountCodeItemUpdateWithWhereUniqueWithoutItemInput = {
+    where: DiscountCodeItemWhereUniqueInput
+    data: XOR<DiscountCodeItemUpdateWithoutItemInput, DiscountCodeItemUncheckedUpdateWithoutItemInput>
+  }
+
+  export type DiscountCodeItemUpdateManyWithWhereWithoutItemInput = {
+    where: DiscountCodeItemScalarWhereInput
+    data: XOR<DiscountCodeItemUpdateManyMutationInput, DiscountCodeItemUncheckedUpdateManyWithoutItemInput>
+  }
+
+  export type DiscountCodeItemScalarWhereInput = {
+    AND?: DiscountCodeItemScalarWhereInput | DiscountCodeItemScalarWhereInput[]
+    OR?: DiscountCodeItemScalarWhereInput[]
+    NOT?: DiscountCodeItemScalarWhereInput | DiscountCodeItemScalarWhereInput[]
+    id?: IntFilter<"DiscountCodeItem"> | number
+    discountCodeId?: IntFilter<"DiscountCodeItem"> | number
+    itemId?: IntFilter<"DiscountCodeItem"> | number
   }
 
   export type UserUpsertWithoutItemsInput = {
@@ -9159,37 +9146,12 @@ export namespace Prisma {
     redemptions?: RedemptionUncheckedUpdateManyWithoutInfluencerNestedInput
   }
 
-  export type DiscountCodeItemUpsertWithWhereUniqueWithoutItemInput = {
-    where: DiscountCodeItemWhereUniqueInput
-    update: XOR<DiscountCodeItemUpdateWithoutItemInput, DiscountCodeItemUncheckedUpdateWithoutItemInput>
-    create: XOR<DiscountCodeItemCreateWithoutItemInput, DiscountCodeItemUncheckedCreateWithoutItemInput>
-  }
-
-  export type DiscountCodeItemUpdateWithWhereUniqueWithoutItemInput = {
-    where: DiscountCodeItemWhereUniqueInput
-    data: XOR<DiscountCodeItemUpdateWithoutItemInput, DiscountCodeItemUncheckedUpdateWithoutItemInput>
-  }
-
-  export type DiscountCodeItemUpdateManyWithWhereWithoutItemInput = {
-    where: DiscountCodeItemScalarWhereInput
-    data: XOR<DiscountCodeItemUpdateManyMutationInput, DiscountCodeItemUncheckedUpdateManyWithoutItemInput>
-  }
-
-  export type DiscountCodeItemScalarWhereInput = {
-    AND?: DiscountCodeItemScalarWhereInput | DiscountCodeItemScalarWhereInput[]
-    OR?: DiscountCodeItemScalarWhereInput[]
-    NOT?: DiscountCodeItemScalarWhereInput | DiscountCodeItemScalarWhereInput[]
-    id?: IntFilter<"DiscountCodeItem"> | number
-    discountCodeId?: IntFilter<"DiscountCodeItem"> | number
-    itemId?: IntFilter<"DiscountCodeItem"> | number
-  }
-
   export type UserCreateWithoutDiscountsInput = {
     email: string
     password: string
     userType: $Enums.UserType
-    redemptions?: RedemptionCreateNestedManyWithoutInfluencerInput
     items?: ItemCreateNestedManyWithoutRestaurantInput
+    redemptions?: RedemptionCreateNestedManyWithoutInfluencerInput
   }
 
   export type UserUncheckedCreateWithoutDiscountsInput = {
@@ -9197,8 +9159,8 @@ export namespace Prisma {
     email: string
     password: string
     userType: $Enums.UserType
-    redemptions?: RedemptionUncheckedCreateNestedManyWithoutInfluencerInput
     items?: ItemUncheckedCreateNestedManyWithoutRestaurantInput
+    redemptions?: RedemptionUncheckedCreateNestedManyWithoutInfluencerInput
   }
 
   export type UserCreateOrConnectWithoutDiscountsInput = {
@@ -9263,8 +9225,8 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
-    redemptions?: RedemptionUpdateManyWithoutInfluencerNestedInput
     items?: ItemUpdateManyWithoutRestaurantNestedInput
+    redemptions?: RedemptionUpdateManyWithoutInfluencerNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDiscountsInput = {
@@ -9272,8 +9234,8 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
-    redemptions?: RedemptionUncheckedUpdateManyWithoutInfluencerNestedInput
     items?: ItemUncheckedUpdateManyWithoutRestaurantNestedInput
+    redemptions?: RedemptionUncheckedUpdateManyWithoutInfluencerNestedInput
   }
 
   export type DiscountCodeItemUpsertWithWhereUniqueWithoutDiscountCodeInput = {
@@ -9337,7 +9299,6 @@ export namespace Prisma {
   export type ItemCreateWithoutDiscountsInput = {
     name: string
     description?: string | null
-    price: number
     restaurant: UserCreateNestedOneWithoutItemsInput
   }
 
@@ -9345,7 +9306,6 @@ export namespace Prisma {
     id?: number
     name: string
     description?: string | null
-    price: number
     restaurantId: number
   }
 
@@ -9400,7 +9360,6 @@ export namespace Prisma {
   export type ItemUpdateWithoutDiscountsInput = {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    price?: FloatFieldUpdateOperationsInput | number
     restaurant?: UserUpdateOneRequiredWithoutItemsNestedInput
   }
 
@@ -9408,30 +9367,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
-    price?: FloatFieldUpdateOperationsInput | number
     restaurantId?: IntFieldUpdateOperationsInput | number
-  }
-
-  export type UserCreateWithoutRedemptionsInput = {
-    email: string
-    password: string
-    userType: $Enums.UserType
-    discounts?: DiscountCodeCreateNestedManyWithoutRestaurantInput
-    items?: ItemCreateNestedManyWithoutRestaurantInput
-  }
-
-  export type UserUncheckedCreateWithoutRedemptionsInput = {
-    id?: number
-    email: string
-    password: string
-    userType: $Enums.UserType
-    discounts?: DiscountCodeUncheckedCreateNestedManyWithoutRestaurantInput
-    items?: ItemUncheckedCreateNestedManyWithoutRestaurantInput
-  }
-
-  export type UserCreateOrConnectWithoutRedemptionsInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutRedemptionsInput, UserUncheckedCreateWithoutRedemptionsInput>
   }
 
   export type DiscountCodeCreateWithoutRedemptionsInput = {
@@ -9460,32 +9396,26 @@ export namespace Prisma {
     create: XOR<DiscountCodeCreateWithoutRedemptionsInput, DiscountCodeUncheckedCreateWithoutRedemptionsInput>
   }
 
-  export type UserUpsertWithoutRedemptionsInput = {
-    update: XOR<UserUpdateWithoutRedemptionsInput, UserUncheckedUpdateWithoutRedemptionsInput>
+  export type UserCreateWithoutRedemptionsInput = {
+    email: string
+    password: string
+    userType: $Enums.UserType
+    discounts?: DiscountCodeCreateNestedManyWithoutRestaurantInput
+    items?: ItemCreateNestedManyWithoutRestaurantInput
+  }
+
+  export type UserUncheckedCreateWithoutRedemptionsInput = {
+    id?: number
+    email: string
+    password: string
+    userType: $Enums.UserType
+    discounts?: DiscountCodeUncheckedCreateNestedManyWithoutRestaurantInput
+    items?: ItemUncheckedCreateNestedManyWithoutRestaurantInput
+  }
+
+  export type UserCreateOrConnectWithoutRedemptionsInput = {
+    where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutRedemptionsInput, UserUncheckedCreateWithoutRedemptionsInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutRedemptionsInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutRedemptionsInput, UserUncheckedUpdateWithoutRedemptionsInput>
-  }
-
-  export type UserUpdateWithoutRedemptionsInput = {
-    email?: StringFieldUpdateOperationsInput | string
-    password?: StringFieldUpdateOperationsInput | string
-    userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
-    discounts?: DiscountCodeUpdateManyWithoutRestaurantNestedInput
-    items?: ItemUpdateManyWithoutRestaurantNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutRedemptionsInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    email?: StringFieldUpdateOperationsInput | string
-    password?: StringFieldUpdateOperationsInput | string
-    userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
-    discounts?: DiscountCodeUncheckedUpdateManyWithoutRestaurantNestedInput
-    items?: ItemUncheckedUpdateManyWithoutRestaurantNestedInput
   }
 
   export type DiscountCodeUpsertWithoutRedemptionsInput = {
@@ -9520,6 +9450,34 @@ export namespace Prisma {
     applicableItems?: DiscountCodeItemUncheckedUpdateManyWithoutDiscountCodeNestedInput
   }
 
+  export type UserUpsertWithoutRedemptionsInput = {
+    update: XOR<UserUpdateWithoutRedemptionsInput, UserUncheckedUpdateWithoutRedemptionsInput>
+    create: XOR<UserCreateWithoutRedemptionsInput, UserUncheckedCreateWithoutRedemptionsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutRedemptionsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutRedemptionsInput, UserUncheckedUpdateWithoutRedemptionsInput>
+  }
+
+  export type UserUpdateWithoutRedemptionsInput = {
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+    discounts?: DiscountCodeUpdateManyWithoutRestaurantNestedInput
+    items?: ItemUpdateManyWithoutRestaurantNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutRedemptionsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+    discounts?: DiscountCodeUncheckedUpdateManyWithoutRestaurantNestedInput
+    items?: ItemUncheckedUpdateManyWithoutRestaurantNestedInput
+  }
+
   export type DiscountCodeCreateManyRestaurantInput = {
     id?: number
     code: string
@@ -9529,18 +9487,17 @@ export namespace Prisma {
     requirements: JsonNullValueInput | InputJsonValue
   }
 
+  export type ItemCreateManyRestaurantInput = {
+    id?: number
+    name: string
+    description?: string | null
+  }
+
   export type RedemptionCreateManyInfluencerInput = {
     id?: number
     discountCodeId: number
     status: $Enums.DiscountStatus
     redeemedAt?: Date | string | null
-  }
-
-  export type ItemCreateManyRestaurantInput = {
-    id?: number
-    name: string
-    description?: string | null
-    price: number
   }
 
   export type DiscountCodeUpdateWithoutRestaurantInput = {
@@ -9573,6 +9530,25 @@ export namespace Prisma {
     requirements?: JsonNullValueInput | InputJsonValue
   }
 
+  export type ItemUpdateWithoutRestaurantInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    discounts?: DiscountCodeItemUpdateManyWithoutItemNestedInput
+  }
+
+  export type ItemUncheckedUpdateWithoutRestaurantInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    discounts?: DiscountCodeItemUncheckedUpdateManyWithoutItemNestedInput
+  }
+
+  export type ItemUncheckedUpdateManyWithoutRestaurantInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type RedemptionUpdateWithoutInfluencerInput = {
     status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
     redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -9591,28 +9567,6 @@ export namespace Prisma {
     discountCodeId?: IntFieldUpdateOperationsInput | number
     status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
     redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type ItemUpdateWithoutRestaurantInput = {
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    price?: FloatFieldUpdateOperationsInput | number
-    discounts?: DiscountCodeItemUpdateManyWithoutItemNestedInput
-  }
-
-  export type ItemUncheckedUpdateWithoutRestaurantInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    price?: FloatFieldUpdateOperationsInput | number
-    discounts?: DiscountCodeItemUncheckedUpdateManyWithoutItemNestedInput
-  }
-
-  export type ItemUncheckedUpdateManyWithoutRestaurantInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    price?: FloatFieldUpdateOperationsInput | number
   }
 
   export type DiscountCodeItemCreateManyItemInput = {
