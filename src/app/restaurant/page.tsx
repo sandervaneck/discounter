@@ -13,10 +13,47 @@ const availableItems = [
   "Salad Bowl",
 ];
 
+type DiscountForm = {
+  code: string;
+  discount: number;
+  requirements: DiscountRequirements[];
+  items: string[];
+  expiryDate: string;
+  location: string;
+  status: DiscountStatus;
+
+}
+
+type DiscountRequirements = {
+  platform: string;
+  views: number;
+  likes: number;
+  comments: number;
+  reposts: number;
+  discount: string;
+}
+
+const emptyForm: DiscountForm = {
+  code: "",
+  discount: 10,
+  requirements: [
+    {
+      platform: "Instagram",
+      views: 5000,
+      likes: 1000,
+      comments: 100,
+      reposts: 50,
+      discount: "10%",
+    },
+  ],
+  items: [],
+  expiryDate: "",
+  location: "Amsterdam, NL",
+  status: "available",
+};
+
 export default function RestaurantDiscountDashboard() {
   const { data: session, status } = useSession();
-
-  
 
   const [discountCodes, setDiscountCodes] = useState<DiscountCode[]>([]);
   const [filterStatus, setFilterStatus] = useState<DiscountStatus | "all">("all");
