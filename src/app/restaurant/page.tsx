@@ -3,17 +3,16 @@
 import React, { useEffect, useState } from "react";
 import { RestaurantToolbar } from "../components/Toolbar";
 import { useSession } from "next-auth/react";
-import { DiscountCode, DiscountStatus } from "@/generated/client";
+import { DiscountCode, DiscountStatus, Item } from "@/generated/client";
 
 
 type DiscountForm = {
   code: string;
   discount: number;
   requirements: DiscountRequirements[];
-  items: string[];
+  items: Item[];
   wait: number;
   expiryDate: string;
-  location: string;
   status: DiscountStatus;
 
 }
@@ -41,7 +40,6 @@ const emptyForm: DiscountForm = {
   ],
   items: [],
   expiryDate: "",
-  location: "Amsterdam, NL",
   status: "available",
 };
 
@@ -50,40 +48,10 @@ export default function RestaurantDiscountDashboard() {
   const [form, setForm] = useState<DiscountForm>(emptyForm);
   const [discountCodes, setDiscountCodes] = useState<DiscountCode[]>([]);
   const [filterStatus, setFilterStatus] = useState<DiscountStatus | "all">("all");
-  const [availableItems, setAvailableItems] = useState<string[]>([]);
+  const [availableItems, setAvailableItems] = useState<Item[]>([]);
+  const [itemsByDiscountId, setItemsByDiscountId] = useState<Record<number, Item[]>>({});
 
-  const [newItems, setNewItems] = useState<string[]>([]);
   const [tab, setTab] = useState(0);
-
- useEffect(() => {
-  const fetchDiscounts = async () => {
-    const res = await fetch("/api/discounts", {
-      method: "GET",
-      credentials: "include",
-    });
-
-    const data = await res.json();
-    setDiscountCodes(data);
-  };
-
-  const fetchItems = async () => {
-    const res = await fetch("/api/items", {
-      method: "GET",
-      credentials: "include",
-    });
-
-    const items = await res.json();
-    setAvailableItems(items.map((item: { name: string }) => item.name));
-  };
-
-  if (status === "authenticated") {
-    fetchDiscounts();
-    fetchItems();
-  }
-}, [status]);
-
-
-
   function updateCode(id: number, field: keyof DiscountCode, value: number | string | string[]) {
     setDiscountCodes((codes) =>
       codes.map((code) => (code.id === id ? { ...code, [field]: value } : code))
@@ -94,65 +62,92 @@ export default function RestaurantDiscountDashboard() {
     setDiscountCodes((codes) => codes.filter((c) => c.id !== id));
   }
 
-  function toggleNewItem(item: string) {
-    setNewItems((items) =>
-      items.includes(item) ? items.filter((i) => i !== item) : [...items, item]
-    );
-  }
+ useEffect(() => {
+    const fetchDiscounts = async () => {
+      const res = await fetch("/api/discounts", {
+        method: "GET",
+        credentials: "include",
+      });
+      const data = await res.json();
+      setDiscountCodes(data);
 
+      const fetchedMap: Record<number, Item[]> = {};
+      for (const discount of data) {
+        const res = await fetch(`/api/discounts/${discount.id}/items`, {
+          method: "GET",
+          credentials: "include",
+        });
+        const items = await res.json();
+        fetchedMap[discount.id] = items;
+      }
+      setItemsByDiscountId(fetchedMap);
+    };
+
+    const fetchItems = async () => {
+      const res = await fetch("/api/items", {
+        method: "GET",
+        credentials: "include",
+      });
+      const items = await res.json();
+      setAvailableItems(items);
+    };
+
+    if (status === "authenticated") {
+      fetchDiscounts();
+      fetchItems();
+    }
+  }, [status]);
   async function addNewCode() {
-  const activationTime = new Date();
-  activationTime.setDate(activationTime.getDate() + form.wait);
+    const activationTime = new Date();
+    activationTime.setDate(activationTime.getDate() + form.wait);
 
-  if (
-    !form.code.trim() ||
-    !form.expiryDate.trim() ||
-    form.discount <= 0 ||
-    newItems.length === 0
-  ) {
-    alert("Please fill all fields correctly.");
-    return;
-  }
-
-  try {
-    const res = await fetch("/api/discounts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        code: form.code,
-        discountPercent: form.discount,
-        activationTime: activationTime.toISOString(),
-        expirationTime: new Date(form.expiryDate).toISOString(),
-        requirements: form.requirements,
-        applicableItemIds: newItems, // you may map names to IDs server-side
-        location: form.location,
-        status: form.status,
-      }),
-    });
-
-    if (!res.ok) {
-      const error = await res.json();
-      console.error("Create error:", error);
-      alert("Failed to add discount.");
+    if (
+      !form.code.trim() ||
+      !form.expiryDate.trim() ||
+      form.discount <= 0 ||
+      form.items.length === 0
+    ) {
+      alert("Please fill all fields correctly.");
       return;
     }
 
-    const newDiscount = await res.json();
-    setDiscountCodes([...discountCodes, newDiscount]);
-    setForm(emptyForm);
-    setNewItems([]);
-  } catch (err) {
-    console.error("Unexpected error:", err);
-    alert("Something went wrong. Check console for details.");
+    try {
+      const res = await fetch("/api/discounts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          code: form.code,
+          discountPercent: form.discount,
+          activationTime: activationTime.toISOString(),
+          expirationTime: new Date(form.expiryDate).toISOString(),
+          requirements: JSON.stringify(form.requirements),
+          applicableItemIds: form.items,
+          status: form.status,
+        }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        console.error("Create error:", error);
+        alert("Failed to add discount.");
+        return;
+      }
+
+      const newDiscount = await res.json();
+      setDiscountCodes([...discountCodes, newDiscount]);
+      setForm(emptyForm);
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      alert("Something went wrong. Check console for details.");
+    }
   }
-}
 
   const filteredCodes =
     filterStatus === "all"
       ? discountCodes
       : discountCodes.filter((code) => code.code === filterStatus);
-  console.log(discountCodes)
+
 
   if (status === "loading") {
     return <div className="text-center mt-10">Loading...</div>;
@@ -203,7 +198,6 @@ export default function RestaurantDiscountDashboard() {
                 <th className="p-3 border border-emerald-800">Discount % / Views</th>
                 <th className="p-3 border border-emerald-800">Items</th>
                 <th className="p-3 border border-emerald-800">Expiry</th>
-                <th className="p-3 border border-emerald-800">Location</th>
                 <th className="p-3 border border-emerald-800">Status</th>
                 <th className="p-3 border border-emerald-800">Actions</th>
               </tr>
@@ -224,61 +218,25 @@ export default function RestaurantDiscountDashboard() {
                     <div className="flex items-center gap-2">
                       <input
                         type="number"
-                        value={code.id}
-                        onChange={(e) => updateCode(code.id, "id", Number(e.target.value))}
+                        value={code.discountPercent}
+                        onChange={(e) => updateCode(code.id, "discountPercent", Number(e.target.value))}
                         className="w-16 p-2 rounded border border-emerald-300 text-emerald-900"
                       />
                       <span>% for</span>
-                      <input
-                        type="number"
-                        value={""}
-                        onChange={(e) => updateCode(code.id, "code", Number(e.target.value))}
-                        className="w-20 p-2 rounded border border-emerald-300 text-emerald-900"
-                      />
-                      <span>views</span>
+                      
+                      
                     </div>
                   </td>
                   <td className="p-2 border border-emerald-100">
-                    <div className="flex flex-wrap gap-2">
-                      {availableItems.map((item) => {
-                        const selected = code.code === item;
-                        return (
-                          <label
-                            key={item}
-                            className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
-                              selected
-                                ? "bg-emerald-100 border-2 border-emerald-600"
-                                : "bg-gray-50 border border-gray-300"
-                            }`}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={selected}
-                              onChange={() => {
-                                // const newItems = selected
-                                //   ? code.items.filter((i) => i !== item)
-                                //   : [...code.items, item];
-                                // updateCode(code.id, "id", newItems);
-                              }}
-                              className="mr-2"
-                            />
-                            {item}
-                          </label>
-                        );
-                      })}
-                    </div>
+                    {(itemsByDiscountId[code.id] || []).map((item, idx) => (
+                      <span key={idx} className="inline-block bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full mr-2 mb-2">
+                        {item.name}
+                      </span>
+                    ))}
                   </td>
                   <td className="p-2 border border-emerald-100">
                     <input
                       type="date"
-                      value={""}
-                      onChange={(e) => updateCode(code.id, "id", e.target.value)}
-                      className="w-full p-2 rounded border border-emerald-300 text-emerald-900"
-                    />
-                  </td>
-                  <td className="p-2 border border-emerald-100">
-                    <input
-                      type="text"
                       value={""}
                       onChange={(e) => updateCode(code.id, "id", e.target.value)}
                       className="w-full p-2 rounded border border-emerald-300 text-emerald-900"
@@ -352,16 +310,7 @@ export default function RestaurantDiscountDashboard() {
         className="p-2 border border-emerald-300 rounded text-emerald-900 mt-1"
       />
     </label>
-    <label className="flex flex-col text-emerald-900 font-medium">
-      Location
-      <input
-        type="text"
-        value={form.location}
-        onChange={(e) => setForm({ ...form, location: e.target.value })}
-        placeholder="Location"
-        className="p-2 border border-emerald-300 rounded text-emerald-900 mt-1"
-      />
-    </label>
+    
     <label className="flex flex-col text-emerald-900 font-medium col-span-2">
       Status
       <select
@@ -380,11 +329,12 @@ export default function RestaurantDiscountDashboard() {
   <div className="mt-6">
     <label className="font-medium text-emerald-800">Applicable Items:</label>
     <div className="flex flex-wrap gap-3 mt-2">
-      {availableItems.map((item) => {
-        const selected = newItems.includes(item);
+      {availableItems.map((item, idx) => {
+        
+        const selected = form.items.includes(item);
         return (
           <label
-            key={item}
+            key={idx}
             className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
               selected
                 ? "bg-emerald-100 border-2 border-emerald-600"
@@ -394,10 +344,19 @@ export default function RestaurantDiscountDashboard() {
             <input
               type="checkbox"
               checked={selected}
-              onChange={() => toggleNewItem(item)}
+              onChange={() => selected ?
+                setForm({
+                  ...form,
+                  items: form.items.filter((i) => i !== item)
+                }) :
+                setForm({
+                  ...form,
+                  items: [...form.items, item]
+                })
+              }
               className="mr-2"
             />
-            {item}
+            {item.name}
           </label>
         );
       })}
