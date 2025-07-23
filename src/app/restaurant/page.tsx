@@ -99,7 +99,7 @@ export default function RestaurantDiscountDashboard() {
   }, [status]);
   async function addNewCode() {
     const activationTime = new Date();
-    activationTime.setDate(activationTime.getDate() + form.wait);
+
 
     if (
       !form.code.trim() ||
@@ -322,6 +322,7 @@ export default function RestaurantDiscountDashboard() {
         <option value="awarded">Awarded</option>
         <option value="used">Used</option>
         <option value="expired">Expired</option>
+        <option value="expired">Coming</option>
       </select>
     </label>
   </div>
