@@ -44,8 +44,6 @@ export async function POST(req: NextRequest) {
       discountPercent,
       requirements,
       applicableItemIds,
-      location,
-      status
     } = body;
 
     if (
