@@ -1,12 +1,17 @@
 // eslint.config.mjs
 
-import eslint from '@eslint/js';
-import * as tseslint from '@typescript-eslint/eslint-plugin';
+import js from '@eslint/js';
+import tsPlugin from '@typescript-eslint/eslint-plugin';
+import tsParser from '@typescript-eslint/parser';
 
 export default [
-  eslint.configs.recommended,
-  ...tseslint.configs.recommended,
   {
+    languageOptions: {
+      parser: tsParser,
+    },
+    plugins: {
+      '@typescript-eslint': tsPlugin,
+    },
     files: ['**/*.ts', '**/*.tsx'],
     ignores: ['src/generated/client/**'],
     rules: {
@@ -15,4 +20,5 @@ export default [
       '@typescript-eslint/no-explicit-any': 'warn',
     },
   },
+  js.configs.recommended,
 ];
