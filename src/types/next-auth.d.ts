@@ -1,4 +1,3 @@
-import NextAuth from "next-auth";
 import { UserType } from "@prisma/client";
 
 declare module "next-auth" {
