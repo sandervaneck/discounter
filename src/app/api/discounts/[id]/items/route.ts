@@ -1,15 +1,13 @@
 // File: src/app/api/discounts/[id]/items/route.ts
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { PrismaClient } from '@/generated/client';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getServerSession(authOptions);
-
+export async function GET(req: Request, { params }: { params: { id: string } }) {  const session = await getServerSession(authOptions);
   if (!session || session.user.userType !== 'business') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
