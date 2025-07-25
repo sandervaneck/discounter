@@ -8,7 +8,7 @@ import { authOptions } from "@/lib/auth";
 const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession({ req, ...authOptions });
+  const session = await getServerSession(authOptions);
   if (!session || !["restaurant", "business"].includes(session.user.userType)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession({ req, ...authOptions });
+  const session = await getServerSession(authOptions);
   if (!session || !["restaurant", "business"].includes(session.user.userType)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
