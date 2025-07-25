@@ -12,15 +12,15 @@ interface RouteContext {
   };
 }
 export async function GET(
-  req: Request, // ✅ use Request, not NextRequest
-  context: RouteContext
+  req: Request, 
+  { params } : { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions); // works with App Router
 
   if (!session || session.user.userType !== 'business') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  const { id } = await context.params;
+  const { id } = await params;
 
   const discountId = parseInt(id, 10);
   if (isNaN(discountId)) {
