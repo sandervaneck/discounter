@@ -1,24 +1,23 @@
 // File: src/app/api/discounts/[id]/items/route.ts
 
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@/generated/client';
+import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { PrismaClient } from '@/generated/client';
 
 const prisma = new PrismaClient();
-export type paramsType = Promise<{ id: string }>;
 
 export async function GET(
-  req: NextRequest,
-  context: { params: { id: string } }
+  req: Request, // ✅ use Request, not NextRequest
+  context: { params: { id: string } } // ✅ context param typed as expected
 ) {
-  const { params } = context;
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(authOptions); // works with App Router
+
   if (!session || session.user.userType !== 'business') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const discountId = parseInt(params.id, 10);
+  const discountId = parseInt(context.params.id, 10);
   if (isNaN(discountId)) {
     return NextResponse.json({ error: 'Invalid discount ID' }, { status: 400 });
   }
