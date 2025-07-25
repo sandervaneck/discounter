@@ -7,13 +7,18 @@ import { authOptions } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {  
+export type ParamsType = Promise<{ id: string }>;
+
+
+export async function GET(props : {params: ParamsType}) { 
+    const { id } = await props.params;
+
   const session = await getServerSession(authOptions);
   if (!session || session.user.userType !== 'business') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const discountId = parseInt(params.id, 10);
+  const discountId = parseInt(id, 10);
   if (isNaN(discountId)) {
     return NextResponse.json({ error: 'Invalid discount ID' }, { status: 400 });
   }
