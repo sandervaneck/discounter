@@ -6,18 +6,23 @@ import { authOptions } from '@/lib/auth';
 import { PrismaClient } from '@/generated/client';
 
 const prisma = new PrismaClient();
-
+interface RouteContext {
+  params: {
+    id: string;
+  };
+}
 export async function GET(
   req: Request, // ✅ use Request, not NextRequest
-  context: { params: { id: string } } // ✅ context param typed as expected
+  context: RouteContext
 ) {
   const session = await getServerSession(authOptions); // works with App Router
 
   if (!session || session.user.userType !== 'business') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+  const { id } = await context.params;
 
-  const discountId = parseInt(context.params.id, 10);
+  const discountId = parseInt(id, 10);
   if (isNaN(discountId)) {
     return NextResponse.json({ error: 'Invalid discount ID' }, { status: 400 });
   }
