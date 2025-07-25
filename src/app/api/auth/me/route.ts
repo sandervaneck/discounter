@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 
 export async function GET(req: NextRequest) {
   const cookieStore = cookies();
-  const token = cookieStore.get('auth-token')?.value;
+  const token = (await cookieStore).get('auth-token')?.value;
 
   if (!token) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
