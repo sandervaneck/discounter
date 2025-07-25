@@ -32,6 +32,7 @@ export default [
       '@typescript-eslint': ts,
     },
     rules: {
+      'no-unused-vars': 'off',
       'no-console': 'warn',
       '@typescript-eslint/no-unused-vars': 'warn',
       '@typescript-eslint/no-explicit-any': 'off',
