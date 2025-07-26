@@ -577,9 +577,15 @@ const [user, setUser] = useState<{ email: string } | null>(null);
    >
      <Check className="w-4 h-4 mr-2" /> Update
    </button>
+   <button
+     onClick={() => setEditingId(null)}
+     className="mt-6 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded font-bold flex items-center"
+   >
+      Cancel
+   </button>
  </section>
  )}
- 
+
         {/* Add New Discount Code */}
         <section className="mt-10 bg-emerald-50 border border-emerald-300 p-6 rounded-lg">
   <h2 className="text-emerald-800 text-xl font-semibold mb-4">Add New Discount Code</h2>
