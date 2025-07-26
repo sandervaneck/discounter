@@ -3,16 +3,14 @@
 import React, { useState } from "react";
 import { RestaurantToolbar } from "../components/Toolbar";
 
-type DiscountStatus = "open" | "awarded" | "used" | "expired";
+type DiscountStatus = "available" | "awarded" | "used" | "expired";
 
 interface DiscountCode {
   id: number;
   code: string;
   discount: number;
-  viewsRequired: number;
   items: string[];
   expiryDate: string;
-  location: string;
   status: DiscountStatus;
 }
 
@@ -22,58 +20,7 @@ interface AwardedPost {
   userAccountId: string;
 }
 
-const discountCodes: DiscountCode[] = [
-  {
-    id: 1,
-    code: "FOCA-9H2L1KX3",
-    discount: 20,
-    viewsRequired: 5000,
-    items: ["Focaccia Classic", "Focaccia Cheese"],
-    expiryDate: "2025-12-31",
-    location: "Amsterdam, NL",
-    status: "awarded",
-  },
-  {
-    id: 2,
-    code: "FOCA-X4V7ZJQ9",
-    discount: 10,
-    viewsRequired: 10000,
-    items: ["Panini"],
-    expiryDate: "2025-08-15",
-    location: "Amsterdam, NL",
-    status: "open",
-  },
-  {
-    id: 3,
-    code: "FOCA-WK73NDX8",
-    discount: 15,
-    viewsRequired: 8000,
-    items: ["Salad Bowl"],
-    expiryDate: "2024-06-30",
-    location: "Amsterdam, NL",
-    status: "used",
-  },
-  {
-    id: 4,
-    code: "ANYCODE",
-    discount: 5,
-    viewsRequired: 1000,
-    items: ["All foods"],
-    expiryDate: "2026-06-30",
-    location: "Amsterdam, NL",
-    status: "awarded",
-  },
-  {
-    id: 5,
-    code: "FREECODE",
-    discount: 50,
-    viewsRequired: 8000,
-    items: ["All foods"],
-    expiryDate: "2025-06-30",
-    location: "Berlin, GE",
-    status: "open",
-  },
-];
+
 
 const awardedPostsMap: Record<string, AwardedPost> = {
   "FOCA-9H2L1KX3": {
@@ -103,27 +50,70 @@ export default function CashierDiscountScanner() {
   const [error, setError] = useState("");
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
 
-  function validateCode() {
+  async function validateCode() {
     setError("");
     setValidationResult(null);
 
     const code = inputCode.trim().toUpperCase();
-    
+
     if (!code) return setError("Please enter a discount code.");
 
-    const foundCode = discountCodes.find(
-      (d) =>
-        d.code.toUpperCase() === code &&
-        (d.status === "open" || d.status === "awarded")
-    );
-    if (!foundCode) return setError("Discount code not found or not valid for use.");
+    try {
+      const res = await fetch("/api/discounts", {
+        method: "GET",
+        credentials: "include",
+      });
 
-    const today = new Date();
-    const expiry = new Date(foundCode.expiryDate);
-    if (expiry < today) return setError("This discount code has expired.");
+      if (!res.ok) {
+        return setError("Failed to fetch discount codes.");
+      }
 
-    const awardedPost = awardedPostsMap[foundCode.code.toUpperCase()];
-    setValidationResult({ code: foundCode, awardedPost });
+      const discounts = await res.json();
+      const found = discounts.find(
+        (d: any) =>
+          d.code.toUpperCase() === code &&
+          (d.status === "available" || d.status === "awarded")
+      );
+
+      if (!found) {
+        return setError("Discount code not found or not valid for use.");
+      }
+
+      const expiry = new Date(found.expirationTime);
+      if (expiry < new Date()) {
+        return setError("This discount code has expired.");
+      }
+
+      let items: string[] = [];
+      try {
+        const itemsRes = await fetch(`/api/discounts/${found.id}/items`, {
+          method: "GET",
+          credentials: "include",
+        });
+        if (itemsRes.ok) {
+          const itemsData = await itemsRes.json();
+          items = itemsData.map((i: any) => i.name);
+        }
+      } catch (e) {
+        console.error("Failed fetching items", e);
+      }
+
+      const awardedPost = awardedPostsMap[found.code.toUpperCase()];
+
+      const mapped: DiscountCode = {
+        id: found.id,
+        code: found.code,
+        discount: found.discountPercent,
+        items,
+        expiryDate: found.expirationTime,
+        status: found.status,
+      };
+
+      setValidationResult({ code: mapped, awardedPost });
+    } catch (err) {
+      console.error("Validation error", err);
+      setError("Failed to validate discount code.");
+    }
   }
 
   const handleCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -132,10 +122,9 @@ export default function CashierDiscountScanner() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setCapturedImage(reader.result as string);
-        
+
       };
       reader.readAsDataURL(file);
-      setInputCode(discountCodes[0].code);
       validateCode();
     }
   };
