@@ -87,3 +87,40 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session || !["restaurant", "business"].includes(session.user.userType)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const body = await req.json();
+    const discountId = parseInt(body.id, 10);
+
+    if (isNaN(discountId)) {
+      return NextResponse.json({ error: "Invalid discount id" }, { status: 400 });
+    }
+
+    const exists = await prisma.discountCode.findFirst({
+      where: { id: discountId, restaurant: { email: session.user.email } },
+    });
+
+    if (!exists) {
+      return NextResponse.json({ error: "Discount not found" }, { status: 404 });
+    }
+
+    await prisma.discountCodeItem.deleteMany({
+      where: { discountCodeId: discountId },
+    });
+    await prisma.redemption.deleteMany({
+      where: { discountCodeId: discountId },
+    });
+
+    await prisma.discountCode.delete({ where: { id: discountId } });
+    return NextResponse.json({ message: "Deleted" });
+  } catch (err) {
+    console.error("Error deleting discount:", err);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
