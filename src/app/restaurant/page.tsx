@@ -58,8 +58,27 @@ export default function RestaurantDiscountDashboard() {
     );
   }
 
-  function deleteCode(id: number) {
-    setDiscountCodes((codes) => codes.filter((c) => c.id !== id));
+  async function deleteCode(id: number) {
+    try {
+      const res = await fetch("/api/discounts", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ id }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        console.error("Delete error:", error);
+        alert("Failed to delete discount.");
+        return;
+      }
+
+      setDiscountCodes((codes) => codes.filter((c) => c.id !== id));
+    } catch (err) {
+      console.error("Unexpected delete error:", err);
+      alert("Something went wrong deleting discount.");
+    }
   }
 
  useEffect(() => {
