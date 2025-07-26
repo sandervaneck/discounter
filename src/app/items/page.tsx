@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { Trash2 } from "lucide-react";
 import { RestaurantToolbar } from "../components/Toolbar";
 
 export default function RestaurantItemsPage() {
@@ -10,6 +11,18 @@ export default function RestaurantItemsPage() {
 const [items, setItems] = useState<{ id: number; name: string }[]>([]);
   const [newItem, setNewItem] = useState("");
   const [tab, setTab] = useState(2);
+
+  const deleteItem = async (id: number) => {
+    const res = await fetch("/api/items", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ id }),
+    });
+    if (res.ok) {
+      setItems((prev) => prev.filter((i) => i.id !== id));
+    }
+  };
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -70,9 +83,17 @@ const [items, setItems] = useState<{ id: number; name: string }[]>([]);
             Add Item
           </button>
         </div>
-        <ul className="list-disc pl-6 text-emerald-900">
-          {items.map((item, idx) => (
-            <li key={item.id}>{item.name}</li>
+        <ul className="text-emerald-900 divide-y divide-emerald-100 border rounded">
+          {items.map((item) => (
+            <li key={item.id} className="flex items-center justify-between p-2">
+              <span>{item.name}</span>
+              <button
+                onClick={() => deleteItem(item.id)}
+                className="text-red-600 hover:text-red-800"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </li>
           ))}
         </ul>
       </div>
