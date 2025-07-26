@@ -277,7 +277,7 @@ const [user, setUser] = useState<{ email: string } | null>(null);
                   <td className="p-2 border border-emerald-100 text-center">
                     <button
                       onClick={() => toggleRow(code.id)}
-                      className="bg-emerald-200 text-emerald-800 px-2 py-1 rounded mr-2"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded"
                     >
                       {expandedRows[code.id] ? 'Hide' : 'Show'}
                     </button>
