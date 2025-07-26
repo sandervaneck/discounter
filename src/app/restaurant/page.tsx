@@ -50,8 +50,9 @@ export default function RestaurantDiscountDashboard() {
   const [filterStatus, setFilterStatus] = useState<DiscountStatus | "all">("all");
   const [availableItems, setAvailableItems] = useState<Item[]>([]);
   const [itemsByDiscountId, setItemsByDiscountId] = useState<Record<number, Item[]>>({});
-
+const [user, setUser] = useState<{ email: string } | null>(null);
   const [tab, setTab] = useState(0);
+
   function updateCode(id: number, field: keyof DiscountCode, value: number | string | string[]) {
     setDiscountCodes((codes) =>
       codes.map((code) => (code.id === id ? { ...code, [field]: value } : code))
@@ -82,6 +83,18 @@ export default function RestaurantDiscountDashboard() {
   }
 
  useEffect(() => {
+  fetch('/api/auth/me')
+      .then((res) => res.json())
+      .then((data) => {
+
+        if (data) {
+          setUser(data);
+        }
+      })
+      .catch(() => {
+        setUser(null);
+      });
+
     const fetchDiscounts = async () => {
       const res = await fetch("/api/discounts", {
         method: "GET",
@@ -186,7 +199,7 @@ export default function RestaurantDiscountDashboard() {
         <div className="flex justify-between items-center border-b-2 border-emerald-700 pb-4 mb-8">
           <h1 className="text-2xl font-bold text-emerald-800">Focacceria Milano Discount Dashboard</h1>
           <div className="text-sm font-semibold text-emerald-900 border border-emerald-600 bg-emerald-100 px-4 py-1 rounded">
-            Logged in as <span className="text-emerald-800">Restaurant Admin</span>
+            Logged in as <span className="text-emerald-800">{user && user.email}</span>
           </div>
         </div>
 
@@ -214,7 +227,7 @@ export default function RestaurantDiscountDashboard() {
             <thead className="bg-emerald-700 text-white">
               <tr>
                 <th className="p-3 border border-emerald-800">Code</th>
-                <th className="p-3 border border-emerald-800">Discount % / Views</th>
+                <th className="p-3 border border-emerald-800">Discount % </th>
                 <th className="p-3 border border-emerald-800">Items</th>
                 <th className="p-3 border border-emerald-800">Expiry</th>
                 <th className="p-3 border border-emerald-800">Status</th>
@@ -226,25 +239,14 @@ export default function RestaurantDiscountDashboard() {
               {filteredCodes.map((code) => (
                 <tr key={code.id} className="border-b border-emerald-100">
                   <td className="p-2 border border-emerald-100">
-                    <input
-                      type="text"
-                      value={code.code}
-                      onChange={(e) => updateCode(code.id, "code", e.target.value)}
-                      className="w-full p-2 rounded border border-emerald-300 bg-white text-emerald-900"
-                    />
+                    <span className="inline-block bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full mr-2 mb-2">
+                        {code.code}
+                      </span>
                   </td>
                   <td className="p-2 border border-emerald-100">
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="number"
-                        value={code.discountPercent}
-                        onChange={(e) => updateCode(code.id, "discountPercent", Number(e.target.value))}
-                        className="w-16 p-2 rounded border border-emerald-300 text-emerald-900"
-                      />
-                      <span>% for</span>
-                      
-                      
-                    </div>
+                    <span className="inline-block bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full mr-2 mb-2">
+                        {code.discountPercent}%
+                      </span>
                   </td>
                   <td className="p-2 border border-emerald-100">
                     {(itemsByDiscountId[code.id] || []).map((item, idx) => (
@@ -254,24 +256,16 @@ export default function RestaurantDiscountDashboard() {
                     ))}
                   </td>
                   <td className="p-2 border border-emerald-100">
-                    <input
-                      type="date"
-                      value={""}
-                      onChange={(e) => updateCode(code.id, "id", e.target.value)}
-                      className="w-full p-2 rounded border border-emerald-300 text-emerald-900"
-                    />
+                    <span className="inline-block bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full mr-2 mb-2">
+                        {code.expirationTime
+                          ? new Date(code.expirationTime).toLocaleDateString()
+                          : "No expiry"}
+                      </span>
                   </td>
                   <td className="p-2 border border-emerald-100">
-                    <select
-                      value={code.code}
-                      onChange={(e) => updateCode(code.id, "id", e.target.value as DiscountStatus)}
-                      className="w-full p-2 rounded border border-emerald-300 text-emerald-900"
-                    >
-                      <option value="open">Open</option>
-                      <option value="awarded">Awarded</option>
-                      <option value="used">Used</option>
-                      <option value="expired">Expired</option>
-                    </select>
+                    <span className="inline-block bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full mr-2 mb-2">
+                        Available
+                      </span>
                   </td>
                   <td className="p-2 border border-emerald-100 text-center">
                     <button
