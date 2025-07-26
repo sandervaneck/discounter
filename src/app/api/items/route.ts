@@ -55,3 +55,37 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to create item' }, { status: 500 });
   }
 }
+
+// DELETE: remove an item and its associations
+export async function DELETE(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+
+  if (!session || session.user.userType !== 'business') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const body = await req.json();
+    const id = parseInt(body.id, 10);
+
+    if (isNaN(id)) {
+      return NextResponse.json({ error: 'Invalid item id' }, { status: 400 });
+    }
+
+    const item = await prisma.item.findFirst({
+      where: { id, restaurant: { email: session.user.email } },
+    });
+
+    if (!item) {
+      return NextResponse.json({ error: 'Item not found' }, { status: 404 });
+    }
+
+    await prisma.discountCodeItem.deleteMany({ where: { itemId: id } });
+    await prisma.item.delete({ where: { id } });
+
+    return NextResponse.json({ message: 'Deleted' });
+  } catch (err) {
+    console.error('DELETE /api/items error:', err);
+    return NextResponse.json({ error: 'Failed to delete item' }, { status: 500 });
+  }
+}
