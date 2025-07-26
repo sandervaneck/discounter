@@ -52,6 +52,11 @@ export default function RestaurantDiscountDashboard() {
   const [itemsByDiscountId, setItemsByDiscountId] = useState<Record<number, Item[]>>({});
 const [user, setUser] = useState<{ email: string } | null>(null);
   const [tab, setTab] = useState(0);
+  const [expandedRows, setExpandedRows] = useState<Record<number, boolean>>({});
+
+  const toggleRow = (id: number) => {
+    setExpandedRows((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
 
   function updateCode(id: number, field: keyof DiscountCode, value: number | string | string[]) {
     setDiscountCodes((codes) =>
@@ -231,6 +236,7 @@ const [user, setUser] = useState<{ email: string } | null>(null);
                 <th className="p-3 border border-emerald-800">Items</th>
                 <th className="p-3 border border-emerald-800">Expiry</th>
                 <th className="p-3 border border-emerald-800">Status</th>
+                <th className="p-3 border border-emerald-800">Details</th>
                 <th className="p-3 border border-emerald-800">Actions</th>
               </tr>
             </thead>
@@ -269,6 +275,14 @@ const [user, setUser] = useState<{ email: string } | null>(null);
                   </td>
                   <td className="p-2 border border-emerald-100 text-center">
                     <button
+                      onClick={() => toggleRow(code.id)}
+                      className="bg-emerald-200 text-emerald-800 px-2 py-1 rounded mr-2"
+                    >
+                      {expandedRows[code.id] ? 'Hide' : 'Show'}
+                    </button>
+                  </td>
+                  <td className="p-2 border border-emerald-100 text-center">
+                    <button
                       onClick={() => deleteCode(code.id)}
                       className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded"
                     >
@@ -276,6 +290,27 @@ const [user, setUser] = useState<{ email: string } | null>(null);
                     </button>
                   </td>
                 </tr>
+                {expandedRows[code.id] && (
+                  <tr className="bg-emerald-50 border-b border-emerald-100">
+                    <td colSpan={7} className="p-3">
+                      <div className="flex flex-wrap gap-4">
+                        {(code.requirements || []).map((req: any, idx: number) => (
+                          <div key={idx} className="border rounded p-2 bg-white shadow-sm">
+                            <div className="font-semibold text-emerald-700 mb-1">
+                              {req.platform}
+                            </div>
+                            <div className="text-sm text-gray-700">
+                              Views: {req.views}<br />
+                              Likes: {req.likes}<br />
+                              Comments: {req.comments}<br />
+                              Reposts: {req.reposts}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </td>
+                  </tr>
+                )}
               ))}
             </tbody>
           </table>
