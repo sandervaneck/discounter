@@ -243,6 +243,7 @@ const [user, setUser] = useState<{ email: string } | null>(null);
             <tbody>
               {/* ROWS */}
               {filteredCodes.map((code) => (
+                <>
                 <tr key={code.id} className="border-b border-emerald-100">
                   <td className="p-2 border border-emerald-100">
                     <span className="inline-block bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full mr-2 mb-2">
@@ -290,11 +291,26 @@ const [user, setUser] = useState<{ email: string } | null>(null);
                     </button>
                   </td>
                 </tr>
+                
+                
                 {expandedRows[code.id] && (
                   <tr className="bg-emerald-50 border-b border-emerald-100">
                     <td colSpan={7} className="p-3">
                       <div className="flex flex-wrap gap-4">
-                        {(code.requirements || []).map((req: any, idx: number) => (
+                        {(
+                          Array.isArray(code.requirements)
+                            ? code.requirements
+                            : typeof code.requirements === "string"
+                              ? (() => {
+                                  try {
+                                    const parsed = JSON.parse(code.requirements);
+                                    return Array.isArray(parsed) ? parsed : [];
+                                  } catch {
+                                    return [];
+                                  }
+                                })()
+                              : []
+                        ).map((req: any, idx: number) => (
                           <div key={idx} className="border rounded p-2 bg-white shadow-sm">
                             <div className="font-semibold text-emerald-700 mb-1">
                               {req.platform}
@@ -311,6 +327,7 @@ const [user, setUser] = useState<{ email: string } | null>(null);
                     </td>
                   </tr>
                 )}
+                </>
               ))}
             </tbody>
           </table>
