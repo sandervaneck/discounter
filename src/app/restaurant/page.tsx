@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { RestaurantToolbar } from "../components/Toolbar";
 import { useSession } from "next-auth/react";
 import { DiscountCode, DiscountStatus, Item } from "@/generated/client";
+import { Pencil, Check } from "lucide-react";
 
 
 type DiscountForm = {
@@ -53,6 +54,8 @@ export default function RestaurantDiscountDashboard() {
 const [user, setUser] = useState<{ email: string } | null>(null);
   const [tab, setTab] = useState(0);
   const [expandedRows, setExpandedRows] = useState<Record<number, boolean>>({});
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState<DiscountForm>(emptyForm);
 
   const toggleRow = (id: number) => {
     setExpandedRows((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -84,6 +87,82 @@ const [user, setUser] = useState<{ email: string } | null>(null);
     } catch (err) {
       console.error("Unexpected delete error:", err);
       alert("Something went wrong deleting discount.");
+    }
+  }
+
+  function startEdit(code: DiscountCode) {
+    const reqs = Array.isArray(code.requirements)
+      ? code.requirements
+      : typeof code.requirements === "string"
+        ? (() => {
+            try {
+              const parsed = JSON.parse(code.requirements as unknown as string);
+              return Array.isArray(parsed) ? parsed : [];
+            } catch {
+              return [];
+            }
+          })()
+        : [];
+
+    setEditForm({
+      code: code.code,
+      discount: code.discountPercent,
+      wait: 0,
+      expiryDate: code.expirationTime
+        ? new Date(code.expirationTime).toISOString().split("T")[0]
+        : "",
+      items: itemsByDiscountId[code.id] || [],
+      requirements: reqs as any,
+      status: code.status,
+    });
+    setEditingId(code.id);
+  }
+
+  async function updateExistingCode() {
+    if (
+      editingId === null ||
+      !editForm.code.trim() ||
+      !editForm.expiryDate.trim() ||
+      editForm.discount <= 0 ||
+      editForm.items.length === 0
+    ) {
+      alert("Please fill all fields correctly.");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/discounts", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          id: editingId,
+          code: editForm.code,
+          discountPercent: editForm.discount,
+          expirationTime: new Date(editForm.expiryDate).toISOString(),
+          requirements: JSON.stringify(editForm.requirements),
+          applicableItemIds: editForm.items,
+          status: editForm.status,
+        }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        console.error("Update error:", error);
+        alert("Failed to update discount.");
+        return;
+      }
+
+      const updated = await res.json();
+
+      setDiscountCodes((codes) =>
+        codes.map((c) => (c.id === editingId ? { ...c, ...updated } : c))
+      );
+      setItemsByDiscountId((prev) => ({ ...prev, [editingId!]: editForm.items }));
+      setEditingId(null);
+    } catch (err) {
+      console.error("Unexpected update error:", err);
+      alert("Something went wrong updating discount.");
     }
   }
 
@@ -283,6 +362,12 @@ const [user, setUser] = useState<{ email: string } | null>(null);
                     </button>
                   </td>
                   <td className="p-2 border border-emerald-100 text-center">
+                    <button
+                      onClick={() => startEdit(code)}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded mr-2"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
                     <button
                       onClick={() => deleteCode(code.id)}
                       className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded"
@@ -516,6 +601,168 @@ const [user, setUser] = useState<{ email: string } | null>(null);
     Add Discount Code
   </button>
 </section>
+
+ {editingId !== null && (
+ <section className="mt-10 bg-emerald-50 border border-emerald-300 p-6 rounded-lg">
+   <h2 className="text-emerald-800 text-xl font-semibold mb-4">Edit Discount Code</h2>
+   <div className="grid md:grid-cols-2 gap-6">
+     <label className="flex flex-col text-emerald-900 font-medium">
+       Code
+       <input
+         type="text"
+         value={editForm.code}
+         onChange={(e) => setEditForm({ ...editForm, code: e.target.value })}
+         className="p-2 border border-emerald-300 rounded text-emerald-900 mt-1"
+       />
+     </label>
+     <label className="flex flex-col text-emerald-900 font-medium">
+       Discount %
+       <input
+         type="number"
+         value={editForm.discount}
+         onChange={(e) => setEditForm({ ...editForm, discount: Number(e.target.value) })}
+         className="p-2 border border-emerald-300 rounded text-emerald-900 mt-1"
+       />
+     </label>
+     <label className="flex flex-col text-emerald-900 font-medium">
+       Expiry Date
+       <input
+         type="date"
+         value={editForm.expiryDate}
+         onChange={(e) => setEditForm({ ...editForm, expiryDate: e.target.value })}
+         className="p-2 border border-emerald-300 rounded text-emerald-900 mt-1"
+       />
+     </label>
+     <label className="flex flex-col text-emerald-900 font-medium">
+       Status
+       <select
+         value={editForm.status}
+         onChange={(e) => setEditForm({ ...editForm, status: e.target.value as DiscountStatus })}
+         className="p-2 border border-emerald-300 rounded text-emerald-900 mt-1"
+       >
+         <option value="available">Available</option>
+         <option value="awarded">Awarded</option>
+         <option value="used">Used</option>
+         <option value="expired">Expired</option>
+       </select>
+     </label>
+   </div>
+   <div className="mt-6">
+     <label className="font-medium text-emerald-800">Applicable Items:</label>
+     <div className="flex flex-wrap gap-3 mt-2">
+       {availableItems.map((item, idx) => {
+         const selected = editForm.items.includes(item);
+         return (
+           <label
+             key={idx}
+             className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
+               selected ? "bg-emerald-100 border-2 border-emerald-600" : "bg-gray-50 border border-gray-300"
+             }`}
+           >
+             <input
+               type="checkbox"
+               checked={selected}
+               onChange={() =>
+                 selected
+                   ? setEditForm({ ...editForm, items: editForm.items.filter((i) => i !== item) })
+                   : setEditForm({ ...editForm, items: [...editForm.items, item] })
+               }
+               className="mr-2"
+             />
+             {item.name}
+           </label>
+         );
+       })}
+     </div>
+   </div>
+
+   <div className="mt-10 border-t border-emerald-300 pt-6">
+     <h3 className="text-lg font-semibold text-emerald-800 mb-4">Requirements</h3>
+     {editForm.requirements.map((req, index) => (
+       <div key={index} className="grid md:grid-cols-3 gap-4 mb-4">
+         <label className="flex flex-col text-emerald-900 font-medium">
+           Platform
+           <select
+             value={req.platform}
+             onChange={(e) => {
+               const newReqs = [...editForm.requirements];
+               newReqs[index].platform = e.target.value;
+               setEditForm({ ...editForm, requirements: newReqs });
+             }}
+             className="p-2 border border-emerald-300 rounded text-emerald-900"
+           >
+             <option value="Instagram">Instagram</option>
+             <option value="TikTok">TikTok</option>
+           </select>
+         </label>
+         <label className="flex flex-col text-emerald-900 font-medium">
+           #Views
+           <input
+             type="number"
+             placeholder="Views"
+             value={req.views}
+             onChange={(e) => {
+               const newReqs = [...editForm.requirements];
+               newReqs[index].views = Number(e.target.value);
+               setEditForm({ ...editForm, requirements: newReqs });
+             }}
+             className="p-2 border border-emerald-300 rounded text-emerald-900"
+           />
+         </label>
+         <label className="flex flex-col text-emerald-900 font-medium">
+           #Likes
+           <input
+             type="number"
+             placeholder="Likes"
+             value={req.likes}
+             onChange={(e) => {
+               const newReqs = [...editForm.requirements];
+               newReqs[index].likes = Number(e.target.value);
+               setEditForm({ ...editForm, requirements: newReqs });
+             }}
+             className="p-2 border border-emerald-300 rounded text-emerald-900"
+           />
+         </label>
+         <label className="flex flex-col text-emerald-900 font-medium">
+           #Comments
+           <input
+             type="number"
+             placeholder="Comments"
+             value={req.comments}
+             onChange={(e) => {
+               const newReqs = [...editForm.requirements];
+               newReqs[index].comments = Number(e.target.value);
+               setEditForm({ ...editForm, requirements: newReqs });
+             }}
+             className="p-2 border border-emerald-300 rounded text-emerald-900"
+           />
+         </label>
+         <label className="flex flex-col text-emerald-900 font-medium">
+           #Reposts
+           <input
+             type="number"
+             placeholder="Reposts"
+             value={req.reposts}
+             onChange={(e) => {
+               const newReqs = [...editForm.requirements];
+               newReqs[index].reposts = Number(e.target.value);
+               setEditForm({ ...editForm, requirements: newReqs });
+             }}
+             className="p-2 border border-emerald-300 rounded text-emerald-900"
+           />
+         </label>
+       </div>
+     ))}
+   </div>
+
+   <button
+     onClick={updateExistingCode}
+     className="mt-6 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded font-bold flex items-center"
+   >
+     <Check className="w-4 h-4 mr-2" /> Update
+   </button>
+ </section>
+ )}
 
       </div>
     </main>
