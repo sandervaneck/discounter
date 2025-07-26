@@ -126,3 +126,71 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
+
+export async function PATCH(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session || !["restaurant", "business"].includes(session.user.userType)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const body = await req.json();
+    const {
+      id,
+      code,
+      expirationTime,
+      discountPercent,
+      requirements,
+      applicableItemIds,
+      status,
+    } = body;
+
+    const discountId = parseInt(id, 10);
+
+    if (
+      isNaN(discountId) ||
+      typeof code !== "string" ||
+      !code.trim() ||
+      typeof discountPercent !== "number" ||
+      typeof requirements !== "string" ||
+      isNaN(Date.parse(expirationTime)) ||
+      !Array.isArray(applicableItemIds) ||
+      applicableItemIds.length === 0
+    ) {
+      return NextResponse.json({ error: "Invalid or missing fields" }, { status: 400 });
+    }
+
+    const existing = await prisma.discountCode.findFirst({
+      where: { id: discountId, restaurant: { email: session.user.email } },
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: "Discount not found" }, { status: 404 });
+    }
+
+    const itemIds: number[] = applicableItemIds
+      .map((item: any) => (typeof item === "object" && "id" in item ? item.id : Number(item)))
+      .filter((i) => !isNaN(i));
+
+    const updated = await prisma.discountCode.update({
+      where: { id: discountId },
+      data: {
+        code,
+        expirationTime: new Date(expirationTime),
+        discountPercent,
+        requirements: JSON.parse(requirements),
+        status: (status ?? existing.status).toLowerCase() as DiscountStatus,
+      },
+    });
+
+    await prisma.discountCodeItem.deleteMany({ where: { discountCodeId: discountId } });
+    await prisma.discountCodeItem.createMany({
+      data: itemIds.map((itemId) => ({ discountCodeId: discountId, itemId })),
+    });
+
+    return NextResponse.json(updated);
+  } catch (err) {
+    console.error("Error updating discount:", err);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
