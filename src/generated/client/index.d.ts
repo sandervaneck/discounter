@@ -3686,6 +3686,7 @@ export namespace Prisma {
     expirationTime: Date | null
     discountPercent: number | null
     restaurantId: number | null
+    status: $Enums.DiscountStatus | null
   }
 
   export type DiscountCodeMaxAggregateOutputType = {
@@ -3695,6 +3696,7 @@ export namespace Prisma {
     expirationTime: Date | null
     discountPercent: number | null
     restaurantId: number | null
+    status: $Enums.DiscountStatus | null
   }
 
   export type DiscountCodeCountAggregateOutputType = {
@@ -3705,6 +3707,7 @@ export namespace Prisma {
     discountPercent: number
     requirements: number
     restaurantId: number
+    status: number
     _all: number
   }
 
@@ -3728,6 +3731,7 @@ export namespace Prisma {
     expirationTime?: true
     discountPercent?: true
     restaurantId?: true
+    status?: true
   }
 
   export type DiscountCodeMaxAggregateInputType = {
@@ -3737,6 +3741,7 @@ export namespace Prisma {
     expirationTime?: true
     discountPercent?: true
     restaurantId?: true
+    status?: true
   }
 
   export type DiscountCodeCountAggregateInputType = {
@@ -3747,6 +3752,7 @@ export namespace Prisma {
     discountPercent?: true
     requirements?: true
     restaurantId?: true
+    status?: true
     _all?: true
   }
 
@@ -3844,6 +3850,7 @@ export namespace Prisma {
     discountPercent: number
     requirements: JsonValue
     restaurantId: number
+    status: $Enums.DiscountStatus
     _count: DiscountCodeCountAggregateOutputType | null
     _avg: DiscountCodeAvgAggregateOutputType | null
     _sum: DiscountCodeSumAggregateOutputType | null
@@ -3873,6 +3880,7 @@ export namespace Prisma {
     discountPercent?: boolean
     requirements?: boolean
     restaurantId?: boolean
+    status?: boolean
     restaurant?: boolean | UserDefaultArgs<ExtArgs>
     applicableItems?: boolean | DiscountCode$applicableItemsArgs<ExtArgs>
     redemptions?: boolean | DiscountCode$redemptionsArgs<ExtArgs>
@@ -3887,6 +3895,7 @@ export namespace Prisma {
     discountPercent?: boolean
     requirements?: boolean
     restaurantId?: boolean
+    status?: boolean
     restaurant?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["discountCode"]>
 
@@ -3898,6 +3907,7 @@ export namespace Prisma {
     discountPercent?: boolean
     requirements?: boolean
     restaurantId?: boolean
+    status?: boolean
     restaurant?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["discountCode"]>
 
@@ -3909,9 +3919,10 @@ export namespace Prisma {
     discountPercent?: boolean
     requirements?: boolean
     restaurantId?: boolean
+    status?: boolean
   }
 
-  export type DiscountCodeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "code" | "activationTime" | "expirationTime" | "discountPercent" | "requirements" | "restaurantId", ExtArgs["result"]["discountCode"]>
+  export type DiscountCodeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "code" | "activationTime" | "expirationTime" | "discountPercent" | "requirements" | "restaurantId" | "status", ExtArgs["result"]["discountCode"]>
   export type DiscountCodeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     restaurant?: boolean | UserDefaultArgs<ExtArgs>
     applicableItems?: boolean | DiscountCode$applicableItemsArgs<ExtArgs>
@@ -3940,6 +3951,7 @@ export namespace Prisma {
       discountPercent: number
       requirements: Prisma.JsonValue
       restaurantId: number
+      status: $Enums.DiscountStatus
     }, ExtArgs["result"]["discountCode"]>
     composites: {}
   }
@@ -4373,6 +4385,7 @@ export namespace Prisma {
     readonly discountPercent: FieldRef<"DiscountCode", 'Float'>
     readonly requirements: FieldRef<"DiscountCode", 'Json'>
     readonly restaurantId: FieldRef<"DiscountCode", 'Int'>
+    readonly status: FieldRef<"DiscountCode", 'DiscountStatus'>
   }
     
 
@@ -7066,7 +7079,8 @@ export namespace Prisma {
     expirationTime: 'expirationTime',
     discountPercent: 'discountPercent',
     requirements: 'requirements',
-    restaurantId: 'restaurantId'
+    restaurantId: 'restaurantId',
+    status: 'status'
   };
 
   export type DiscountCodeScalarFieldEnum = (typeof DiscountCodeScalarFieldEnum)[keyof typeof DiscountCodeScalarFieldEnum]
@@ -7362,6 +7376,7 @@ export namespace Prisma {
     discountPercent?: FloatFilter<"DiscountCode"> | number
     requirements?: JsonFilter<"DiscountCode">
     restaurantId?: IntFilter<"DiscountCode"> | number
+    status?: EnumDiscountStatusFilter<"DiscountCode"> | $Enums.DiscountStatus
     restaurant?: XOR<UserScalarRelationFilter, UserWhereInput>
     applicableItems?: DiscountCodeItemListRelationFilter
     redemptions?: RedemptionListRelationFilter
@@ -7375,6 +7390,7 @@ export namespace Prisma {
     discountPercent?: SortOrder
     requirements?: SortOrder
     restaurantId?: SortOrder
+    status?: SortOrder
     restaurant?: UserOrderByWithRelationInput
     applicableItems?: DiscountCodeItemOrderByRelationAggregateInput
     redemptions?: RedemptionOrderByRelationAggregateInput
@@ -7391,6 +7407,7 @@ export namespace Prisma {
     discountPercent?: FloatFilter<"DiscountCode"> | number
     requirements?: JsonFilter<"DiscountCode">
     restaurantId?: IntFilter<"DiscountCode"> | number
+    status?: EnumDiscountStatusFilter<"DiscountCode"> | $Enums.DiscountStatus
     restaurant?: XOR<UserScalarRelationFilter, UserWhereInput>
     applicableItems?: DiscountCodeItemListRelationFilter
     redemptions?: RedemptionListRelationFilter
@@ -7404,6 +7421,7 @@ export namespace Prisma {
     discountPercent?: SortOrder
     requirements?: SortOrder
     restaurantId?: SortOrder
+    status?: SortOrder
     _count?: DiscountCodeCountOrderByAggregateInput
     _avg?: DiscountCodeAvgOrderByAggregateInput
     _max?: DiscountCodeMaxOrderByAggregateInput
@@ -7422,6 +7440,7 @@ export namespace Prisma {
     discountPercent?: FloatWithAggregatesFilter<"DiscountCode"> | number
     requirements?: JsonWithAggregatesFilter<"DiscountCode">
     restaurantId?: IntWithAggregatesFilter<"DiscountCode"> | number
+    status?: EnumDiscountStatusWithAggregatesFilter<"DiscountCode"> | $Enums.DiscountStatus
   }
 
   export type DiscountCodeItemWhereInput = {
@@ -7647,6 +7666,7 @@ export namespace Prisma {
     expirationTime: Date | string
     discountPercent: number
     requirements: JsonNullValueInput | InputJsonValue
+    status?: $Enums.DiscountStatus
     restaurant: UserCreateNestedOneWithoutDiscountsInput
     applicableItems?: DiscountCodeItemCreateNestedManyWithoutDiscountCodeInput
     redemptions?: RedemptionCreateNestedManyWithoutDiscountCodeInput
@@ -7660,6 +7680,7 @@ export namespace Prisma {
     discountPercent: number
     requirements: JsonNullValueInput | InputJsonValue
     restaurantId: number
+    status?: $Enums.DiscountStatus
     applicableItems?: DiscountCodeItemUncheckedCreateNestedManyWithoutDiscountCodeInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutDiscountCodeInput
   }
@@ -7670,6 +7691,7 @@ export namespace Prisma {
     expirationTime?: DateTimeFieldUpdateOperationsInput | Date | string
     discountPercent?: FloatFieldUpdateOperationsInput | number
     requirements?: JsonNullValueInput | InputJsonValue
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
     restaurant?: UserUpdateOneRequiredWithoutDiscountsNestedInput
     applicableItems?: DiscountCodeItemUpdateManyWithoutDiscountCodeNestedInput
     redemptions?: RedemptionUpdateManyWithoutDiscountCodeNestedInput
@@ -7683,6 +7705,7 @@ export namespace Prisma {
     discountPercent?: FloatFieldUpdateOperationsInput | number
     requirements?: JsonNullValueInput | InputJsonValue
     restaurantId?: IntFieldUpdateOperationsInput | number
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
     applicableItems?: DiscountCodeItemUncheckedUpdateManyWithoutDiscountCodeNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutDiscountCodeNestedInput
   }
@@ -7695,6 +7718,7 @@ export namespace Prisma {
     discountPercent: number
     requirements: JsonNullValueInput | InputJsonValue
     restaurantId: number
+    status?: $Enums.DiscountStatus
   }
 
   export type DiscountCodeUpdateManyMutationInput = {
@@ -7703,6 +7727,7 @@ export namespace Prisma {
     expirationTime?: DateTimeFieldUpdateOperationsInput | Date | string
     discountPercent?: FloatFieldUpdateOperationsInput | number
     requirements?: JsonNullValueInput | InputJsonValue
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
   }
 
   export type DiscountCodeUncheckedUpdateManyInput = {
@@ -7713,6 +7738,7 @@ export namespace Prisma {
     discountPercent?: FloatFieldUpdateOperationsInput | number
     requirements?: JsonNullValueInput | InputJsonValue
     restaurantId?: IntFieldUpdateOperationsInput | number
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
   }
 
   export type DiscountCodeItemCreateInput = {
@@ -8069,6 +8095,13 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type EnumDiscountStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.DiscountStatus | EnumDiscountStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDiscountStatusFilter<$PrismaModel> | $Enums.DiscountStatus
+  }
+
   export type DiscountCodeCountOrderByAggregateInput = {
     id?: SortOrder
     code?: SortOrder
@@ -8077,6 +8110,7 @@ export namespace Prisma {
     discountPercent?: SortOrder
     requirements?: SortOrder
     restaurantId?: SortOrder
+    status?: SortOrder
   }
 
   export type DiscountCodeAvgOrderByAggregateInput = {
@@ -8092,6 +8126,7 @@ export namespace Prisma {
     expirationTime?: SortOrder
     discountPercent?: SortOrder
     restaurantId?: SortOrder
+    status?: SortOrder
   }
 
   export type DiscountCodeMinOrderByAggregateInput = {
@@ -8101,6 +8136,7 @@ export namespace Prisma {
     expirationTime?: SortOrder
     discountPercent?: SortOrder
     restaurantId?: SortOrder
+    status?: SortOrder
   }
 
   export type DiscountCodeSumOrderByAggregateInput = {
@@ -8165,6 +8201,16 @@ export namespace Prisma {
     _max?: NestedJsonFilter<$PrismaModel>
   }
 
+  export type EnumDiscountStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DiscountStatus | EnumDiscountStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDiscountStatusWithAggregatesFilter<$PrismaModel> | $Enums.DiscountStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDiscountStatusFilter<$PrismaModel>
+    _max?: NestedEnumDiscountStatusFilter<$PrismaModel>
+  }
+
   export type DiscountCodeScalarRelationFilter = {
     is?: DiscountCodeWhereInput
     isNot?: DiscountCodeWhereInput
@@ -8203,13 +8249,6 @@ export namespace Prisma {
     id?: SortOrder
     discountCodeId?: SortOrder
     itemId?: SortOrder
-  }
-
-  export type EnumDiscountStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.DiscountStatus | EnumDiscountStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumDiscountStatusFilter<$PrismaModel> | $Enums.DiscountStatus
   }
 
   export type DateTimeNullableFilter<$PrismaModel = never> = {
@@ -8257,16 +8296,6 @@ export namespace Prisma {
     id?: SortOrder
     influencerId?: SortOrder
     discountCodeId?: SortOrder
-  }
-
-  export type EnumDiscountStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.DiscountStatus | EnumDiscountStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumDiscountStatusWithAggregatesFilter<$PrismaModel> | $Enums.DiscountStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumDiscountStatusFilter<$PrismaModel>
-    _max?: NestedEnumDiscountStatusFilter<$PrismaModel>
   }
 
   export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -8531,6 +8560,10 @@ export namespace Prisma {
     divide?: number
   }
 
+  export type EnumDiscountStatusFieldUpdateOperationsInput = {
+    set?: $Enums.DiscountStatus
+  }
+
   export type UserUpdateOneRequiredWithoutDiscountsNestedInput = {
     create?: XOR<UserCreateWithoutDiscountsInput, UserUncheckedCreateWithoutDiscountsInput>
     connectOrCreate?: UserCreateOrConnectWithoutDiscountsInput
@@ -8633,10 +8666,6 @@ export namespace Prisma {
     create?: XOR<UserCreateWithoutRedemptionsInput, UserUncheckedCreateWithoutRedemptionsInput>
     connectOrCreate?: UserCreateOrConnectWithoutRedemptionsInput
     connect?: UserWhereUniqueInput
-  }
-
-  export type EnumDiscountStatusFieldUpdateOperationsInput = {
-    set?: $Enums.DiscountStatus
   }
 
   export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -8798,6 +8827,13 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type NestedEnumDiscountStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.DiscountStatus | EnumDiscountStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDiscountStatusFilter<$PrismaModel> | $Enums.DiscountStatus
+  }
+
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -8851,11 +8887,14 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type NestedEnumDiscountStatusFilter<$PrismaModel = never> = {
+  export type NestedEnumDiscountStatusWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.DiscountStatus | EnumDiscountStatusFieldRefInput<$PrismaModel>
     in?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
     notIn?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumDiscountStatusFilter<$PrismaModel> | $Enums.DiscountStatus
+    not?: NestedEnumDiscountStatusWithAggregatesFilter<$PrismaModel> | $Enums.DiscountStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDiscountStatusFilter<$PrismaModel>
+    _max?: NestedEnumDiscountStatusFilter<$PrismaModel>
   }
 
   export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
@@ -8867,16 +8906,6 @@ export namespace Prisma {
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
-
-  export type NestedEnumDiscountStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.DiscountStatus | EnumDiscountStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumDiscountStatusWithAggregatesFilter<$PrismaModel> | $Enums.DiscountStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumDiscountStatusFilter<$PrismaModel>
-    _max?: NestedEnumDiscountStatusFilter<$PrismaModel>
   }
 
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -8899,6 +8928,7 @@ export namespace Prisma {
     expirationTime: Date | string
     discountPercent: number
     requirements: JsonNullValueInput | InputJsonValue
+    status?: $Enums.DiscountStatus
     applicableItems?: DiscountCodeItemCreateNestedManyWithoutDiscountCodeInput
     redemptions?: RedemptionCreateNestedManyWithoutDiscountCodeInput
   }
@@ -8910,6 +8940,7 @@ export namespace Prisma {
     expirationTime: Date | string
     discountPercent: number
     requirements: JsonNullValueInput | InputJsonValue
+    status?: $Enums.DiscountStatus
     applicableItems?: DiscountCodeItemUncheckedCreateNestedManyWithoutDiscountCodeInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutDiscountCodeInput
   }
@@ -8997,6 +9028,7 @@ export namespace Prisma {
     discountPercent?: FloatFilter<"DiscountCode"> | number
     requirements?: JsonFilter<"DiscountCode">
     restaurantId?: IntFilter<"DiscountCode"> | number
+    status?: EnumDiscountStatusFilter<"DiscountCode"> | $Enums.DiscountStatus
   }
 
   export type ItemUpsertWithWhereUniqueWithoutRestaurantInput = {
@@ -9276,6 +9308,7 @@ export namespace Prisma {
     expirationTime: Date | string
     discountPercent: number
     requirements: JsonNullValueInput | InputJsonValue
+    status?: $Enums.DiscountStatus
     restaurant: UserCreateNestedOneWithoutDiscountsInput
     redemptions?: RedemptionCreateNestedManyWithoutDiscountCodeInput
   }
@@ -9288,6 +9321,7 @@ export namespace Prisma {
     discountPercent: number
     requirements: JsonNullValueInput | InputJsonValue
     restaurantId: number
+    status?: $Enums.DiscountStatus
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutDiscountCodeInput
   }
 
@@ -9331,6 +9365,7 @@ export namespace Prisma {
     expirationTime?: DateTimeFieldUpdateOperationsInput | Date | string
     discountPercent?: FloatFieldUpdateOperationsInput | number
     requirements?: JsonNullValueInput | InputJsonValue
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
     restaurant?: UserUpdateOneRequiredWithoutDiscountsNestedInput
     redemptions?: RedemptionUpdateManyWithoutDiscountCodeNestedInput
   }
@@ -9343,6 +9378,7 @@ export namespace Prisma {
     discountPercent?: FloatFieldUpdateOperationsInput | number
     requirements?: JsonNullValueInput | InputJsonValue
     restaurantId?: IntFieldUpdateOperationsInput | number
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
     redemptions?: RedemptionUncheckedUpdateManyWithoutDiscountCodeNestedInput
   }
 
@@ -9376,6 +9412,7 @@ export namespace Prisma {
     expirationTime: Date | string
     discountPercent: number
     requirements: JsonNullValueInput | InputJsonValue
+    status?: $Enums.DiscountStatus
     restaurant: UserCreateNestedOneWithoutDiscountsInput
     applicableItems?: DiscountCodeItemCreateNestedManyWithoutDiscountCodeInput
   }
@@ -9388,6 +9425,7 @@ export namespace Prisma {
     discountPercent: number
     requirements: JsonNullValueInput | InputJsonValue
     restaurantId: number
+    status?: $Enums.DiscountStatus
     applicableItems?: DiscountCodeItemUncheckedCreateNestedManyWithoutDiscountCodeInput
   }
 
@@ -9435,6 +9473,7 @@ export namespace Prisma {
     expirationTime?: DateTimeFieldUpdateOperationsInput | Date | string
     discountPercent?: FloatFieldUpdateOperationsInput | number
     requirements?: JsonNullValueInput | InputJsonValue
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
     restaurant?: UserUpdateOneRequiredWithoutDiscountsNestedInput
     applicableItems?: DiscountCodeItemUpdateManyWithoutDiscountCodeNestedInput
   }
@@ -9447,6 +9486,7 @@ export namespace Prisma {
     discountPercent?: FloatFieldUpdateOperationsInput | number
     requirements?: JsonNullValueInput | InputJsonValue
     restaurantId?: IntFieldUpdateOperationsInput | number
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
     applicableItems?: DiscountCodeItemUncheckedUpdateManyWithoutDiscountCodeNestedInput
   }
 
@@ -9485,6 +9525,7 @@ export namespace Prisma {
     expirationTime: Date | string
     discountPercent: number
     requirements: JsonNullValueInput | InputJsonValue
+    status?: $Enums.DiscountStatus
   }
 
   export type ItemCreateManyRestaurantInput = {
@@ -9506,6 +9547,7 @@ export namespace Prisma {
     expirationTime?: DateTimeFieldUpdateOperationsInput | Date | string
     discountPercent?: FloatFieldUpdateOperationsInput | number
     requirements?: JsonNullValueInput | InputJsonValue
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
     applicableItems?: DiscountCodeItemUpdateManyWithoutDiscountCodeNestedInput
     redemptions?: RedemptionUpdateManyWithoutDiscountCodeNestedInput
   }
@@ -9517,6 +9559,7 @@ export namespace Prisma {
     expirationTime?: DateTimeFieldUpdateOperationsInput | Date | string
     discountPercent?: FloatFieldUpdateOperationsInput | number
     requirements?: JsonNullValueInput | InputJsonValue
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
     applicableItems?: DiscountCodeItemUncheckedUpdateManyWithoutDiscountCodeNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutDiscountCodeNestedInput
   }
@@ -9528,6 +9571,7 @@ export namespace Prisma {
     expirationTime?: DateTimeFieldUpdateOperationsInput | Date | string
     discountPercent?: FloatFieldUpdateOperationsInput | number
     requirements?: JsonNullValueInput | InputJsonValue
+    status?: EnumDiscountStatusFieldUpdateOperationsInput | $Enums.DiscountStatus
   }
 
   export type ItemUpdateWithoutRestaurantInput = {

@@ -141,7 +141,8 @@ exports.Prisma.DiscountCodeScalarFieldEnum = {
   expirationTime: 'expirationTime',
   discountPercent: 'discountPercent',
   requirements: 'requirements',
-  restaurantId: 'restaurantId'
+  restaurantId: 'restaurantId',
+  status: 'status'
 };
 
 exports.Prisma.DiscountCodeItemScalarFieldEnum = {

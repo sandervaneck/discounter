@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { PrismaClient } from "../../../generated/client";
+import { DiscountStatus, PrismaClient } from "../../../generated/client";
 import { authOptions } from "@/lib/auth";
 
 const prisma = new PrismaClient();
@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
       discountPercent,
       requirements,
       applicableItemIds,
+      status 
     } = body;
 
     if (
@@ -73,6 +74,7 @@ export async function POST(req: NextRequest) {
         discountPercent,
         requirements: JSON.parse(requirements),
         restaurant: { connect: { email: session.user.email } },
+        status: status.lowerCase() as DiscountStatus,
         applicableItems: {
           create: itemIds.map((id) => ({
             item: { connect: { id } },

@@ -264,7 +264,7 @@ const [user, setUser] = useState<{ email: string } | null>(null);
                   </td>
                   <td className="p-2 border border-emerald-100">
                     <span className="inline-block bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full mr-2 mb-2">
-                        Available
+                        {code.status.charAt(0).toUpperCase() + code.status.slice(1)}
                       </span>
                   </td>
                   <td className="p-2 border border-emerald-100 text-center">
