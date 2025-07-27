@@ -31,6 +31,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
+  console.log("Creating discount for session:", session);
   if (!session || !["restaurant", "business"].includes(session.user.userType)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

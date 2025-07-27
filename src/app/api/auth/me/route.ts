@@ -1,10 +1,12 @@
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 
 export async function GET(req: NextRequest) {
-  const cookieStore = cookies();
-  const token = (await cookieStore).get('auth-token')?.value;
+  const cookieHeader = req.headers.get('cookie');
+  const token = cookieHeader
+    ?.split(';')
+    .find((c) => c.trim().startsWith('auth-token='))
+    ?.split('=')[1];
 
   if (!token) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -12,8 +14,11 @@ export async function GET(req: NextRequest) {
 
   try {
     const payload = jwt.verify(token, process.env.AUTH_SECRET!);
-    console.log('Token payload:', payload);
-    return NextResponse.json({ id: (payload as any).id, email: (payload as any).email, userType: (payload as any).userType });
+    return NextResponse.json({
+      id: (payload as any).id,
+      email: (payload as any).email,
+      userType: (payload as any).userType,
+    });
   } catch (err) {
     return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
   }
