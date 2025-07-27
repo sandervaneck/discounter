@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const payload = jwt.verify(token, process.env.AUTH_SECRET!);
+    const payload = jwt.verify(token, process.env.NEXTAUTH_SECRET!);
     return NextResponse.json({
       id: (payload as any).id,
       email: (payload as any).email,
