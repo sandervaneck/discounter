@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+    console.log("SESSION (prod):", session);
+    
+  console.log('SECRET:', process.env.NEXTAUTH_SECRET);
   const cookieHeader = req.headers.get('cookie');
   const token = cookieHeader
     ?.split(';')
