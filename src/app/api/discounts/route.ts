@@ -10,7 +10,11 @@ const prisma = new PrismaClient();
 export async function GET() {
   const session = await getServerSession(authOptions);
   console.log("Fetching discounts for session:", session);
-  if (!session || !["restaurant", "business"].includes(session.user.userType)) {
+  //if (!session || !["restaurant", "business"].includes(session.user.userType)) {
+  //  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  //}
+
+  if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
