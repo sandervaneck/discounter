@@ -12,7 +12,7 @@ export default function Home() {
   const [showLoginFields, setShowLoginFields] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [registerForm, setRegisterForm] = useState<{email: string | undefined, password: string | undefined, userType: "influencer" | "restaurant" | undefined} | null>(null);
+  const [registerForm, setRegisterForm] = useState<{email: string | undefined, password: string | undefined, name: string | undefined, userType: "influencer" | "restaurant" | undefined} | null>(null);
 
   useEffect(() => {
     if (userType && showLoginFields === false) {
@@ -36,7 +36,7 @@ export default function Home() {
 };
 
   const handleSignUp = async () => {
-    if (!registerForm?.email || !registerForm.password || !registerForm.userType) {
+    if (!registerForm?.email || !registerForm.password || !registerForm.userType || !registerForm.name) {
       alert("Please fill in all fields.");
       return;
     }
@@ -44,6 +44,7 @@ export default function Home() {
     const mappedUserType = registerForm.userType === "restaurant" ? "business" : "influencer";
     const mappedEmail = registerForm.email.trim().toLowerCase();
     const mappedPassword = registerForm.password;
+    const mappedName = registerForm.name.trim();
     
     const res = await fetch("/api/auth/signup", {
       method: "POST",
@@ -53,6 +54,7 @@ export default function Home() {
       body: JSON.stringify({
   email: mappedEmail,
   password: mappedPassword,
+  name: mappedName,
   userType: mappedUserType,
 })
 
@@ -118,12 +120,13 @@ export default function Home() {
           <div className="text-sm text-emerald-600 mb-4">
               <select
                 value={registerForm?.userType || ""}
-                onChange={(e) => setRegisterForm({
-                  email: registerForm?.email,
-                  password: registerForm?.password,
-                  userType: e.target.value as "influencer" | "restaurant"
-                })
-                }
+                  onChange={(e) => setRegisterForm({
+                    email: registerForm?.email,
+                    password: registerForm?.password,
+                    name: registerForm?.name,
+                    userType: e.target.value as "influencer" | "restaurant"
+                  })
+                  }
                 className="w-full max-w-sm px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white"
               >
                 <option value="" disabled>Select User Type</option>
@@ -141,6 +144,19 @@ export default function Home() {
                 onChange={(e) => setRegisterForm({
                   email: e.target.value,
                   password: registerForm?.password,
+                  name: registerForm?.name,
+                  userType: registerForm?.userType
+                })}
+                className="w-full max-w-sm px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
+              />
+              <input
+                type="text"
+                placeholder="Name"
+                value={registerForm?.name || ""}
+                onChange={(e) => setRegisterForm({
+                  email: registerForm?.email,
+                  password: registerForm?.password,
+                  name: e.target.value,
                   userType: registerForm?.userType
                 })}
                 className="w-full max-w-sm px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
@@ -152,6 +168,7 @@ export default function Home() {
                 onChange={(e) => setRegisterForm({
                   email: registerForm?.email,
                   password: e.target.value,
+                  name: registerForm?.name,
                   userType: registerForm?.userType
                 })}
                 className="w-full max-w-sm px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
@@ -165,7 +182,7 @@ export default function Home() {
                   </div>
                   <button
                     onClick={handleSignUp}
-                    disabled={!registerForm?.email || !registerForm?.password || !registerForm?.userType || !registerForm || registerForm.password.length < 6}
+                    disabled={!registerForm?.email || !registerForm?.password || !registerForm?.userType || !registerForm?.name || !registerForm || registerForm.password.length < 6}
                     className="mt-4 px-6 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition-colors"
                   >
                     Sign Up
