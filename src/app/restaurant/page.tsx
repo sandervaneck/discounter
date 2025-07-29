@@ -51,7 +51,7 @@ export default function RestaurantDiscountDashboard() {
   const [filterStatus, setFilterStatus] = useState<DiscountStatus | "all">("all");
   const [availableItems, setAvailableItems] = useState<Item[]>([]);
   const [itemsByDiscountId, setItemsByDiscountId] = useState<Record<number, Item[]>>({});
-const [user, setUser] = useState<{ email: string } | null>(null);
+const [user, setUser] = useState<{ email: string, name: string } | null>(null);
   const [tab, setTab] = useState(0);
   const [expandedRows, setExpandedRows] = useState<Record<number, boolean>>({});
   const [editingId, setEditingId] = useState<number | null>(null);

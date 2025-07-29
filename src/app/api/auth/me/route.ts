@@ -24,6 +24,7 @@ export async function GET(req: Request) {
     return NextResponse.json({
       id: (payload as any).id,
       email: (payload as any).email,
+      name: (payload as any).name,
       userType: (payload as any).userType,
     });
   } catch (err) {
