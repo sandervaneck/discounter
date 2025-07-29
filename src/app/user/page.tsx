@@ -92,7 +92,7 @@ export default function UserPage() {
     );
   };
 
-  const [user, setUser] = useState<{ email: string } | null>(null);
+  const [user, setUser] = useState<{ email: string, name: string } | null>(null);
 
   useEffect(() => {
     // Fetch the authenticated user info from your API/session endpoint
@@ -128,7 +128,7 @@ export default function UserPage() {
                           className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-all duration-200"
           onClick={() => router.push("/")}>Register and manage your discount codes!</button></>}
           <strong className="text-emerald-800">
-            {user ? user.email : 'Loading...'}
+            {user ? user.name : 'Loading...'}
           </strong>
         </div>
         {userDefined && <div className="flex gap-3">

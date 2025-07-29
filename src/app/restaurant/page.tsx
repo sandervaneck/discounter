@@ -281,9 +281,9 @@ const [user, setUser] = useState<{ email: string } | null>(null);
       <div className="w-full max-w-6xl">
         <RestaurantToolbar tab={tab} setTab={setTab} />
         <div className="flex justify-between items-center border-b-2 border-emerald-700 pb-4 mb-8">
-          <h1 className="text-2xl font-bold text-emerald-800">{session.user.email} Discount Dashboard</h1>
+          <h1 className="text-2xl font-bold text-emerald-800">{session.user.name} Discount Dashboard</h1>
           <div className="text-sm font-semibold text-emerald-900 border border-emerald-600 bg-emerald-100 px-4 py-1 rounded">
-            Logged in as <span className="text-emerald-800">{session.user.email}</span>
+            Logged in as <span className="text-emerald-800">{session.user.name}</span>
           </div>
         </div>
 

@@ -5,6 +5,7 @@ declare module "next-auth" {
     id: number;
     email: string;
     userType: UserType;
+    name: string;
   }
 
   interface Session {
@@ -12,6 +13,7 @@ declare module "next-auth" {
       id: number;
       email: string;
       userType: UserType;
+      name: string;
     };
   }
 }
