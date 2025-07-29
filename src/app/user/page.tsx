@@ -60,25 +60,40 @@ export default function UserPage() {
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [platform, setPlatform] = useState<'instagram' | 'tiktok'>('instagram');
   const [showTooltip, setShowTooltip] = useState(false);
+  const [restaurantQuery, setRestaurantQuery] = useState('');
+  const [restaurantResults, setRestaurantResults] = useState<{ id: number; name: string }[]>([]);
+  const [selectedRestaurant, setSelectedRestaurant] = useState<{ id: number; name: string } | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedRestaurant) {
+      alert('Please select a restaurant');
+      return;
+    }
     setVerifying(true);
 
-    setTimeout(() => {
-      setResult({
-        username: 'influencer_eric',
-        views: 18200,
-        likes: 2400,
-        comments: 310,
-        reposts: 120,
-        discount: '30%',
-        items: ['Focaccia Truffle', 'Focaccia Caprese'],
-        restaurant: 'Focacceria Milano',
-        code: 'DISCOUNT-ER-18200',
+    try {
+      const res = await fetch('/api/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          restaurantId: selectedRestaurant.id,
+          platform,
+          reelLink,
+        }),
       });
+
+      if (!res.ok) {
+        throw new Error('Validation failed');
+      }
+
+      const data = await res.json();
+      setResult(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
       setVerifying(false);
-    }, 2000);
+    }
   };
 
   const [search, setSearch] = useState('');
@@ -108,6 +123,21 @@ export default function UserPage() {
         setUser(null);
       });
   }, []);
+
+  useEffect(() => {
+    if (!restaurantQuery) {
+      setRestaurantResults([]);
+      return;
+    }
+    const controller = new AbortController();
+    fetch(`/api/restaurants?search=${encodeURIComponent(restaurantQuery)}`, {
+      signal: controller.signal,
+    })
+      .then((res) => res.json())
+      .then((data) => setRestaurantResults(data))
+      .catch(() => {});
+    return () => controller.abort();
+  }, [restaurantQuery]);
 
   const userDefined =  user && !(user as any).error;
 
@@ -170,6 +200,32 @@ export default function UserPage() {
           <div className="p-6 sm:p-7">
             {!result && (
               <form onSubmit={handleSubmit} className="space-y-5">
+                <div>
+                  <label className="block text-emerald-700 font-semibold text-xs mb-1">Search Restaurant</label>
+                  <input
+                    type="text"
+                    value={restaurantQuery}
+                    onChange={(e) => { setRestaurantQuery(e.target.value); setSelectedRestaurant(null); }}
+                    placeholder="Search restaurant..."
+                    className="w-full px-4 py-2 rounded-xl border border-emerald-300 bg-white text-emerald-800 placeholder-emerald-400 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                  {restaurantResults.length > 0 && (
+                    <ul className="border border-emerald-300 rounded-xl mt-1 bg-white max-h-40 overflow-auto text-sm">
+                      {restaurantResults.map((r) => (
+                        <li
+                          key={r.id}
+                          onClick={() => { setSelectedRestaurant(r); setRestaurantQuery(r.name); setRestaurantResults([]); }}
+                          className="px-3 py-1 cursor-pointer hover:bg-emerald-50"
+                        >
+                          {r.name}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {selectedRestaurant && (
+                    <p className="text-xs text-emerald-700 mt-1">Selected: {selectedRestaurant.name}</p>
+                  )}
+                </div>
                 <div className="flex gap-3 justify-center">
                   <button
                     type="button"
