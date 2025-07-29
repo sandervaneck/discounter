@@ -13,7 +13,7 @@ export async function GET(req: Request) {
   const cookieHeader = req.headers.get('cookie');
   const token = cookieHeader
     ?.split(';')
-    .find((c) => c.trim().startsWith('auth-token='))
+    .find((c) => c.trim().startsWith('session-token='))
     ?.split('=')[1];
 
   if (!token) {
