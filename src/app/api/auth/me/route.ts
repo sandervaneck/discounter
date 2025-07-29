@@ -9,6 +9,7 @@ export async function GET(req: Request) {
     console.log("SESSION (prod):", session);
     
   console.log('SECRET:', process.env.NEXTAUTH_SECRET);
+  console.log('COOKIE HEADER:', req.headers.get('cookie'));
   const cookieHeader = req.headers.get('cookie');
   const token = cookieHeader
     ?.split(';')
