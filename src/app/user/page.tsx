@@ -307,10 +307,16 @@ export default function UserPage() {
 
               <button
                 type="submit"
-                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-all duration-200"
+                disabled={!selectedRestaurant}
+                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {verifying ? '⏳ Verifying post...' : '🎬 Submit post'}
               </button>
+              {!selectedRestaurant && (
+                <p className="text-xs text-emerald-600 mt-1">
+                  Please select a restaurant to submit.
+                </p>
+              )}
             </form>
           )}
 
