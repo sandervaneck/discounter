@@ -10,11 +10,7 @@ const prisma = new PrismaClient();
 export async function GET() {
   const session = await getServerSession(authOptions);
   console.log("Fetching discounts for session:", session);
-  //if (!session || !["restaurant", "business"].includes(session.user.userType)) {
-  //  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  //}
-
-  if (!session) {
+  if (!session || !["restaurant", "business"].includes(session.user.userType)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -66,6 +62,7 @@ export async function POST(req: NextRequest) {
       console.log("Invalid payload:", body);
       return NextResponse.json({ error: "Invalid or missing fields" }, { status: 400 });
     }
+    const parsedStatus = status ? status.toLowerCase() as DiscountStatus : DiscountStatus.available;
 
     // Extract only item IDs
     const itemIds: number[] = applicableItemIds.map((item: any) =>
@@ -78,9 +75,9 @@ export async function POST(req: NextRequest) {
         activationTime: new Date(activationTime),
         expirationTime: new Date(expirationTime),
         discountPercent,
-        requirements: JSON.parse(requirements),
+        requirements: requirements,
         restaurant: { connect: { email: session.user.email } },
-        status: status.lowerCase() as DiscountStatus,
+        status: parsedStatus,
         applicableItems: {
           create: itemIds.map((id) => ({
             item: { connect: { id } },

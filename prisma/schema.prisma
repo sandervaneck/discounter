@@ -39,7 +39,7 @@ model DiscountCode {
   restaurant      User               @relation("RestaurantDiscounts", fields: [restaurantId], references: [id])
   applicableItems DiscountCodeItem[]
   redemptions     Redemption[]
-  status DiscountStatus @default(available)
+  status          DiscountStatus @default(available)
 }
 
 model DiscountCodeItem {
