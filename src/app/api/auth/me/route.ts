@@ -1,9 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+
+import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 
-export async function GET(req: NextRequest) {
+export async function GET(req: Request) {
   const session = await getServerSession(authOptions);
     console.log("SESSION (prod):", session);
     
