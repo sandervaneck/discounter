@@ -21,19 +21,32 @@ export default function Home() {
   }, [userType]);
 
   const handleLogin = async () => {
-  const res = await signIn("credentials", {
-    redirect: false,
-    email,
-    password,
-  });
+    const res = await signIn("credentials", {
+      redirect: false,
+      email,
+      password,
+    });
 
-  if (res?.ok) {
-    if (userType === "influencer") router.push("/user");
-    else if (userType === "restaurant") router.push("/restaurant");
-  } else {
-    alert("Login failed");
-  }
-};
+    if (res?.ok) {
+      try {
+        const meRes = await fetch("/api/auth/me", {
+          method: "GET",
+          credentials: "include",
+        });
+        const me = await meRes.json();
+        if (me?.userType === "business") {
+          router.push("/restaurant");
+        } else {
+          router.push("/user");
+        }
+      } catch (err) {
+        console.error("Failed fetching current user:", err);
+        router.refresh();
+      }
+    } else {
+      alert("Login failed");
+    }
+  };
 
   const handleSignUp = async () => {
     if (!registerForm?.email || !registerForm.password || !registerForm.userType || !registerForm.name) {
