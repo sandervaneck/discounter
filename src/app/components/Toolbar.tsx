@@ -1,5 +1,7 @@
 "use client";
 
+import { signOut } from "next-auth/react";
+
 export const RestaurantToolbar = ({ tab, setTab }: { tab: number; setTab: (n: number) => void }) => {
   return (
     <div className="flex justify-between items-center px-8 py-4 mb-8 bg-white rounded-2xl shadow-md border border-emerald-100">
@@ -34,7 +36,7 @@ export const RestaurantToolbar = ({ tab, setTab }: { tab: number; setTab: (n: nu
         </a>
       </div>
       <div className="flex gap-4">
-        
+
         <a
           href="/items"
           className={`${
@@ -46,6 +48,13 @@ export const RestaurantToolbar = ({ tab, setTab }: { tab: number; setTab: (n: nu
         >
           Manage Items
         </a>
+
+        <button
+          onClick={() => signOut({ callbackUrl: '/' })}
+          className="px-4 py-2 rounded-lg text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition"
+        >
+          Log out
+        </button>
       </div>
     </div>
   );
