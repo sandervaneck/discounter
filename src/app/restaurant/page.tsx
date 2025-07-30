@@ -323,7 +323,12 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
               {/* ROWS */}
               {filteredCodes.map((code) => (
                 <>
-                <tr key={code.id} className="border-b border-emerald-100">
+                <tr
+                  key={code.id}
+                  className={`border-b border-emerald-100 ${
+                    editingId === code.id ? "bg-emerald-200" : ""
+                  }`}
+                >
                   <td className="p-2 border border-emerald-100">
                     <span className="inline-block bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full mr-2 mb-2">
                         {code.code}
@@ -467,7 +472,7 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
      <label className="font-medium text-emerald-800">Applicable Items:</label>
      <div className="flex flex-wrap gap-3 mt-2">
        {availableItems.map((item, idx) => {
-         const selected = editForm.items.includes(item);
+         const selected = editForm.items.some((i) => i.id === item.id);
          return (
            <label
              key={idx}
@@ -480,7 +485,10 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
                checked={selected}
                onChange={() =>
                  selected
-                   ? setEditForm({ ...editForm, items: editForm.items.filter((i) => i !== item) })
+                   ? setEditForm({
+                       ...editForm,
+                       items: editForm.items.filter((i) => i.id !== item.id),
+                     })
                    : setEditForm({ ...editForm, items: [...editForm.items, item] })
                }
                className="mr-2"
@@ -649,8 +657,8 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
     <label className="font-medium text-emerald-800">Applicable Items:</label>
     <div className="flex flex-wrap gap-3 mt-2">
       {availableItems.map((item, idx) => {
-        
-        const selected = form.items.includes(item);
+
+        const selected = form.items.some((i) => i.id === item.id);
         return (
           <label
             key={idx}
@@ -666,7 +674,7 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
               onChange={() => selected ?
                 setForm({
                   ...form,
-                  items: form.items.filter((i) => i !== item)
+                  items: form.items.filter((i) => i.id !== item.id)
                 }) :
                 setForm({
                   ...form,
