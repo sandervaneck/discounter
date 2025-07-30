@@ -5,6 +5,7 @@ import { CheckCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { QRCode } from 'react-qrcode-logo';
 import { DiscountType } from '../types/DiscountType';
 import { useRouter } from "next/navigation";
+import { signOut } from 'next-auth/react';
 
 const discountsMock = [
   {
@@ -182,6 +183,12 @@ export default function UserPage() {
           >
             🎁 My Discount Codes
           </button>
+          <button
+                    onClick={() => signOut({ callbackUrl: '/' })}
+                    className="px-4 py-2 rounded-lg text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition"
+                  >
+                    Log out
+                  </button>
         </div>}
       </div>
 
