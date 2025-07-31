@@ -5,6 +5,14 @@ import { RestaurantToolbar } from "../components/Toolbar";
 
 type DiscountStatus = "available" | "awarded" | "used" | "expired";
 
+interface Requirement {
+  platform: string;
+  views: number;
+  likes: number;
+  comments: number;
+  reposts: number;
+}
+
 interface DiscountCode {
   id: number;
   code: string;
@@ -12,12 +20,19 @@ interface DiscountCode {
   items: string[];
   expiryDate: string;
   status: DiscountStatus;
+  requirements?: Requirement[];
 }
 
 interface AwardedPost {
   username: string;
   reelViews: number;
+  likes: number;
+  comments: number;
+  reposts: number;
   userAccountId: string;
+  postLink: string;
+  datePosted: string;
+  dateRedeemed: string;
 }
 
 
@@ -26,17 +41,35 @@ const awardedPostsMap: Record<string, AwardedPost> = {
   "FOCA-9H2L1KX3": {
     username: "milanofocaccia",
     reelViews: 5234,
+    likes: 850,
+    comments: 120,
+    reposts: 60,
     userAccountId: "user_12345",
+    postLink: "https://instagram.com/p/abc123",
+    datePosted: "2024-01-15",
+    dateRedeemed: "2024-01-20",
   },
   "ANYCODE": {
     username: "milanofocaccia",
     reelViews: 1023,
+    likes: 300,
+    comments: 45,
+    reposts: 12,
     userAccountId: "user_12345",
+    postLink: "https://instagram.com/p/def456",
+    datePosted: "2024-02-01",
+    dateRedeemed: "2024-02-04",
   },
   "FREECODE": {
     username: "milanofocaccia",
     reelViews: 12345,
+    likes: 2000,
+    comments: 250,
+    reposts: 100,
     userAccountId: "user_12345",
+    postLink: "https://instagram.com/p/ghi789",
+    datePosted: "2024-03-10",
+    dateRedeemed: "2024-03-15",
   },
 };
 
@@ -98,6 +131,16 @@ export default function CashierDiscountScanner() {
         console.error("Failed fetching items", e);
       }
 
+      let requirements: Requirement[] = [];
+      if (Array.isArray(found.requirements)) {
+        requirements = found.requirements;
+      } else if (typeof found.requirements === "string") {
+        try {
+          const parsed = JSON.parse(found.requirements);
+          if (Array.isArray(parsed)) requirements = parsed;
+        } catch {}
+      }
+
       const awardedPost = awardedPostsMap[found.code.toUpperCase()];
 
       const mapped: DiscountCode = {
@@ -107,6 +150,7 @@ export default function CashierDiscountScanner() {
         items,
         expiryDate: found.expirationTime,
         status: found.status,
+        requirements,
       };
 
       setValidationResult({ code: mapped, awardedPost });
@@ -197,27 +241,55 @@ export default function CashierDiscountScanner() {
             <p className="font-bold text-lg">
               Discount: <span className="text-[#117a65]">{validationResult.code.discount}%</span>
             </p>
-            <p>
-              Applicable items: <span className="text-[#117a65]">{validationResult.code.items.join(", ")}</span>
-            </p>
-            {validationResult.awardedPost ? (
-              <div className="mt-4 space-y-2">
-                <p>
-                  Awarded to user: <strong>{validationResult.awardedPost.username}</strong>
-                </p>
-                <p>
-                  Reel views: <strong>{validationResult.awardedPost.reelViews.toLocaleString()}</strong>
-                </p>
-                <p>
-                  Restaurant tagged: <strong>✅</strong>
-                </p>
-                <p className="text-sm text-gray-600">
-                  User account ID: {validationResult.awardedPost.userAccountId}
-                </p>
-                <button className="w-full py-2 mt-3 bg-[#117a65] text-white font-bold rounded-xl">
-                  View Post
-                </button>
-              </div>
+          <p>
+            Applicable items: <span className="text-[#117a65]">{validationResult.code.items.join(", ")}</span>
+          </p>
+          {validationResult.code.requirements && validationResult.code.requirements.length > 0 && (
+            <div className="mt-3">
+              <h3 className="font-semibold">Requirements</h3>
+              <ul className="list-disc list-inside text-sm text-gray-700">
+                {validationResult.code.requirements.map((req, idx) => (
+                  <li key={idx}>
+                    {req.platform}: {req.views} views, {req.likes} likes, {req.comments} comments, {req.reposts} reposts
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {validationResult.awardedPost ? (
+            <div className="mt-4 space-y-2">
+              <p>
+                Awarded to user: <strong>{validationResult.awardedPost.username}</strong>
+              </p>
+              <p>
+                Reel views: <strong>{validationResult.awardedPost.reelViews.toLocaleString()}</strong>
+              </p>
+              <p>
+                Likes: <strong>{validationResult.awardedPost.likes.toLocaleString()}</strong>
+              </p>
+              <p>
+                Comments: <strong>{validationResult.awardedPost.comments.toLocaleString()}</strong>
+              </p>
+              <p>
+                Reposts: <strong>{validationResult.awardedPost.reposts.toLocaleString()}</strong>
+              </p>
+              <p>
+                Restaurant tagged: <strong>✅</strong>
+              </p>
+              <p className="text-sm text-gray-600">
+                User account ID: {validationResult.awardedPost.userAccountId}
+              </p>
+              <p className="text-sm">Date posted: {validationResult.awardedPost.datePosted}</p>
+              <p className="text-sm">Date redeemed: {validationResult.awardedPost.dateRedeemed}</p>
+              <a
+                href={validationResult.awardedPost.postLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full block text-center py-2 mt-3 bg-[#117a65] text-white font-bold rounded-xl"
+              >
+                View Post
+              </a>
+            </div>
             ) : (
               <p className="mt-4 italic text-gray-600">
                 No user awarded for this discount code yet.
