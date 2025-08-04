@@ -1434,6 +1434,7 @@ export namespace Prisma {
     password: string | null
     name: string | null
     userType: $Enums.UserType | null
+    url: string | null
   }
 
   export type UserMaxAggregateOutputType = {
@@ -1442,6 +1443,7 @@ export namespace Prisma {
     password: string | null
     name: string | null
     userType: $Enums.UserType | null
+    url: string | null
   }
 
   export type UserCountAggregateOutputType = {
@@ -1450,6 +1452,7 @@ export namespace Prisma {
     password: number
     name: number
     userType: number
+    url: number
     _all: number
   }
 
@@ -1468,6 +1471,7 @@ export namespace Prisma {
     password?: true
     name?: true
     userType?: true
+    url?: true
   }
 
   export type UserMaxAggregateInputType = {
@@ -1476,6 +1480,7 @@ export namespace Prisma {
     password?: true
     name?: true
     userType?: true
+    url?: true
   }
 
   export type UserCountAggregateInputType = {
@@ -1484,6 +1489,7 @@ export namespace Prisma {
     password?: true
     name?: true
     userType?: true
+    url?: true
     _all?: true
   }
 
@@ -1579,6 +1585,7 @@ export namespace Prisma {
     password: string
     name: string
     userType: $Enums.UserType
+    url: string
     _count: UserCountAggregateOutputType | null
     _avg: UserAvgAggregateOutputType | null
     _sum: UserSumAggregateOutputType | null
@@ -1606,6 +1613,7 @@ export namespace Prisma {
     password?: boolean
     name?: boolean
     userType?: boolean
+    url?: boolean
     discounts?: boolean | User$discountsArgs<ExtArgs>
     items?: boolean | User$itemsArgs<ExtArgs>
     redemptions?: boolean | User$redemptionsArgs<ExtArgs>
@@ -1618,6 +1626,7 @@ export namespace Prisma {
     password?: boolean
     name?: boolean
     userType?: boolean
+    url?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -1626,6 +1635,7 @@ export namespace Prisma {
     password?: boolean
     name?: boolean
     userType?: boolean
+    url?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectScalar = {
@@ -1634,9 +1644,10 @@ export namespace Prisma {
     password?: boolean
     name?: boolean
     userType?: boolean
+    url?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "name" | "userType", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "name" | "userType" | "url", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     discounts?: boolean | User$discountsArgs<ExtArgs>
     items?: boolean | User$itemsArgs<ExtArgs>
@@ -1659,6 +1670,7 @@ export namespace Prisma {
       password: string
       name: string
       userType: $Enums.UserType
+      url: string
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -2090,6 +2102,7 @@ export namespace Prisma {
     readonly password: FieldRef<"User", 'String'>
     readonly name: FieldRef<"User", 'String'>
     readonly userType: FieldRef<"User", 'UserType'>
+    readonly url: FieldRef<"User", 'String'>
   }
     
 
@@ -7083,7 +7096,8 @@ export namespace Prisma {
     email: 'email',
     password: 'password',
     name: 'name',
-    userType: 'userType'
+    userType: 'userType',
+    url: 'url'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -7288,6 +7302,7 @@ export namespace Prisma {
     password?: StringFilter<"User"> | string
     name?: StringFilter<"User"> | string
     userType?: EnumUserTypeFilter<"User"> | $Enums.UserType
+    url?: StringFilter<"User"> | string
     discounts?: DiscountCodeListRelationFilter
     items?: ItemListRelationFilter
     redemptions?: RedemptionListRelationFilter
@@ -7299,6 +7314,7 @@ export namespace Prisma {
     password?: SortOrder
     name?: SortOrder
     userType?: SortOrder
+    url?: SortOrder
     discounts?: DiscountCodeOrderByRelationAggregateInput
     items?: ItemOrderByRelationAggregateInput
     redemptions?: RedemptionOrderByRelationAggregateInput
@@ -7313,6 +7329,7 @@ export namespace Prisma {
     password?: StringFilter<"User"> | string
     name?: StringFilter<"User"> | string
     userType?: EnumUserTypeFilter<"User"> | $Enums.UserType
+    url?: StringFilter<"User"> | string
     discounts?: DiscountCodeListRelationFilter
     items?: ItemListRelationFilter
     redemptions?: RedemptionListRelationFilter
@@ -7324,6 +7341,7 @@ export namespace Prisma {
     password?: SortOrder
     name?: SortOrder
     userType?: SortOrder
+    url?: SortOrder
     _count?: UserCountOrderByAggregateInput
     _avg?: UserAvgOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
@@ -7340,6 +7358,7 @@ export namespace Prisma {
     password?: StringWithAggregatesFilter<"User"> | string
     name?: StringWithAggregatesFilter<"User"> | string
     userType?: EnumUserTypeWithAggregatesFilter<"User"> | $Enums.UserType
+    url?: StringWithAggregatesFilter<"User"> | string
   }
 
   export type ItemWhereInput = {
@@ -7590,6 +7609,7 @@ export namespace Prisma {
     password: string
     name: string
     userType: $Enums.UserType
+    url?: string
     discounts?: DiscountCodeCreateNestedManyWithoutRestaurantInput
     items?: ItemCreateNestedManyWithoutRestaurantInput
     redemptions?: RedemptionCreateNestedManyWithoutInfluencerInput
@@ -7601,6 +7621,7 @@ export namespace Prisma {
     password: string
     name: string
     userType: $Enums.UserType
+    url?: string
     discounts?: DiscountCodeUncheckedCreateNestedManyWithoutRestaurantInput
     items?: ItemUncheckedCreateNestedManyWithoutRestaurantInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutInfluencerInput
@@ -7611,6 +7632,7 @@ export namespace Prisma {
     password?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+    url?: StringFieldUpdateOperationsInput | string
     discounts?: DiscountCodeUpdateManyWithoutRestaurantNestedInput
     items?: ItemUpdateManyWithoutRestaurantNestedInput
     redemptions?: RedemptionUpdateManyWithoutInfluencerNestedInput
@@ -7622,6 +7644,7 @@ export namespace Prisma {
     password?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+    url?: StringFieldUpdateOperationsInput | string
     discounts?: DiscountCodeUncheckedUpdateManyWithoutRestaurantNestedInput
     items?: ItemUncheckedUpdateManyWithoutRestaurantNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutInfluencerNestedInput
@@ -7633,6 +7656,7 @@ export namespace Prisma {
     password: string
     name: string
     userType: $Enums.UserType
+    url?: string
   }
 
   export type UserUpdateManyMutationInput = {
@@ -7640,6 +7664,7 @@ export namespace Prisma {
     password?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+    url?: StringFieldUpdateOperationsInput | string
   }
 
   export type UserUncheckedUpdateManyInput = {
@@ -7648,6 +7673,7 @@ export namespace Prisma {
     password?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+    url?: StringFieldUpdateOperationsInput | string
   }
 
   export type ItemCreateInput = {
@@ -7938,6 +7964,7 @@ export namespace Prisma {
     password?: SortOrder
     name?: SortOrder
     userType?: SortOrder
+    url?: SortOrder
   }
 
   export type UserAvgOrderByAggregateInput = {
@@ -7950,6 +7977,7 @@ export namespace Prisma {
     password?: SortOrder
     name?: SortOrder
     userType?: SortOrder
+    url?: SortOrder
   }
 
   export type UserMinOrderByAggregateInput = {
@@ -7958,6 +7986,7 @@ export namespace Prisma {
     password?: SortOrder
     name?: SortOrder
     userType?: SortOrder
+    url?: SortOrder
   }
 
   export type UserSumOrderByAggregateInput = {
@@ -9150,6 +9179,7 @@ export namespace Prisma {
     password: string
     name: string
     userType: $Enums.UserType
+    url?: string
     discounts?: DiscountCodeCreateNestedManyWithoutRestaurantInput
     redemptions?: RedemptionCreateNestedManyWithoutInfluencerInput
   }
@@ -9160,6 +9190,7 @@ export namespace Prisma {
     password: string
     name: string
     userType: $Enums.UserType
+    url?: string
     discounts?: DiscountCodeUncheckedCreateNestedManyWithoutRestaurantInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutInfluencerInput
   }
@@ -9210,6 +9241,7 @@ export namespace Prisma {
     password?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+    url?: StringFieldUpdateOperationsInput | string
     discounts?: DiscountCodeUpdateManyWithoutRestaurantNestedInput
     redemptions?: RedemptionUpdateManyWithoutInfluencerNestedInput
   }
@@ -9220,6 +9252,7 @@ export namespace Prisma {
     password?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+    url?: StringFieldUpdateOperationsInput | string
     discounts?: DiscountCodeUncheckedUpdateManyWithoutRestaurantNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutInfluencerNestedInput
   }
@@ -9229,6 +9262,7 @@ export namespace Prisma {
     password: string
     name: string
     userType: $Enums.UserType
+    url?: string
     items?: ItemCreateNestedManyWithoutRestaurantInput
     redemptions?: RedemptionCreateNestedManyWithoutInfluencerInput
   }
@@ -9239,6 +9273,7 @@ export namespace Prisma {
     password: string
     name: string
     userType: $Enums.UserType
+    url?: string
     items?: ItemUncheckedCreateNestedManyWithoutRestaurantInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutInfluencerInput
   }
@@ -9306,6 +9341,7 @@ export namespace Prisma {
     password?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+    url?: StringFieldUpdateOperationsInput | string
     items?: ItemUpdateManyWithoutRestaurantNestedInput
     redemptions?: RedemptionUpdateManyWithoutInfluencerNestedInput
   }
@@ -9316,6 +9352,7 @@ export namespace Prisma {
     password?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+    url?: StringFieldUpdateOperationsInput | string
     items?: ItemUncheckedUpdateManyWithoutRestaurantNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutInfluencerNestedInput
   }
@@ -9489,6 +9526,7 @@ export namespace Prisma {
     password: string
     name: string
     userType: $Enums.UserType
+    url?: string
     discounts?: DiscountCodeCreateNestedManyWithoutRestaurantInput
     items?: ItemCreateNestedManyWithoutRestaurantInput
   }
@@ -9499,6 +9537,7 @@ export namespace Prisma {
     password: string
     name: string
     userType: $Enums.UserType
+    url?: string
     discounts?: DiscountCodeUncheckedCreateNestedManyWithoutRestaurantInput
     items?: ItemUncheckedCreateNestedManyWithoutRestaurantInput
   }
@@ -9558,6 +9597,7 @@ export namespace Prisma {
     password?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+    url?: StringFieldUpdateOperationsInput | string
     discounts?: DiscountCodeUpdateManyWithoutRestaurantNestedInput
     items?: ItemUpdateManyWithoutRestaurantNestedInput
   }
@@ -9568,6 +9608,7 @@ export namespace Prisma {
     password?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
+    url?: StringFieldUpdateOperationsInput | string
     discounts?: DiscountCodeUncheckedUpdateManyWithoutRestaurantNestedInput
     items?: ItemUncheckedUpdateManyWithoutRestaurantNestedInput
   }
