@@ -138,8 +138,10 @@ export default function CashierDiscountScanner() {
         try {
           const parsed = JSON.parse(found.requirements);
           if (Array.isArray(parsed)) requirements = parsed;
-        } catch {}
+        } catch (e) {
+        console.error("Failed fetching items", e);
       }
+    }
 
       const awardedPost = awardedPostsMap[found.code.toUpperCase()];
 
