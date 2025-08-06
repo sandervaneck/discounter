@@ -99,6 +99,13 @@ export default function Home() {
   const loadFacebookSDK = () => {
     return new Promise<void>((resolve) => {
       if ((window as any).FB) {
+        if (!(window as any).FB._initialized) {
+          (window as any).FB.init({
+            appId: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID,
+            cookie: true,
+            version: "v19.0",
+          });
+        }
         resolve();
         return;
       }
