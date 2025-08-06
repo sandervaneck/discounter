@@ -12,7 +12,13 @@ export default function Home() {
   const [showLoginFields, setShowLoginFields] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [registerForm, setRegisterForm] = useState<{email: string | undefined, password: string | undefined, name: string | undefined, userType: "influencer" | "restaurant" | undefined} | null>(null);
+  const [registerForm, setRegisterForm] = useState<{
+    email: string | undefined;
+    password: string | undefined;
+    name: string | undefined;
+    userType: "influencer" | "restaurant" | undefined;
+    url: string | undefined;
+  } | null>(null);
 
   useEffect(() => {
     if (userType && showLoginFields === false) {
@@ -58,6 +64,7 @@ export default function Home() {
     const mappedEmail = registerForm.email.trim().toLowerCase();
     const mappedPassword = registerForm.password;
     const mappedName = registerForm.name.trim();
+    const mappedUrl = registerForm.url;
     
     const res = await fetch("/api/auth/signup", {
       method: "POST",
@@ -65,11 +72,12 @@ export default function Home() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-  email: mappedEmail,
-  password: mappedPassword,
-  name: mappedName,
-  userType: mappedUserType,
-})
+        email: mappedEmail,
+        password: mappedPassword,
+        name: mappedName,
+        userType: mappedUserType,
+        url: mappedUrl,
+      })
 
     });
 
@@ -86,6 +94,46 @@ export default function Home() {
       }
       alert(`Sign up failed: ${errorMsg}`);
     }
+  };
+
+  const loadFacebookSDK = () => {
+    return new Promise<void>((resolve) => {
+      if ((window as any).FB) {
+        resolve();
+        return;
+      }
+      (window as any).fbAsyncInit = function () {
+        (window as any).FB.init({
+          appId: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID,
+          cookie: true,
+          version: "v19.0",
+        });
+        resolve();
+      };
+      const script = document.createElement("script");
+      script.src = "https://connect.facebook.net/en_US/sdk.js";
+      script.async = true;
+      document.body.appendChild(script);
+    });
+  };
+
+  const handleInstagramConnect = async () => {
+    await loadFacebookSDK();
+    (window as any).FB.login(
+      (response: any) => {
+        if (response.authResponse) {
+          const token = response.authResponse.accessToken;
+          setRegisterForm((prev) => ({
+            email: prev?.email,
+            password: prev?.password,
+            name: prev?.name,
+            userType: prev?.userType,
+            url: token,
+          }));
+        }
+      },
+      { scope: "instagram_basic,pages_show_list" }
+    );
   };
   return (
     <main className="min-h-screen bg-gradient-to-br from-emerald-50 to-white flex flex-col items-center justify-center px-4">
@@ -133,12 +181,14 @@ export default function Home() {
           <div className="text-sm text-emerald-600 mb-4">
               <select
                 value={registerForm?.userType || ""}
-                  onChange={(e) => setRegisterForm({
-                    email: registerForm?.email,
-                    password: registerForm?.password,
-                    name: registerForm?.name,
-                    userType: e.target.value as "influencer" | "restaurant"
-                  })
+                  onChange={(e) =>
+                    setRegisterForm({
+                      email: registerForm?.email,
+                      password: registerForm?.password,
+                      name: registerForm?.name,
+                      userType: e.target.value as "influencer" | "restaurant",
+                      url: registerForm?.url,
+                    })
                   }
                 className="w-full max-w-sm px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white"
               >
@@ -154,37 +204,60 @@ export default function Home() {
                 type="email"
                 placeholder="Email"
                 value={registerForm?.email || ""}
-                onChange={(e) => setRegisterForm({
-                  email: e.target.value,
-                  password: registerForm?.password,
-                  name: registerForm?.name,
-                  userType: registerForm?.userType
-                })}
+                onChange={(e) =>
+                  setRegisterForm({
+                    email: e.target.value,
+                    password: registerForm?.password,
+                    name: registerForm?.name,
+                    userType: registerForm?.userType,
+                    url: registerForm?.url,
+                  })
+                }
                 className="w-full max-w-sm px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
               />
               <input
                 type="text"
                 placeholder="Name"
                 value={registerForm?.name || ""}
-                onChange={(e) => setRegisterForm({
-                  email: registerForm?.email,
-                  password: registerForm?.password,
-                  name: e.target.value,
-                  userType: registerForm?.userType
-                })}
+                onChange={(e) =>
+                  setRegisterForm({
+                    email: registerForm?.email,
+                    password: registerForm?.password,
+                    name: e.target.value,
+                    userType: registerForm?.userType,
+                    url: registerForm?.url,
+                  })
+                }
                 className="w-full max-w-sm px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
               />
               <input
                 type="password"
                 placeholder="Password"
                 value={registerForm?.password || ""}
-                onChange={(e) => setRegisterForm({
-                  email: registerForm?.email,
-                  password: e.target.value,
-                  name: registerForm?.name,
-                  userType: registerForm?.userType
-                })}
+                onChange={(e) =>
+                  setRegisterForm({
+                    email: registerForm?.email,
+                    password: e.target.value,
+                    name: registerForm?.name,
+                    userType: registerForm?.userType,
+                    url: registerForm?.url,
+                  })
+                }
                 className="w-full max-w-sm px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
+              />
+              <button
+                type="button"
+                onClick={handleInstagramConnect}
+                className="w-full max-w-sm mt-2 px-4 py-2 bg-pink-600 text-white rounded-md hover:bg-pink-700 transition-colors"
+              >
+                Connect Instagram
+              </button>
+              <input
+                type="text"
+                placeholder="Instagram Access Token"
+                value={registerForm?.url || ""}
+                readOnly
+                className="w-full max-w-sm mt-2 px-4 py-2 border border-emerald-300 rounded-md text-emerald-800 bg-white placeholder-emerald-400"
               />
               <div className="text-sm text-emerald-600 mt-2">
                 Please enter your email and password to create an account.
