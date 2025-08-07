@@ -32,7 +32,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <div className="flex min-h-screen flex-col">
+            <main className="flex-grow">{children}</main>
+            <footer className="p-4 text-center text-xs text-gray-500">
+              <a
+                href="/privacy-policy"
+                className="underline hover:text-gray-700"
+              >
+                Privacy Policy
+              </a>
+            </footer>
+          </div>
+        </Providers>
       </body>
     </html>
   );
