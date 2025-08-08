@@ -217,12 +217,12 @@ export default function UserPage() {
                     className="w-full px-4 py-2 rounded-xl border border-emerald-300 bg-white text-emerald-800 placeholder-emerald-400 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                   {restaurantResults.length > 0 && (
-                    <ul className="border border-emerald-300 rounded-xl mt-1 bg-white max-h-40 overflow-auto text-sm">
+                    <ul className="border border-emerald-300 rounded-xl mt-1 bg-white max-h-40 overflow-auto text-sm text-emerald-800">
                       {restaurantResults.map((r) => (
                         <li
                           key={r.id}
                           onClick={() => { setSelectedRestaurant(r); setRestaurantQuery(r.name); setRestaurantResults([]); }}
-                          className="px-3 py-1 cursor-pointer hover:bg-emerald-50"
+                          className="px-3 py-1 cursor-pointer hover:bg-emerald-50 text-emerald-800"
                         >
                           {r.name}
                         </li>
