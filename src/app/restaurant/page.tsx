@@ -469,36 +469,36 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
      </label>
    </div>
    <div className="mt-6">
-     <label className="font-medium text-emerald-800">Applicable Items:</label>
-     <div className="flex flex-wrap gap-3 mt-2">
-       {availableItems.map((item, idx) => {
-         const selected = editForm.items.some((i) => i.id === item.id);
-         return (
-           <label
-             key={idx}
-             className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
-               selected ? "bg-emerald-100 border-2 border-emerald-600" : "bg-gray-50 border border-gray-300"
-             }`}
-           >
-             <input
-               type="checkbox"
-               checked={selected}
-               onChange={() =>
-                 selected
-                   ? setEditForm({
-                       ...editForm,
-                       items: editForm.items.filter((i) => i.id !== item.id),
-                     })
-                   : setEditForm({ ...editForm, items: [...editForm.items, item] })
-               }
-               className="mr-2"
-             />
-             {item.name}
-           </label>
-         );
-       })}
-     </div>
-   </div>
+    <label className="font-medium text-emerald-800">Applicable Items:</label>
+    <div className="flex flex-wrap gap-3 mt-2">
+      {availableItems.map((item, idx) => {
+        const selected = editForm.items.some((i) => i.id === item.id);
+        return (
+          <label
+            key={idx}
+            className={`px-3 py-1 rounded-full text-sm cursor-pointer text-emerald-800 ${
+              selected ? "bg-emerald-100 border-2 border-emerald-600" : "bg-gray-50 border border-gray-300"
+            }`}
+          >
+            <input
+              type="checkbox"
+              checked={selected}
+              onChange={() =>
+                selected
+                  ? setEditForm({
+                      ...editForm,
+                      items: editForm.items.filter((i) => i.id !== item.id),
+                    })
+                  : setEditForm({ ...editForm, items: [...editForm.items, item] })
+              }
+              className="mr-2 accent-emerald-600"
+            />
+            {item.name}
+          </label>
+        );
+      })}
+    </div>
+  </div>
 
    <div className="mt-10 border-t border-emerald-300 pt-6">
      <h3 className="text-lg font-semibold text-emerald-800 mb-4">Requirements</h3>
@@ -662,7 +662,7 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
         return (
           <label
             key={idx}
-            className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
+            className={`px-3 py-1 rounded-full text-sm cursor-pointer text-emerald-800 ${
               selected
                 ? "bg-emerald-100 border-2 border-emerald-600"
                 : "bg-gray-50 border border-gray-300"
@@ -681,7 +681,7 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
                   items: [...form.items, item]
                 })
               }
-              className="mr-2"
+              className="mr-2 accent-emerald-600"
             />
             {item.name}
           </label>
