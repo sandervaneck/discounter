@@ -20,6 +20,18 @@ export default function Home() {
     url: string | undefined;
   } | null>(null);
 
+  const checkFields = () => {
+    return (
+      registerForm?.email &&
+      registerForm?.password && registerForm?.email.includes("@") &&
+      registerForm?.email.includes(".") &&
+      registerForm?.email.length > 5 &&
+      registerForm?.password.length >= 6 &&
+      registerForm?.userType &&
+      registerForm?.name 
+    );
+  };
+
   useEffect(() => {
     if (userType && showLoginFields === false) {
       setShowLoginFields(true);
@@ -76,7 +88,7 @@ export default function Home() {
         password: mappedPassword,
         name: mappedName,
         userType: mappedUserType,
-        url: mappedUrl,
+        url: mappedUrl ? mappedUrl : 'www.instagram.com',
       })
 
     });
@@ -186,6 +198,9 @@ export default function Home() {
         </div>
 {openSignUp && (
           <div className="text-sm text-emerald-600 mb-4">
+            <div className="text-sm text-emerald-600 mt-2">
+                Are you an influencer or restaurant?
+                <br />
               <select
                 value={registerForm?.userType || ""}
                   onChange={(e) =>
@@ -203,10 +218,11 @@ export default function Home() {
                 <option value="influencer">Influencer</option>
                 <option value="restaurant">Restaurant</option>
               </select>
-              <div className="text-sm text-emerald-600 mt-2">
-                Please select whether you are an influencer or restaurant signing up.
-                <br />
+              
+                
               </div>
+              <label className="flex flex-col text-emerald-900 font-medium">
+                 Email
               <input
                 type="email"
                 placeholder="Email"
@@ -222,9 +238,12 @@ export default function Home() {
                 }
                 className="w-full max-w-sm px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
               />
+              </label>
+              <label className="flex flex-col text-emerald-900 font-medium">
+                Username
               <input
                 type="text"
-                placeholder="Name"
+                placeholder="Username"
                 value={registerForm?.name || ""}
                 onChange={(e) =>
                   setRegisterForm({
@@ -237,6 +256,10 @@ export default function Home() {
                 }
                 className="w-full max-w-sm px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
               />
+              </label>
+              <label className="flex flex-col text-emerald-900 font-medium">
+                Password
+              
               <input
                 type="password"
                 placeholder="Password"
@@ -252,6 +275,7 @@ export default function Home() {
                 }
                 className="w-full max-w-sm px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
               />
+              </label>
               <button
                 type="button"
                 onClick={handleInstagramConnect}
@@ -259,20 +283,20 @@ export default function Home() {
               >
                 Connect Instagram
               </button>
-              <input
+              {/* <input
                 type="text"
                 placeholder="Instagram Access Token"
                 value={registerForm?.url || ""}
                 readOnly
                 className="w-full max-w-sm mt-2 px-4 py-2 border border-emerald-300 rounded-md text-emerald-800 bg-white placeholder-emerald-400"
-              />
-              <div className="text-sm text-emerald-600 mt-2">
-                Please enter your email and password to create an account.
+              /> */}
+              {checkFields() && (
+                <div className="text-sm text-emerald-600 mt-2">
+                  Please enter your email and password to create an account.
                   <br />
-                <strong>Note:</strong> Passwords must be at least 6 characters long.
-                <br
-                  />
-                  </div>
+                  <strong>Note:</strong> Passwords must be at least 6 characters long.
+                </div>
+              )}
                   <button
                     onClick={handleSignUp}
                     disabled={!registerForm?.email || !registerForm?.password || !registerForm?.userType || !registerForm?.name || !registerForm || registerForm.password.length < 6}
