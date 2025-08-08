@@ -162,10 +162,11 @@ export default function UserPage() {
             {user ? user.name : 'Loading...'}
           </strong>
         </div>
-        {userDefined && <div className="flex gap-3">
+        {userDefined && (
+        <div className="flex gap-3 mt-3 w-full">
           <button
             onClick={() => setTab(0)}
-            className={`flex-1 text-center py-2.5 rounded-xl font-semibold text-sm transition-all ${
+            className={`flex-1 text-center py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all ${
               tab === 0
                 ? 'text-white bg-emerald-600'
                 : 'bg-white text-emerald-700 border border-emerald-600 hover:bg-emerald-50'
@@ -175,7 +176,7 @@ export default function UserPage() {
           </button>
           <button
             onClick={() => setTab(1)}
-            className={`flex-1 text-center py-2.5 rounded-xl font-semibold text-sm transition-all ${
+            className={`flex-1 text-center py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all ${
               tab === 1
                 ? 'text-white bg-emerald-600'
                 : 'bg-white text-emerald-700 border border-emerald-600 hover:bg-emerald-50'
@@ -184,12 +185,13 @@ export default function UserPage() {
             🎁 My Discount Codes
           </button>
           <button
-                    onClick={() => signOut({ callbackUrl: '/' })}
-                    className="px-4 py-2 rounded-lg text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition"
-                  >
-                    Log out
-                  </button>
-        </div>}
+            onClick={() => signOut({ callbackUrl: '/' })}
+            className="flex-1 text-center py-2.5 rounded-xl font-semibold text-xs sm:text-sm bg-red-500 text-white hover:bg-red-600 transition"
+          >
+            Log out
+          </button>
+        </div>
+        )}
       </div>
 
       {/* CONTENT BASED ON TAB */}
