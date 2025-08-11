@@ -469,36 +469,36 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
      </label>
    </div>
    <div className="mt-6">
-     <label className="font-medium text-emerald-800">Applicable Items:</label>
-     <div className="flex flex-wrap gap-3 mt-2">
-       {availableItems.map((item, idx) => {
-         const selected = editForm.items.some((i) => i.id === item.id);
-         return (
-           <label
-             key={idx}
-             className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
-               selected ? "bg-emerald-100 border-2 border-emerald-600" : "bg-gray-50 border border-gray-300"
-             }`}
-           >
-             <input
-               type="checkbox"
-               checked={selected}
-               onChange={() =>
-                 selected
-                   ? setEditForm({
-                       ...editForm,
-                       items: editForm.items.filter((i) => i.id !== item.id),
-                     })
-                   : setEditForm({ ...editForm, items: [...editForm.items, item] })
-               }
-               className="mr-2"
-             />
-             {item.name}
-           </label>
-         );
-       })}
-     </div>
-   </div>
+    <label className="font-medium text-emerald-800">Applicable Items:</label>
+    <div className="flex flex-wrap gap-3 mt-2">
+      {availableItems.map((item, idx) => {
+        const selected = editForm.items.some((i) => i.id === item.id);
+        return (
+          <label
+            key={idx}
+            className={`px-3 py-1 rounded-full text-sm cursor-pointer text-emerald-800 ${
+              selected ? "bg-emerald-100 border-2 border-emerald-600" : "bg-gray-50 border border-gray-300"
+            }`}
+          >
+            <input
+              type="checkbox"
+              checked={selected}
+              onChange={() =>
+                selected
+                  ? setEditForm({
+                      ...editForm,
+                      items: editForm.items.filter((i) => i.id !== item.id),
+                    })
+                  : setEditForm({ ...editForm, items: [...editForm.items, item] })
+              }
+              className="mr-2 accent-emerald-600"
+            />
+            {item.name}
+          </label>
+        );
+      })}
+    </div>
+  </div>
 
    <div className="mt-10 border-t border-emerald-300 pt-6">
      <h3 className="text-lg font-semibold text-emerald-800 mb-4">Requirements</h3>
@@ -595,54 +595,54 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
  )}
 
         {/* Add New Discount Code */}
-        <section className="mt-10 bg-emerald-50 border border-emerald-300 p-6 rounded-lg">
-  <h2 className="text-emerald-800 text-xl font-semibold mb-4">Add New Discount Code</h2>
-  <div className="grid md:grid-cols-2 gap-6">
-    <label className="flex flex-col text-emerald-900 font-medium">
+        <section className="mt-10 bg-emerald-50 border border-emerald-300 p-4 sm:p-6 rounded-lg">
+  <h2 className="text-emerald-800 text-lg md:text-xl font-semibold mb-4">Add New Discount Code</h2>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <label className="flex flex-col text-emerald-900 font-medium text-sm md:text-base">
       Code
       <input
         type="text"
         value={form.code}
         onChange={(e) => setForm({ ...form, code: e.target.value })}
         placeholder="Discount Code"
-        className="p-2 border border-emerald-300 rounded text-emerald-900 mt-1"
+        className="p-2 border border-emerald-300 rounded text-emerald-900 mt-1 w-full text-sm"
       />
     </label>
-    <label className="flex flex-col text-emerald-900 font-medium">
+    <label className="flex flex-col text-emerald-900 font-medium text-sm md:text-base">
       Discount %
       <input
         type="number"
         value={form.discount}
         onChange={(e) => setForm({ ...form, discount: Number(e.target.value) })}
         placeholder="Discount %"
-        className="p-2 border border-emerald-300 rounded text-emerald-900 mt-1"
+        className="p-2 border border-emerald-300 rounded text-emerald-900 mt-1 w-full text-sm"
       />
     </label>
-    <label className="flex flex-col text-emerald-900 font-medium">
+    <label className="flex flex-col text-emerald-900 font-medium text-sm md:text-base">
       Days till Activation
       <input
         type="number"
         value={form.wait}
         onChange={(e) => setForm({ ...form, wait: Number(e.target.value) })}
-        className="p-2 border border-emerald-300 rounded text-emerald-900 mt-1"
+        className="p-2 border border-emerald-300 rounded text-emerald-900 mt-1 w-full text-sm"
       />
     </label>
-    <label className="flex flex-col text-emerald-900 font-medium">
+    <label className="flex flex-col text-emerald-900 font-medium text-sm md:text-base">
       Expiry Date
       <input
         type="date"
         value={form.expiryDate}
         onChange={(e) => setForm({ ...form, expiryDate: e.target.value })}
-        className="p-2 border border-emerald-300 rounded text-emerald-900 mt-1"
+        className="p-2 border border-emerald-300 rounded text-emerald-900 mt-1 w-full text-sm"
       />
     </label>
-    
-    <label className="flex flex-col text-emerald-900 font-medium col-span-2">
+
+    <label className="flex flex-col text-emerald-900 font-medium text-sm md:text-base col-span-full">
       Status
       <select
         value={form.status}
         onChange={(e) => setForm({ ...form, status: e.target.value as DiscountStatus })}
-        className="p-2 border border-emerald-300 rounded text-emerald-900 mt-1"
+        className="p-2 border border-emerald-300 rounded text-emerald-900 mt-1 w-full text-sm"
       >
         <option value="available">Available</option>
         <option value="awarded">Awarded</option>
@@ -654,7 +654,7 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
   </div>
 
   <div className="mt-6">
-    <label className="font-medium text-emerald-800">Applicable Items:</label>
+    <label className="font-medium text-emerald-800 text-sm md:text-base">Applicable Items:</label>
     <div className="flex flex-wrap gap-3 mt-2">
       {availableItems.map((item, idx) => {
 
@@ -662,7 +662,7 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
         return (
           <label
             key={idx}
-            className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
+            className={`px-3 py-1 rounded-full text-sm cursor-pointer text-emerald-800 ${
               selected
                 ? "bg-emerald-100 border-2 border-emerald-600"
                 : "bg-gray-50 border border-gray-300"
@@ -681,7 +681,7 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
                   items: [...form.items, item]
                 })
               }
-              className="mr-2"
+              className="mr-2 accent-emerald-600"
             />
             {item.name}
           </label>
@@ -693,8 +693,8 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
   <div className="mt-10 border-t border-emerald-300 pt-6">
     <h3 className="text-lg font-semibold text-emerald-800 mb-4">Requirements</h3>
     {form.requirements.map((req, index) => (
-      <div key={index} className="grid md:grid-cols-3 gap-4 mb-4">
-        <label className="flex flex-col text-emerald-900 font-medium">
+      <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <label className="flex flex-col text-emerald-900 font-medium text-sm md:text-base">
       Platform
         <select
           value={req.platform}
@@ -703,13 +703,13 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
             newReqs[index].platform = e.target.value;
             setForm({ ...form, requirements: newReqs });
           }}
-          className="p-2 border border-emerald-300 rounded text-emerald-900"
+          className="p-2 border border-emerald-300 rounded text-emerald-900 w-full text-sm"
         >
           <option value="Instagram">Instagram</option>
           <option value="TikTok">TikTok</option>
         </select>
         </label>
-        <label className="flex flex-col text-emerald-900 font-medium">
+        <label className="flex flex-col text-emerald-900 font-medium text-sm md:text-base">
       #Views
         <input
           type="number"
@@ -720,10 +720,10 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
             newReqs[index].views = Number(e.target.value);
             setForm({ ...form, requirements: newReqs });
           }}
-          className="p-2 border border-emerald-300 rounded text-emerald-900"
+          className="p-2 border border-emerald-300 rounded text-emerald-900 w-full text-sm"
         />
         </label>
-        <label className="flex flex-col text-emerald-900 font-medium">
+        <label className="flex flex-col text-emerald-900 font-medium text-sm md:text-base">
       #Likes
         <input
           type="number"
@@ -734,10 +734,10 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
             newReqs[index].likes = Number(e.target.value);
             setForm({ ...form, requirements: newReqs });
           }}
-          className="p-2 border border-emerald-300 rounded text-emerald-900"
+          className="p-2 border border-emerald-300 rounded text-emerald-900 w-full text-sm"
         />
         </label>
-        <label className="flex flex-col text-emerald-900 font-medium">
+        <label className="flex flex-col text-emerald-900 font-medium text-sm md:text-base">
       #Comments
         <input
           type="number"
@@ -748,10 +748,10 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
             newReqs[index].comments = Number(e.target.value);
             setForm({ ...form, requirements: newReqs });
           }}
-          className="p-2 border border-emerald-300 rounded text-emerald-900"
+          className="p-2 border border-emerald-300 rounded text-emerald-900 w-full text-sm"
         />
         </label>
-        <label className="flex flex-col text-emerald-900 font-medium">
+        <label className="flex flex-col text-emerald-900 font-medium text-sm md:text-base">
       #Reposts
         <input
           type="number"
@@ -762,10 +762,10 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
             newReqs[index].reposts = Number(e.target.value);
             setForm({ ...form, requirements: newReqs });
           }}
-          className="p-2 border border-emerald-300 rounded text-emerald-900"
+          className="p-2 border border-emerald-300 rounded text-emerald-900 w-full text-sm"
         />
         </label>
-        
+
       </div>
     ))}
   </div>
