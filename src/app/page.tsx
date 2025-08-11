@@ -108,51 +108,32 @@ export default function Home() {
     }
   };
 
-  const loadFacebookSDK = () => {
-    return new Promise<void>((resolve) => {
-      if ((window as any).FB) {
-        if (!(window as any).FB._initialized) {
-          (window as any).FB.init({
-            appId: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID,
-            cookie: true,
-            version: "v19.0",
-          });
-        }
-        resolve();
-        return;
-      }
-      (window as any).fbAsyncInit = function () {
-        (window as any).FB.init({
-          appId: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID,
-          cookie: true,
-          version: "v19.0",
-        });
-        resolve();
-      };
-      const script = document.createElement("script");
-      script.src = "https://connect.facebook.net/en_US/sdk.js";
-      script.async = true;
-      document.body.appendChild(script);
-    });
-  };
+  const handleInstagramConnect = () => {
+    const appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
+    const redirectUri = `${window.location.origin}/instagram-callback`;
+    const scope = "instagram_basic,pages_show_list";
 
-  const handleInstagramConnect = async () => {
-    await loadFacebookSDK();
-    (window as any).FB.login(
-      (response: any) => {
-        if (response.authResponse) {
-          const token = response.authResponse.accessToken;
-          setRegisterForm((prev) => ({
-            email: prev?.email,
-            password: prev?.password,
-            name: prev?.name,
-            userType: prev?.userType,
-            url: token,
-          }));
-        }
-      },
-      { scope: "instagram_basic,pages_show_list" }
-    );
+    const authUrl = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&response_type=token`;
+
+    const popup = window.open(authUrl, "instagramLogin", "width=600,height=700");
+
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      if (event.data.type === "instagram-token") {
+        const token = event.data.token;
+        setRegisterForm((prev) => ({
+          email: prev?.email,
+          password: prev?.password,
+          name: prev?.name,
+          userType: prev?.userType,
+          url: token,
+        }));
+        window.removeEventListener("message", handleMessage);
+        popup?.close();
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
   };
   return (
     <main className="min-h-screen bg-gradient-to-br from-emerald-50 to-white flex flex-col items-center justify-center px-4">
@@ -197,8 +178,8 @@ export default function Home() {
                 </Button>
         </div>
 {openSignUp && (
-          <div className="text-sm text-emerald-600 mb-4">
-            <div className="text-sm text-emerald-600 mt-2">
+          <div className="flex flex-col items-center text-sm text-emerald-600 mb-4">
+            <div className="w-full max-w-sm mt-2">
                 Are you an influencer or restaurant?
                 <br />
               <select
@@ -212,70 +193,67 @@ export default function Home() {
                       url: registerForm?.url,
                     })
                   }
-                className="w-full max-w-sm px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white"
+                className="w-full px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white"
               >
                 <option value="" disabled>Select User Type</option>
                 <option value="influencer">Influencer</option>
                 <option value="restaurant">Restaurant</option>
               </select>
-              
-                
-              </div>
-              <label className="flex flex-col text-emerald-900 font-medium">
-                 Email
-              <input
-                type="email"
-                placeholder="Email"
-                value={registerForm?.email || ""}
-                onChange={(e) =>
-                  setRegisterForm({
-                    email: e.target.value,
-                    password: registerForm?.password,
-                    name: registerForm?.name,
-                    userType: registerForm?.userType,
-                    url: registerForm?.url,
-                  })
-                }
-                className="w-full max-w-sm px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
-              />
-              </label>
-              <label className="flex flex-col text-emerald-900 font-medium">
+            </div>
+              <label className="w-full max-w-sm flex flex-col text-emerald-900 font-medium">
                 Username
-              <input
-                type="text"
-                placeholder="Username"
-                value={registerForm?.name || ""}
-                onChange={(e) =>
-                  setRegisterForm({
-                    email: registerForm?.email,
-                    password: registerForm?.password,
-                    name: e.target.value,
-                    userType: registerForm?.userType,
-                    url: registerForm?.url,
-                  })
-                }
-                className="w-full max-w-sm px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
-              />
+                <input
+                  type="text"
+                  placeholder="Username"
+                  value={registerForm?.name || ""}
+                  onChange={(e) =>
+                    setRegisterForm({
+                      email: registerForm?.email,
+                      password: registerForm?.password,
+                      name: e.target.value,
+                      userType: registerForm?.userType,
+                      url: registerForm?.url,
+                    })
+                  }
+                  className="w-full px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
+                />
               </label>
-              <label className="flex flex-col text-emerald-900 font-medium">
-                Password
-              
-              <input
-                type="password"
-                placeholder="Password"
-                value={registerForm?.password || ""}
-                onChange={(e) =>
-                  setRegisterForm({
-                    email: registerForm?.email,
-                    password: e.target.value,
-                    name: registerForm?.name,
-                    userType: registerForm?.userType,
-                    url: registerForm?.url,
-                  })
-                }
-                className="w-full max-w-sm px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
-              />
-              </label>
+                <label className="w-full max-w-sm flex flex-col text-emerald-900 font-medium">
+                  Email
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={registerForm?.email || ""}
+                    onChange={(e) =>
+                      setRegisterForm({
+                        email: e.target.value,
+                        password: registerForm?.password,
+                        name: registerForm?.name,
+                        userType: registerForm?.userType,
+                        url: registerForm?.url,
+                      })
+                    }
+                    className="w-full px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
+                  />
+                </label>
+                <label className="w-full max-w-sm flex flex-col text-emerald-900 font-medium">
+                  Password
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    value={registerForm?.password || ""}
+                    onChange={(e) =>
+                      setRegisterForm({
+                        email: registerForm?.email,
+                        password: e.target.value,
+                        name: registerForm?.name,
+                        userType: registerForm?.userType,
+                        url: registerForm?.url,
+                      })
+                    }
+                    className="w-full px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
+                  />
+                </label>
               <button
                 type="button"
                 onClick={handleInstagramConnect}
@@ -290,20 +268,20 @@ export default function Home() {
                 readOnly
                 className="w-full max-w-sm mt-2 px-4 py-2 border border-emerald-300 rounded-md text-emerald-800 bg-white placeholder-emerald-400"
               /> */}
-              {checkFields() && (
-                <div className="text-sm text-emerald-600 mt-2">
-                  Please enter your email and password to create an account.
-                  <br />
-                  <strong>Note:</strong> Passwords must be at least 6 characters long.
-                </div>
-              )}
-                  <button
-                    onClick={handleSignUp}
-                    disabled={!registerForm?.email || !registerForm?.password || !registerForm?.userType || !registerForm?.name || !registerForm || registerForm.password.length < 6}
-                    className="mt-4 px-6 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition-colors"
-                  >
-                    Sign Up
-                  </button>
+                {checkFields() && (
+                  <div className="w-full max-w-sm text-sm text-emerald-600 mt-2">
+                    Please enter your email and password to create an account.
+                    <br />
+                    <strong>Note:</strong> Passwords must be at least 6 characters long.
+                  </div>
+                )}
+                <button
+                  onClick={handleSignUp}
+                  disabled={!registerForm?.email || !registerForm?.password || !registerForm?.userType || !registerForm?.name || !registerForm || registerForm.password.length < 6}
+                  className="w-full max-w-sm mt-4 px-6 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition-colors"
+                >
+                  Sign Up
+                </button>
           </div>
             )}
         {showLoginFields && (
