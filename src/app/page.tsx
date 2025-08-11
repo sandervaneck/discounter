@@ -109,7 +109,7 @@ export default function Home() {
   };
 
   const handleInstagramConnect = () => {
-    const appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
+    const appId = process.env.NEXT_FACEBOOK_APP_ID;
     const redirectUri = `${window.location.origin}/instagram-callback`;
     const scope = "instagram_basic,pages_show_list";
 
