@@ -110,7 +110,7 @@ export default function Home() {
 
   const handleInstagramConnect = () => {
     const appId = process.env.NEXT_FACEBOOK_APP_ID;
-    const redirectUri = `${window.location.origin}/instagram-callback`;
+    const redirectUri = `${window.location.origin}`;
     const scope = "instagram_basic,pages_show_list";
 
     const authUrl = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&response_type=token`;
