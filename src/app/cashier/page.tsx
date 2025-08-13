@@ -82,10 +82,13 @@ export default function CashierDiscountScanner() {
   } | null>(null);
   const [error, setError] = useState("");
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [scanResult, setScanResult] = useState<string | null>(null);
 
   async function validateCode() {
     setError("");
     setValidationResult(null);
+    setCapturedImage(null);
+    setScanResult(null);
 
     const code = inputCode.trim().toUpperCase();
 
@@ -143,7 +146,23 @@ export default function CashierDiscountScanner() {
       }
     }
 
-      const awardedPost = awardedPostsMap[found.code.toUpperCase()];
+      const username = found.redemptions?.[0]?.influencer?.name;
+      let awardedPost = awardedPostsMap[found.code.toUpperCase()];
+      if (found.status === "awarded" && username) {
+        awardedPost = awardedPost
+          ? { ...awardedPost, username }
+          : {
+              username,
+              reelViews: 0,
+              likes: 0,
+              comments: 0,
+              reposts: 0,
+              userAccountId: "",
+              postLink: "",
+              datePosted: "",
+              dateRedeemed: "",
+            };
+      }
 
       const mapped: DiscountCode = {
         id: found.id,
@@ -168,12 +187,31 @@ export default function CashierDiscountScanner() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setCapturedImage(reader.result as string);
-
+        setScanResult("Positive");
       };
       reader.readAsDataURL(file);
-      validateCode();
     }
   };
+
+  async function useCode() {
+    if (!validationResult) return;
+    try {
+      const res = await fetch("/api/discounts/use", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ codeId: validationResult.code.id }),
+      });
+      if (!res.ok) throw new Error();
+      setValidationResult({
+        ...validationResult,
+        code: { ...validationResult.code, status: "used" },
+      });
+      setScanResult(null);
+    } catch (e) {
+      setError("Failed to mark code as used.");
+    }
+  }
 
   return (
     <div className="min-h-screen bg-[#e0f2f1] px-4 py-6 font-sans">
@@ -199,32 +237,6 @@ export default function CashierDiscountScanner() {
         >
           Validate Code
         </button>
-
-        <label className="w-full block mb-5">
-          <div
-            className="w-full py-3 text-center text-lg font-bold text-[#117a65] border-2 border-[#117a65] bg-white rounded-xl hover:bg-[#d9f5f1] transition-colors cursor-pointer"
-          >
-            📷 Open Camera to Scan
-          </div>
-          <input
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={handleCapture}
-            className="hidden"
-          />
-        </label>
-
-        {capturedImage && (
-          <div className="mb-5 text-center">
-            <p className="text-sm font-semibold text-gray-600 mb-2">Scanned Image:</p>
-            <img
-              src={capturedImage}
-              alt="Captured QR"
-              className="w-32 h-32 object-contain mx-auto rounded-lg border border-gray-300"
-            />
-          </div>
-        )}
 
         {error && (
           <div className="mb-5 text-center text-red-600 font-bold">
@@ -258,45 +270,89 @@ export default function CashierDiscountScanner() {
               </ul>
             </div>
           )}
-          {validationResult.awardedPost ? (
+          {validationResult.code.status === "awarded" ? (
             <div className="mt-4 space-y-2">
               <p>
-                Awarded to user: <strong>{validationResult.awardedPost.username}</strong>
+                Awarded to user: <strong>{validationResult.awardedPost?.username ?? "Unknown"}</strong>
               </p>
-              <p>
-                Reel views: <strong>{validationResult.awardedPost.reelViews.toLocaleString()}</strong>
-              </p>
-              <p>
-                Likes: <strong>{validationResult.awardedPost.likes.toLocaleString()}</strong>
-              </p>
-              <p>
-                Comments: <strong>{validationResult.awardedPost.comments.toLocaleString()}</strong>
-              </p>
-              <p>
-                Reposts: <strong>{validationResult.awardedPost.reposts.toLocaleString()}</strong>
-              </p>
-              <p>
-                Restaurant tagged: <strong>✅</strong>
-              </p>
-              <p className="text-sm text-gray-600">
-                User account ID: {validationResult.awardedPost.userAccountId}
-              </p>
-              <p className="text-sm">Date posted: {validationResult.awardedPost.datePosted}</p>
-              <p className="text-sm">Date redeemed: {validationResult.awardedPost.dateRedeemed}</p>
-              <a
-                href={validationResult.awardedPost.postLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full block text-center py-2 mt-3 bg-[#117a65] text-white font-bold rounded-xl"
-              >
-                View Post
-              </a>
+              {validationResult.awardedPost && (
+                <>
+                  <p>
+                    Reel views: <strong>{validationResult.awardedPost.reelViews.toLocaleString()}</strong>
+                  </p>
+                  <p>
+                    Likes: <strong>{validationResult.awardedPost.likes.toLocaleString()}</strong>
+                  </p>
+                  <p>
+                    Comments: <strong>{validationResult.awardedPost.comments.toLocaleString()}</strong>
+                  </p>
+                  <p>
+                    Reposts: <strong>{validationResult.awardedPost.reposts.toLocaleString()}</strong>
+                  </p>
+                  <p>
+                    Restaurant tagged: <strong>✅</strong>
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    User account ID: {validationResult.awardedPost.userAccountId}
+                  </p>
+                  <p className="text-sm">Date posted: {validationResult.awardedPost.datePosted}</p>
+                  <p className="text-sm">Date redeemed: {validationResult.awardedPost.dateRedeemed}</p>
+                  <a
+                    href={validationResult.awardedPost.postLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full block text-center py-2 mt-3 bg-[#117a65] text-white font-bold rounded-xl"
+                  >
+                    View Post
+                  </a>
+                </>
+              )}
             </div>
-            ) : (
-              <p className="mt-4 italic text-gray-600">
-                No user awarded for this discount code yet.
+          ) : (
+            <p className="mt-4 italic text-gray-600">
+              No user awarded for this discount code yet.
+            </p>
+          )}
+
+          <label className="w-full block mb-5 mt-5">
+            <div
+              className="w-full py-3 text-center text-lg font-bold text-[#117a65] border-2 border-[#117a65] bg-white rounded-xl hover:bg-[#d9f5f1] transition-colors cursor-pointer"
+            >
+              📷 Open Camera to Scan
+            </div>
+            <input
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleCapture}
+              className="hidden"
+            />
+          </label>
+
+          {capturedImage && (
+            <div className="mb-5 text-center">
+              <p className="text-sm font-semibold text-gray-600 mb-2">Scanned Image:</p>
+              <img
+                src={capturedImage}
+                alt="Captured QR"
+                className="w-32 h-32 object-contain mx-auto rounded-lg border border-gray-300"
+              />
+            </div>
+          )}
+
+          {scanResult && (
+            <div className="text-center mt-4 space-y-3">
+              <p className="font-bold text-green-700">
+                Requirements check: {scanResult}
               </p>
-            )}
+              <button
+                onClick={useCode}
+                className="w-full py-3 text-white text-lg font-bold bg-[#117a65] rounded-xl hover:bg-[#0b4a3e] transition-colors"
+              >
+                Use Code
+              </button>
+            </div>
+          )}
           </div>
         )}
       </div>
