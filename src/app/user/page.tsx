@@ -304,6 +304,19 @@ export default function UserPage() {
                 </>
               )}
 
+              <button
+                type="submit"
+                disabled={!selectedRestaurant}
+                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {verifying ? '⏳ Verifying post...' : '🎬 Submit post'}
+              </button>
+              {!selectedRestaurant && (
+                <p className="text-xs text-emerald-600 mt-1">
+                  Please select a restaurant to submit.
+                </p>
+              )}
+
               {selectedRestaurant && uploadedImage && (
                 <div className="mt-6 overflow-hidden rounded-xl border border-emerald-200">
                   <table className="w-full text-sm">
@@ -372,18 +385,7 @@ export default function UserPage() {
                 </div>
               )}
 
-              <button
-                type="submit"
-                disabled={!selectedRestaurant}
-                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {verifying ? '⏳ Verifying post...' : '🎬 Submit post'}
-              </button>
-              {!selectedRestaurant && (
-                <p className="text-xs text-emerald-600 mt-1">
-                  Please select a restaurant to submit.
-                </p>
-              )}
+              
             </form>
           )}
 
