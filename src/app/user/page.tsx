@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { CheckCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { QRCode } from 'react-qrcode-logo';
-import { DiscountType } from '../types/DiscountType';
 import { useRouter } from "next/navigation";
 import { signOut } from 'next-auth/react';
 
@@ -13,7 +12,7 @@ export default function UserPage() {
   
   const [reelLink, setReelLink] = useState('');
   const [verifying, setVerifying] = useState(false);
-  const [result, setResult] = useState<DiscountType | null>(null);
+  const [redeemed, setRedeemed] = useState<any | null>(null);
   const [tab, setTab] = useState<0 | 1>(0);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [platform, setPlatform] = useState<'instagram' | 'tiktok'>('instagram');
@@ -22,6 +21,53 @@ export default function UserPage() {
   const [restaurantResults, setRestaurantResults] = useState<{ id: number; name: string }[]>([]);
   const [selectedRestaurant, setSelectedRestaurant] = useState<{ id: number; name: string } | null>(null);
   const [discounts, setDiscounts] = useState<any[]>([]);
+  const [myDiscounts, setMyDiscounts] = useState<any[]>([]);
+  const [submitted, setSubmitted] = useState(false);
+
+  const fetchDiscounts = async (id: number) => {
+    try {
+      const res = await fetch(`/api/discounts?restaurantId=${id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setDiscounts(data);
+      }
+    } catch (e) {
+      /* ignore */
+    }
+  };
+
+  const fetchMyDiscounts = async () => {
+    try {
+      const res = await fetch('/api/user/discounts');
+      if (res.ok) {
+        const data = await res.json();
+        setMyDiscounts(data);
+      }
+    } catch (e) {
+      /* ignore */
+    }
+  };
+
+  const handleRedeem = async (id: number) => {
+    try {
+      const res = await fetch('/api/discounts/redeem', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ codeId: id }),
+      });
+      if (!res.ok) {
+        throw new Error('Redeem failed');
+      }
+      const data = await res.json();
+      setRedeemed(data);
+      if (selectedRestaurant) {
+        await fetchDiscounts(selectedRestaurant.id);
+      }
+      await fetchMyDiscounts();
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,8 +92,9 @@ export default function UserPage() {
         throw new Error('Validation failed');
       }
 
-      const data = await res.json();
-      setResult(data);
+      await res.json();
+      setSubmitted(true);
+      await fetchDiscounts(selectedRestaurant.id);
     } catch (err) {
       console.error(err);
     } finally {
@@ -120,24 +167,24 @@ export default function UserPage() {
       setDiscounts([]);
       return;
     }
-    const controller = new AbortController();
-    fetch(`/api/discounts?restaurantId=${selectedRestaurant.id}`, {
-      signal: controller.signal,
-    })
-      .then((res) => res.json())
-      .then((data) => setDiscounts(data))
-      .catch(() => {});
-    return () => controller.abort();
+    setSubmitted(false);
+    fetchDiscounts(selectedRestaurant.id);
   }, [selectedRestaurant]);
 
   const userDefined =  user && !(user as any).error;
 
-  const filteredDiscounts = discounts.filter((d) =>
+  useEffect(() => {
+    if (userDefined) {
+      fetchMyDiscounts();
+    }
+  }, [userDefined]);
+
+  const filteredMyDiscounts = myDiscounts.filter((d) =>
     d.code.toLowerCase().includes(search.toLowerCase())
   );
 
-  const eligibleDiscounts = discounts.filter((d) => d.status === 'available');
-  const disabledDiscounts = discounts.filter((d) => d.status !== 'available');
+  const eligibleDiscounts = submitted ? discounts.filter((d) => d.status === 'available') : [];
+  const disabledDiscounts = submitted ? discounts.filter((d) => d.status !== 'available') : discounts;
 
 
   return (
@@ -197,116 +244,35 @@ export default function UserPage() {
           </div>
 
           <div className="p-6 sm:p-7">
-            {!result && (
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div>
-                  <label className="block text-emerald-700 font-semibold text-xs mb-1">Search Restaurant</label>
-                  <input
-                    type="text"
-                    value={restaurantQuery}
-                    onChange={(e) => { setRestaurantQuery(e.target.value); setSelectedRestaurant(null); }}
-                    placeholder="Search restaurant..."
-                    className="w-full px-4 py-2 rounded-xl border border-emerald-300 bg-white text-emerald-800 placeholder-emerald-400 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-                  {restaurantResults.length > 0 && (
-                    <ul className="border border-emerald-300 rounded-xl mt-1 bg-white max-h-40 overflow-auto text-sm text-emerald-800">
-                      {restaurantResults.map((r) => (
-                        <li
-                          key={r.id}
-                          onClick={() => { setSelectedRestaurant(r); setRestaurantQuery(r.name); setRestaurantResults([]); }}
-                          className="px-3 py-1 cursor-pointer hover:bg-emerald-50 text-emerald-800"
-                        >
-                          {r.name}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  {selectedRestaurant && (
-                    <p className="text-xs text-emerald-700 mt-1">Selected: {selectedRestaurant.name}</p>
-                  )}
-                </div>
-                <div className="flex gap-3 justify-center">
-                  <button
-                    type="button"
-                    className={`flex items-center gap-1 px-4 py-2 rounded-lg border text-sm font-medium ${
-                      platform === 'instagram'
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-white border-emerald-300 text-emerald-700'
-                    }`}
-                    onClick={() => setPlatform('instagram')}
-                  >
-                    📸 Instagram
-                  </button>
-                  <button
-                    type="button"
-                    className={`flex items-center gap-1 px-4 py-2 rounded-lg border text-sm font-medium ${
-                      platform === 'tiktok'
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-white border-emerald-300 text-emerald-700'
-                    }`}
-                    onClick={() => setPlatform('tiktok')}
-                  >
-                    🎵 TikTok
-                  </button>
-                </div>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label className="block text-emerald-700 font-semibold text-xs mb-1">Search Restaurant</label>
+                <input
+                  type="text"
+                  value={restaurantQuery}
+                  onChange={(e) => { setRestaurantQuery(e.target.value); setSelectedRestaurant(null); }}
+                  placeholder="Search restaurant..."
+                  className="w-full px-4 py-2 rounded-xl border border-emerald-300 bg-white text-emerald-800 placeholder-emerald-400 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+                {restaurantResults.length > 0 && (
+                  <ul className="border border-emerald-300 rounded-xl mt-1 bg-white max-h-40 overflow-auto text-sm text-emerald-800">
+                    {restaurantResults.map((r) => (
+                      <li
+                        key={r.id}
+                        onClick={() => { setSelectedRestaurant(r); setRestaurantQuery(r.name); setRestaurantResults([]); }}
+                        className="px-3 py-1 cursor-pointer hover:bg-emerald-50 text-emerald-800"
+                      >
+                        {r.name}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {selectedRestaurant && (
+                  <p className="text-xs text-emerald-700 mt-1">Selected: {selectedRestaurant.name}</p>
+                )}
+              </div>
 
-              {platform === 'tiktok' ? (
-                <>
-                  <label htmlFor="reel" className="block text-emerald-700 font-semibold text-xs">
-                    TikTok Post URL
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="https://www.tiktok.com/@user/video/xyz"
-                    value={reelLink ?? ''}
-                    onChange={(e) => setReelLink(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-emerald-300 bg-white text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
-                  />
-                </>
-              ) : (
-                <>
-                  <label htmlFor="qr" className="block text-emerald-700 font-semibold text-sm flex items-start gap-2 relative">
-                    <button
-                      type="button"
-                      onClick={() => setShowTooltip((prev) => !prev)}
-                      className="w-5 h-5 flex items-center justify-center rounded-full bg-emerald-300 text-white text-xs font-bold focus:outline-none"
-                      aria-label="Help"
-                    >
-                      i
-                    </button>
-                    <span className="pt-0.5">Upload QR code of your Instagram post</span>
-                    {showTooltip && (
-                      <div className="absolute top-8 left-0 z-10 w-64 p-2 text-xs text-white bg-emerald-700 rounded-lg shadow-lg">
-                        To upload the QR code of your Instagram post, navigate to your post, hit the &ldquo;***&rdquo; on the top right of the post, choose &ldquo;QR Code&rdquo; and then &ldquo;Save to Camera Roll&rdquo;. Then upload the saved QR code right here below.
-                      </div>
-                    )}
-                  </label>
-                  <label htmlFor="qr-file" className="block w-full">
-                    <input
-                      id="qr-file"
-                      type="file"
-                      accept="image/*"
-                      required
-                      onChange={(e) => setUploadedImage(e.target.files?.[0] || null)}
-                      className="w-full px-4 py-3 rounded-xl border border-emerald-300 bg-white text-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
-                    />
-                  </label>
-                  {uploadedImage && (
-                    <div className="mt-4 flex justify-center">
-                      <img
-                        src={URL.createObjectURL(uploadedImage)}
-                        alt="QR Preview"
-                        className="max-w-full max-h-40 rounded-xl border border-emerald-300"
-                      />
-                    </div>
-                  )}
-                </>
-              )}
-
-              
-
-              {selectedRestaurant && uploadedImage && (
+              {selectedRestaurant && (
                 <div className="mt-6 overflow-hidden rounded-xl border border-emerald-200">
                   <table className="w-full text-sm">
                     <tbody>
@@ -323,7 +289,7 @@ export default function UserPage() {
                               </div>
                             </td>
                             <td className="p-3 text-right">
-                              <button className="px-3 py-1 bg-emerald-600 text-white rounded">Redeem</button>
+                              <button type="button" onClick={() => handleRedeem(d.id)} className="px-3 py-1 bg-emerald-600 text-white rounded">Redeem</button>
                             </td>
                           </tr>
                           {eligibleCollapsed.includes(idx) && (
@@ -373,6 +339,86 @@ export default function UserPage() {
                   </table>
                 </div>
               )}
+
+              <div className="flex gap-3 justify-center">
+                <button
+                  type="button"
+                  className={`flex items-center gap-1 px-4 py-2 rounded-lg border text-sm font-medium ${
+                    platform === 'instagram'
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-white border-emerald-300 text-emerald-700'
+                  }`}
+                  onClick={() => setPlatform('instagram')}
+                >
+                  📸 Instagram
+                </button>
+                <button
+                  type="button"
+                  className={`flex items-center gap-1 px-4 py-2 rounded-lg border text-sm font-medium ${
+                    platform === 'tiktok'
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-white border-emerald-300 text-emerald-700'
+                  }`}
+                  onClick={() => setPlatform('tiktok')}
+                >
+                  🎵 TikTok
+                </button>
+              </div>
+
+            {platform === 'tiktok' ? (
+              <>
+                <label htmlFor="reel" className="block text-emerald-700 font-semibold text-xs">
+                  TikTok Post URL
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="https://www.tiktok.com/@user/video/xyz"
+                  value={reelLink ?? ''}
+                  onChange={(e) => setReelLink(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-emerald-300 bg-white text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                />
+              </>
+            ) : (
+              <>
+                <label htmlFor="qr" className="block text-emerald-700 font-semibold text-sm flex items-start gap-2 relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowTooltip((prev) => !prev)}
+                    className="w-5 h-5 flex items-center justify-center rounded-full bg-emerald-300 text-white text-xs font-bold focus:outline-none"
+                    aria-label="Help"
+                  >
+                    i
+                  </button>
+                  <span className="pt-0.5">Upload QR code of your Instagram post</span>
+                  {showTooltip && (
+                    <div className="absolute top-8 left-0 z-10 w-64 p-2 text-xs text-white bg-emerald-700 rounded-lg shadow-lg">
+                      To upload the QR code of your Instagram post, navigate to your post, hit the &ldquo;***&rdquo; on the top right of the post, choose &ldquo;QR Code&rdquo; and then &ldquo;Save to Camera Roll&rdquo;. Then upload the saved QR code right here below.
+                    </div>
+                  )}
+                </label>
+                <label htmlFor="qr-file" className="block w-full">
+                  <input
+                    id="qr-file"
+                    type="file"
+                    accept="image/*"
+                    required
+                    onChange={(e) => setUploadedImage(e.target.files?.[0] || null)}
+                    className="w-full px-4 py-3 rounded-xl border border-emerald-300 bg-white text-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                  />
+                </label>
+                {uploadedImage && (
+                  <div className="mt-4 flex justify-center">
+                    <img
+                      src={URL.createObjectURL(uploadedImage)}
+                      alt="QR Preview"
+                      className="max-w-full max-h-40 rounded-xl border border-emerald-300"
+                    />
+                  </div>
+                )}
+              </>
+            )}
+
               <button
                 type="submit"
                 disabled={!selectedRestaurant}
@@ -385,44 +431,28 @@ export default function UserPage() {
                   Please select a restaurant to submit.
                 </p>
               )}
-              
-            </form>
-          )}
 
-          {result && (
-            <div className="mt-6 space-y-4">
-              <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-5">
-                <CheckCircle className="text-emerald-500 w-6 h-6 mx-auto mb-2" />
-                <p className="text-emerald-700 font-semibold text-center text-sm mb-4">
-                  Post Verified! 🎉 Here’s your reward
-                </p>
-                <div className="text-sm text-emerald-800 space-y-2">
-                  <p><strong>👤 Username:</strong> {result.username}</p>
-                  <p><strong>👀 Views:</strong> {result.views}</p>
-                  <p><strong>❤️ Likes:</strong> {result.likes}</p>
-                  <p><strong>💬 Comments:</strong> {result.comments}</p>
-                  <p><strong>🔁 Reposts:</strong> {result.reposts}</p>
-                  <p><strong>🏷️ Discount:</strong> {result.discount}</p>
-                  <p><strong>🍽️ Items:</strong> {result.items.join(', ')}</p>
-                  <p><strong>📍 Restaurant:</strong> {result.restaurant}</p>
-                  <p><strong>🎟️ Code:</strong> {result.code}</p>
-                </div>
-                <div className="mt-5 flex justify-center">
-                  <QRCode value={result.code} size={120} />
+            </form>
+
+            {redeemed && (
+              <div className="mt-6 space-y-4">
+                <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-5">
+                  <CheckCircle className="text-emerald-500 w-6 h-6 mx-auto mb-2" />
+                  <div className="text-sm text-emerald-800 space-y-2">
+                    <p><strong>🎟️ Code:</strong> {redeemed.code}</p>
+                    <p><strong>🏷️ Discount:</strong> {redeemed.discountPercent}%</p>
+                    <p><strong>🍽️ Items:</strong> {redeemed.applicableItems.map((a: any) => a.item.name).join(', ')}</p>
+                    <p><strong>📆 Expiration:</strong> {new Date(redeemed.expirationTime).toISOString().split('T')[0]}</p>
+                  </div>
+                  <div className="mt-5 flex justify-center">
+                    <QRCode value={redeemed.code} size={120} />
+                  </div>
                 </div>
               </div>
-              <button
-                type="submit"
-                onClick={() => window.location.reload()}
-                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-all duration-200"
-              >
-                Submit Another Post
-              </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
-    ) : (
+      ) : (
       <div className="max-w-md mx-auto bg-white rounded-[2rem] shadow-lg p-5 text-sm border border-emerald-100 mt-6">
         <h2 className="text-lg font-bold text-emerald-800 mb-4">🎁 My Discount Codes</h2>
 
@@ -436,7 +466,7 @@ export default function UserPage() {
           />
         </div>
         <ul className="space-y-3">
-          {filteredDiscounts.map((d, idx) => {
+          {filteredMyDiscounts.map((d, idx) => {
             const isCollapsed = collapsedIndexes.includes(idx);
             return (
               <li
