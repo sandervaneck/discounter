@@ -5,6 +5,7 @@ import { CheckCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { QRCode } from 'react-qrcode-logo';
 import { useRouter } from "next/navigation";
 import { signOut } from 'next-auth/react';
+import { DiscountStatus } from "@/generated/client";
 
 
 export default function UserPage() {
@@ -23,6 +24,7 @@ export default function UserPage() {
   const [discounts, setDiscounts] = useState<any[]>([]);
   const [myDiscounts, setMyDiscounts] = useState<any[]>([]);
   const [submitted, setSubmitted] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<DiscountStatus | 'all'>('awarded');
 
   const fetchDiscounts = async (id: number) => {
     try {
@@ -130,6 +132,35 @@ export default function UserPage() {
     );
   };
 
+  const getStatusStyles = (status: string) => {
+    switch (status) {
+      case 'used':
+        return {
+          container: 'bg-orange-50 border-orange-100',
+          text: 'text-orange-800',
+          subtext: 'text-orange-500',
+          badgeBg: 'bg-orange-100',
+          badgeText: 'text-orange-800',
+        };
+      case 'expired':
+        return {
+          container: 'bg-gray-50 border-gray-200',
+          text: 'text-gray-800',
+          subtext: 'text-gray-500',
+          badgeBg: 'bg-gray-100',
+          badgeText: 'text-gray-800',
+        };
+      default:
+        return {
+          container: 'bg-emerald-50 border-emerald-100',
+          text: 'text-emerald-800',
+          subtext: 'text-emerald-500',
+          badgeBg: 'bg-emerald-100',
+          badgeText: 'text-emerald-800',
+        };
+    }
+  };
+
   const [user, setUser] = useState<{ email: string, name: string } | null>(null);
 
   useEffect(() => {
@@ -179,9 +210,9 @@ export default function UserPage() {
     }
   }, [userDefined]);
 
-  const filteredMyDiscounts = myDiscounts.filter((d) =>
-    d.code.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredMyDiscounts = myDiscounts
+    .filter((d) => d.code.toLowerCase().includes(search.toLowerCase()))
+    .filter((d) => (statusFilter === 'all' ? true : d.status === statusFilter));
 
   const eligibleDiscounts = submitted ? discounts.filter((d) => d.status === 'available') : [];
   const disabledDiscounts = submitted ? discounts.filter((d) => d.status !== 'available') : discounts;
@@ -464,28 +495,44 @@ export default function UserPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as DiscountStatus | 'all')}
+            className="w-full px-4 py-2 rounded-xl border border-emerald-300 bg-white text-emerald-800 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          >
+            <option value="awarded">Awarded</option>
+            <option value="used">Used</option>
+            <option value="expired">Expired</option>
+            <option value="all">All</option>
+          </select>
         </div>
         <ul className="space-y-3">
           {filteredMyDiscounts.map((d, idx) => {
             const isCollapsed = collapsedIndexes.includes(idx);
+            const styles = getStatusStyles(d.status);
             return (
               <li
                 key={d.code}
-                className="border border-emerald-100 rounded-xl p-4 bg-emerald-50"
+                className={`border rounded-xl p-4 ${styles.container}`}
               >
                 <div
                   className="flex justify-between items-center cursor-pointer"
                   onClick={() => toggleCollapse(idx)}
                 >
                   <div>
-                    <p className="font-semibold text-emerald-800">{d.code}</p>
-                    <p className="text-xs text-emerald-500">{d.restaurant?.name}</p>
-                    <p className="text-xs text-emerald-500">Expires: {new Date(d.expirationTime).toISOString().split('T')[0]}</p>
+                    <p className={`font-semibold ${styles.text}`}>{d.code}</p>
+                    <p className={`text-xs ${styles.subtext}`}>{d.restaurant?.name}</p>
+                    <p className={`text-xs ${styles.subtext}`}>Expires: {new Date(d.expirationTime).toISOString().split('T')[0]}</p>
                   </div>
-                  {!isCollapsed ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${styles.badgeBg} ${styles.badgeText}`}>
+                      {d.status.charAt(0).toUpperCase() + d.status.slice(1)}
+                    </span>
+                    {!isCollapsed ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
+                  </div>
                 </div>
                 {isCollapsed && (
-                  <div className="mt-3 text-sm text-emerald-800 space-y-1">
+                  <div className={`mt-3 text-sm ${styles.text} space-y-1`}>
                     <p><strong>🎟️ Code:</strong> {d.code}</p>
                     <p><strong>🏠 Restaurant:</strong> {d.restaurant?.name}</p>
                     <p><strong>🏷️ Discount:</strong> {d.discountPercent}%</p>
