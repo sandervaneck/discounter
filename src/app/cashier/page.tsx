@@ -105,7 +105,7 @@ export default function CashierDiscountScanner() {
       const found = discounts.find(
         (d: any) =>
           d.code.toUpperCase() === code &&
-          (d.status === "available" || d.status === "awarded")
+          d.status === "awarded"
       );
 
       if (!found) {
@@ -159,6 +159,31 @@ export default function CashierDiscountScanner() {
     } catch (err) {
       console.error("Validation error", err);
       setError("Failed to validate discount code.");
+    }
+  }
+
+  async function markAsUsed() {
+    if (!validationResult) return;
+    try {
+      const res = await fetch("/api/discounts/redeem", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ codeId: validationResult.code.id }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || "Failed to mark as used.");
+        return;
+      }
+
+      setValidationResult((prev) =>
+        prev ? { ...prev, code: { ...prev.code, status: "used" } } : prev
+      );
+    } catch (err) {
+      console.error("Mark as used error", err);
+      setError("Failed to mark as used.");
     }
   }
 
@@ -297,6 +322,20 @@ export default function CashierDiscountScanner() {
                 No user awarded for this discount code yet.
               </p>
             )}
+
+          {validationResult.code.status === "awarded" && (
+            <button
+              onClick={markAsUsed}
+              className="w-full mt-4 py-2 bg-[#117a65] text-white font-bold rounded-xl"
+            >
+              Mark as Used
+            </button>
+          )}
+          {validationResult.code.status === "used" && (
+            <p className="mt-4 text-center font-bold text-red-600">
+              Discount has been used.
+            </p>
+          )}
           </div>
         )}
       </div>
