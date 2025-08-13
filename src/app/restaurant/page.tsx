@@ -58,6 +58,13 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<DiscountForm>(emptyForm);
 
+  const statusClasses: Record<DiscountStatus, string> = {
+    available: "bg-green-700 text-white",
+    used: "bg-red-600 text-white",
+    expired: "bg-gray-300 text-gray-800",
+    awarded: "bg-green-200 text-green-800",
+  };
+
   const toggleRow = (id: number) => {
     setExpandedRows((prev) => ({ ...prev, [id]: !prev[id] }));
   };
@@ -357,11 +364,7 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
                   </td>
                   <td className="p-2 border border-emerald-100">
                     <span
-                      className={`inline-block px-2 py-1 rounded-full mr-2 mb-2 ${
-                        code.status === 'used'
-                          ? 'bg-orange-100 text-orange-800'
-                          : 'bg-emerald-100 text-emerald-800'
-                      }`}
+                      className={`inline-block px-2 py-1 rounded-full mr-2 mb-2 ${statusClasses[code.status]}`}
                     >
                         {code.status.charAt(0).toUpperCase() + code.status.slice(1)}
                       </span>
@@ -394,11 +397,17 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
                 {expandedRows[code.id] && (
                   <tr className="bg-emerald-50 border-b border-emerald-100">
                     <td colSpan={7} className="p-3">
-                      {code.status === 'used' &&
+                      {['used', 'awarded'].includes(code.status) &&
                         code.redemptions &&
                         code.redemptions.length > 0 && (
-                          <div className="mb-4 text-sm text-orange-800 font-semibold">
-                            Used by: {code.redemptions[0].influencer.name}
+                          <div
+                            className={`mb-4 text-sm font-semibold ${
+                              code.status === 'used' ? 'text-red-700' : 'text-green-700'
+                            }`}
+                          >
+                            {code.status === 'used' ? 'Used by' : 'Awarded to'}: {
+                              code.redemptions[0].influencer.name
+                            }
                           </div>
                         )}
                       <div className="flex flex-wrap gap-4">
