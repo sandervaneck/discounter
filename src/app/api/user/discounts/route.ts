@@ -13,14 +13,15 @@ export async function GET(req: NextRequest) {
 
   const redemptions = await prisma.redemption.findMany({
     where: { influencerId: Number(session.user.id) },
-    include: {
-      discountCode: {
-        include: {
-          applicableItems: {
-            include: { item: true },
+      include: {
+        discountCode: {
+          include: {
+            restaurant: true,
+            applicableItems: {
+              include: { item: true },
+            },
           },
         },
-      },
     },
   });
 

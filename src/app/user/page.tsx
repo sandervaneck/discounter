@@ -479,6 +479,7 @@ export default function UserPage() {
                 >
                   <div>
                     <p className="font-semibold text-emerald-800">{d.code}</p>
+                    <p className="text-xs text-emerald-500">{d.restaurant?.name}</p>
                     <p className="text-xs text-emerald-500">Expires: {new Date(d.expirationTime).toISOString().split('T')[0]}</p>
                   </div>
                   {!isCollapsed ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
@@ -486,6 +487,7 @@ export default function UserPage() {
                 {isCollapsed && (
                   <div className="mt-3 text-sm text-emerald-800 space-y-1">
                     <p><strong>🎟️ Code:</strong> {d.code}</p>
+                    <p><strong>🏠 Restaurant:</strong> {d.restaurant?.name}</p>
                     <p><strong>🏷️ Discount:</strong> {d.discountPercent}%</p>
                     <p><strong>🍽️ Items:</strong> {d.applicableItems.map((a: any) => a.item.name).join(', ')}</p>
                     <p><strong>📆 Expiration:</strong> {new Date(d.expirationTime).toISOString().split('T')[0]}</p>
