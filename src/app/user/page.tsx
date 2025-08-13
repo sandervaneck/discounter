@@ -7,49 +7,6 @@ import { DiscountType } from '../types/DiscountType';
 import { useRouter } from "next/navigation";
 import { signOut } from 'next-auth/react';
 
-const discountsMock = [
-  {
-    code: 'DISC-20245',
-    discount: '20%',
-    items: ['Focaccia Truffle', 'Focaccia Caprese'],
-    restaurant: 'Focacceria Milano',
-    location: 'Amsterdam',
-    expiration: '2025-08-30',
-    views: 18200,
-    likes: 2400,
-  },
-  {
-    code: 'DISC-20246',
-    discount: '15%',
-    items: ['Pizza Margherita'],
-    restaurant: 'La Piazza',
-    location: 'Rotterdam',
-    expiration: '2025-08-15',
-    views: 15300,
-    likes: 1800,
-  },
-  {
-    code: 'DISC-20247',
-    discount: '25%',
-    items: ['Lasagna', 'Tiramisu'],
-    restaurant: 'Osteria Roma',
-    location: 'Utrecht',
-    expiration: '2025-09-01',
-    views: 22000,
-    likes: 2900,
-  },
-  {
-    code: 'DISC-20248',
-    discount: '10%',
-    items: ['Panini Prosciutto'],
-    restaurant: 'Panini House',
-    location: 'Amsterdam',
-    expiration: '2025-08-22',
-    views: 8900,
-    likes: 1200,
-  },
-];
-
 
 export default function UserPage() {
     const router = useRouter();
@@ -64,6 +21,7 @@ export default function UserPage() {
   const [restaurantQuery, setRestaurantQuery] = useState('');
   const [restaurantResults, setRestaurantResults] = useState<{ id: number; name: string }[]>([]);
   const [selectedRestaurant, setSelectedRestaurant] = useState<{ id: number; name: string } | null>(null);
+  const [discounts, setDiscounts] = useState<any[]>([]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,7 +56,6 @@ export default function UserPage() {
   };
 
   const [search, setSearch] = useState('');
-  const [filterCity, setFilterCity] = useState('All');
   const [collapsedIndexes, setCollapsedIndexes] = useState<number[]>([]);
   const toggleCollapse = (index: number) => {
     setCollapsedIndexes((prev) =>
@@ -158,17 +115,29 @@ export default function UserPage() {
     return () => controller.abort();
   }, [restaurantQuery]);
 
+  useEffect(() => {
+    if (!selectedRestaurant) {
+      setDiscounts([]);
+      return;
+    }
+    const controller = new AbortController();
+    fetch(`/api/discounts?restaurantId=${selectedRestaurant.id}`, {
+      signal: controller.signal,
+    })
+      .then((res) => res.json())
+      .then((data) => setDiscounts(data))
+      .catch(() => {});
+    return () => controller.abort();
+  }, [selectedRestaurant]);
+
   const userDefined =  user && !(user as any).error;
 
+  const filteredDiscounts = discounts.filter((d) =>
+    d.code.toLowerCase().includes(search.toLowerCase())
+  );
 
-  const filteredDiscounts = discountsMock.filter((d) => {
-    const matchesSearch = d.restaurant.toLowerCase().includes(search.toLowerCase());
-    const matchesCity = filterCity === 'All' || d.location === filterCity;
-    return matchesSearch && matchesCity;
-  });
-
-  const eligibleDiscounts = discountsMock.slice(0, 2);
-  const disabledDiscounts = discountsMock.slice(2);
+  const eligibleDiscounts = discounts.filter((d) => d.status === 'available');
+  const disabledDiscounts = discounts.filter((d) => d.status !== 'available');
 
 
   return (
@@ -358,11 +327,9 @@ export default function UserPage() {
                           {eligibleCollapsed.includes(idx) && (
                             <tr className="bg-green-50 border-t border-emerald-200">
                               <td colSpan={2} className="p-3 text-emerald-800 space-y-1">
-                                <p><strong>Discount:</strong> {d.discount}</p>
-                                <p><strong>Items:</strong> {d.items.join(', ')}</p>
-                                <p><strong>Restaurant:</strong> {d.restaurant}</p>
-                                <p><strong>Location:</strong> {d.location}</p>
-                                <p><strong>Expiration:</strong> {d.expiration}</p>
+                                <p><strong>Discount:</strong> {d.discountPercent}%</p>
+                                <p><strong>Items:</strong> {d.applicableItems.map((a: any) => a.item.name).join(', ')}</p>
+                                <p><strong>Expiration:</strong> {new Date(d.expirationTime).toISOString().split('T')[0]}</p>
                               </td>
                             </tr>
                           )}
@@ -392,11 +359,9 @@ export default function UserPage() {
                           {disabledCollapsed.includes(idx) && (
                             <tr className="bg-orange-50 border-t border-orange-200">
                               <td colSpan={2} className="p-3 text-orange-800 space-y-1">
-                                <p><strong>Discount:</strong> {d.discount}</p>
-                                <p><strong>Items:</strong> {d.items.join(', ')}</p>
-                                <p><strong>Restaurant:</strong> {d.restaurant}</p>
-                                <p><strong>Location:</strong> {d.location}</p>
-                                <p><strong>Expiration:</strong> {d.expiration}</p>
+                                <p><strong>Discount:</strong> {d.discountPercent}%</p>
+                                <p><strong>Items:</strong> {d.applicableItems.map((a: any) => a.item.name).join(', ')}</p>
+                                <p><strong>Expiration:</strong> {new Date(d.expirationTime).toISOString().split('T')[0]}</p>
                               </td>
                             </tr>
                           )}
@@ -462,22 +427,11 @@ export default function UserPage() {
         <div className="mb-4 flex flex-col gap-3">
           <input
             type="text"
-            placeholder="Search restaurant..."
+            placeholder="Search code..."
             className="w-full px-4 py-2 rounded-xl border border-emerald-300 bg-white text-emerald-800 placeholder-emerald-400 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-
-          <select
-            className="w-full px-4 py-2 rounded-xl border border-emerald-300 text-sm text-emerald-700"
-            value={filterCity}
-            onChange={(e) => setFilterCity(e.target.value)}
-          >
-            <option value="All">All Cities</option>
-            <option value="Amsterdam">Amsterdam</option>
-            <option value="Rotterdam">Rotterdam</option>
-            <option value="Utrecht">Utrecht</option>
-          </select>
         </div>
         <ul className="space-y-3">
           {filteredDiscounts.map((d, idx) => {
@@ -492,18 +446,17 @@ export default function UserPage() {
                   onClick={() => toggleCollapse(idx)}
                 >
                   <div>
-                    <p className="font-semibold text-emerald-800">{d.restaurant} – {d.location}</p>
-                    <p className="text-xs text-emerald-500">Expires: {d.expiration}</p>
+                    <p className="font-semibold text-emerald-800">{d.code}</p>
+                    <p className="text-xs text-emerald-500">Expires: {new Date(d.expirationTime).toISOString().split('T')[0]}</p>
                   </div>
                   {!isCollapsed ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
                 </div>
                 {isCollapsed && (
                   <div className="mt-3 text-sm text-emerald-800 space-y-1">
                     <p><strong>🎟️ Code:</strong> {d.code}</p>
-                    <p><strong>🏷️ Discount:</strong> {d.discount}</p>
-                    <p><strong>🍽️ Items:</strong> {d.items.join(', ')}</p>
-                    <p><strong>👀 Views:</strong> {d.views}</p>
-                    <p><strong>❤️ Likes:</strong> {d.likes}</p>
+                    <p><strong>🏷️ Discount:</strong> {d.discountPercent}%</p>
+                    <p><strong>🍽️ Items:</strong> {d.applicableItems.map((a: any) => a.item.name).join(', ')}</p>
+                    <p><strong>📆 Expiration:</strong> {new Date(d.expirationTime).toISOString().split('T')[0]}</p>
                     <div className="pt-2 flex justify-center">
                       <QRCode value={d.code} size={80} />
                     </div>

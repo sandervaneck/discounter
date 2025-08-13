@@ -7,7 +7,25 @@ import { authOptions } from "@/lib/auth";
 
 const prisma = new PrismaClient();
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const restaurantId = req.nextUrl.searchParams.get("restaurantId");
+  if (restaurantId) {
+    try {
+      const discounts = await prisma.discountCode.findMany({
+        where: { restaurantId: Number(restaurantId) },
+        include: {
+          applicableItems: {
+            include: { item: true },
+          },
+        },
+      });
+      return NextResponse.json(discounts);
+    } catch (err) {
+      console.error("Error fetching discounts by restaurant:", err);
+      return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    }
+  }
+
   const session = await getServerSession(authOptions);
   console.log("Fetching discounts for session:", session);
   if (!session || !["restaurant", "business"].includes(session.user.userType)) {
