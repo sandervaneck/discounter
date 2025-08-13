@@ -108,6 +108,24 @@ export default function UserPage() {
     );
   };
 
+  const [eligibleCollapsed, setEligibleCollapsed] = useState<number[]>([]);
+  const toggleEligible = (index: number) => {
+    setEligibleCollapsed((prev) =>
+      prev.includes(index)
+        ? prev.filter((i) => i !== index)
+        : [...prev, index]
+    );
+  };
+
+  const [disabledCollapsed, setDisabledCollapsed] = useState<number[]>([]);
+  const toggleDisabled = (index: number) => {
+    setDisabledCollapsed((prev) =>
+      prev.includes(index)
+        ? prev.filter((i) => i !== index)
+        : [...prev, index]
+    );
+  };
+
   const [user, setUser] = useState<{ email: string, name: string } | null>(null);
 
   useEffect(() => {
@@ -148,6 +166,9 @@ export default function UserPage() {
     const matchesCity = filterCity === 'All' || d.location === filterCity;
     return matchesSearch && matchesCity;
   });
+
+  const eligibleDiscounts = discountsMock.slice(0, 2);
+  const disabledDiscounts = discountsMock.slice(2);
 
 
   return (
@@ -312,6 +333,78 @@ export default function UserPage() {
                     </div>
                   )}
                 </>
+              )}
+
+              {selectedRestaurant && uploadedImage && (
+                <div className="mt-6 overflow-hidden rounded-xl border border-emerald-200">
+                  <table className="w-full text-sm">
+                    <tbody>
+                      {eligibleDiscounts.map((d, idx) => (
+                        <React.Fragment key={d.code}>
+                          <tr className="bg-green-50">
+                            <td
+                              className="p-3 w-full cursor-pointer"
+                              onClick={() => toggleEligible(idx)}
+                            >
+                              <div className="flex justify-between items-center">
+                                <span className="font-semibold text-emerald-800">{d.code}</span>
+                                {eligibleCollapsed.includes(idx) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                              </div>
+                            </td>
+                            <td className="p-3 text-right">
+                              <button className="px-3 py-1 bg-emerald-600 text-white rounded">Redeem</button>
+                            </td>
+                          </tr>
+                          {eligibleCollapsed.includes(idx) && (
+                            <tr className="bg-green-50 border-t border-emerald-200">
+                              <td colSpan={2} className="p-3 text-emerald-800 space-y-1">
+                                <p><strong>Discount:</strong> {d.discount}</p>
+                                <p><strong>Items:</strong> {d.items.join(', ')}</p>
+                                <p><strong>Restaurant:</strong> {d.restaurant}</p>
+                                <p><strong>Location:</strong> {d.location}</p>
+                                <p><strong>Expiration:</strong> {d.expiration}</p>
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
+                      ))}
+                      {disabledDiscounts.map((d, idx) => (
+                        <React.Fragment key={d.code}>
+                          <tr className="bg-orange-50">
+                            <td
+                              className="p-3 w-full cursor-pointer"
+                              onClick={() => toggleDisabled(idx)}
+                            >
+                              <div className="flex justify-between items-center">
+                                <span className="font-semibold text-orange-800">{d.code}</span>
+                                {disabledCollapsed.includes(idx) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                              </div>
+                            </td>
+                            <td className="p-3 text-right">
+                              <button
+                                disabled
+                                className="px-3 py-1 bg-orange-200 text-orange-600 rounded cursor-not-allowed"
+                              >
+                                Redeem
+                              </button>
+                            </td>
+                          </tr>
+                          {disabledCollapsed.includes(idx) && (
+                            <tr className="bg-orange-50 border-t border-orange-200">
+                              <td colSpan={2} className="p-3 text-orange-800 space-y-1">
+                                <p><strong>Discount:</strong> {d.discount}</p>
+                                <p><strong>Items:</strong> {d.items.join(', ')}</p>
+                                <p><strong>Restaurant:</strong> {d.restaurant}</p>
+                                <p><strong>Location:</strong> {d.location}</p>
+                                <p><strong>Expiration:</strong> {d.expiration}</p>
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
 
               <button
