@@ -297,14 +297,7 @@ export default function CashierDiscountScanner() {
                   </p>
                   <p className="text-sm">Date posted: {validationResult.awardedPost.datePosted}</p>
                   <p className="text-sm">Date redeemed: {validationResult.awardedPost.dateRedeemed}</p>
-                  <a
-                    href={validationResult.awardedPost.postLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full block text-center py-2 mt-3 bg-[#117a65] text-white font-bold rounded-xl"
-                  >
-                    View Post
-                  </a>
+                  
                 </>
               )}
             </div>
@@ -318,7 +311,7 @@ export default function CashierDiscountScanner() {
             <div
               className="w-full py-3 text-center text-lg font-bold text-[#117a65] border-2 border-[#117a65] bg-white rounded-xl hover:bg-[#d9f5f1] transition-colors cursor-pointer"
             >
-              📷 Open Camera to Scan
+              📷 Open Camera to Scan Post
             </div>
             <input
               type="file"
