@@ -252,6 +252,7 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
 
       const newDiscount = await res.json();
       setDiscountCodes([...discountCodes, newDiscount]);
+      setItemsByDiscountId((prev) => ({ ...prev, [newDiscount.id]: form.items }));
       setForm(emptyForm);
     } catch (err) {
       console.error("Unexpected error:", err);
