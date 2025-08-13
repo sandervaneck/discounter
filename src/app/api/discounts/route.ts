@@ -62,12 +62,12 @@ export async function POST(req: NextRequest) {
       console.log("Invalid payload:", body);
       return NextResponse.json({ error: "Invalid or missing fields" }, { status: 400 });
     }
-    const parsedStatus = status ? status.toLowerCase() as DiscountStatus : DiscountStatus.available;
+    const parsedStatus = status ? (status.toLowerCase() as DiscountStatus) : DiscountStatus.available;
 
     // Extract only item IDs
-    const itemIds: number[] = applicableItemIds.map((item: any) =>
-      typeof item === "object" && 'id' in item ? item.id : Number(item)
-    ).filter((id) => !isNaN(id));
+    const itemIds: number[] = applicableItemIds
+      .map((item: any) => (typeof item === "object" && "id" in item ? item.id : Number(item)))
+      .filter((id) => !isNaN(id));
 
     const discount = await prisma.discountCode.create({
       data: {
@@ -75,15 +75,14 @@ export async function POST(req: NextRequest) {
         activationTime: new Date(activationTime),
         expirationTime: new Date(expirationTime),
         discountPercent,
-        requirements: requirements,
+        requirements: JSON.parse(requirements),
         restaurant: { connect: { email: session.user.email } },
         status: parsedStatus,
-        applicableItems: {
-          create: itemIds.map((id) => ({
-            item: { connect: { id } },
-          })),
-        },
       },
+    });
+
+    await prisma.discountCodeItem.createMany({
+      data: itemIds.map((itemId) => ({ discountCodeId: discount.id, itemId })),
     });
 
     return NextResponse.json(discount);
