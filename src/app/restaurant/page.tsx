@@ -47,7 +47,8 @@ const emptyForm: DiscountForm = {
 export default function RestaurantDiscountDashboard() {
   const { data: session, status } = useSession();
   const [form, setForm] = useState<DiscountForm>(emptyForm);
-  const [discountCodes, setDiscountCodes] = useState<DiscountCode[]>([]);
+  type DiscountWithUser = DiscountCode & { redemptions?: { influencer: { name: string } }[] };
+  const [discountCodes, setDiscountCodes] = useState<DiscountWithUser[]>([]);
   const [filterStatus, setFilterStatus] = useState<DiscountStatus | "all">("all");
   const [availableItems, setAvailableItems] = useState<Item[]>([]);
   const [itemsByDiscountId, setItemsByDiscountId] = useState<Record<number, Item[]>>({});
@@ -184,7 +185,7 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
         method: "GET",
         credentials: "include",
       });
-      const data = await res.json();
+      const data: DiscountWithUser[] = await res.json();
       setDiscountCodes(data);
 
       const fetchedMap: Record<number, Item[]> = {};
@@ -355,7 +356,13 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
                       </span>
                   </td>
                   <td className="p-2 border border-emerald-100">
-                    <span className="inline-block bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full mr-2 mb-2">
+                    <span
+                      className={`inline-block px-2 py-1 rounded-full mr-2 mb-2 ${
+                        code.status === 'used'
+                          ? 'bg-orange-100 text-orange-800'
+                          : 'bg-emerald-100 text-emerald-800'
+                      }`}
+                    >
                         {code.status.charAt(0).toUpperCase() + code.status.slice(1)}
                       </span>
                   </td>
@@ -387,6 +394,13 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
                 {expandedRows[code.id] && (
                   <tr className="bg-emerald-50 border-b border-emerald-100">
                     <td colSpan={7} className="p-3">
+                      {code.status === 'used' &&
+                        code.redemptions &&
+                        code.redemptions.length > 0 && (
+                          <div className="mb-4 text-sm text-orange-800 font-semibold">
+                            Used by: {code.redemptions[0].influencer.name}
+                          </div>
+                        )}
                       <div className="flex flex-wrap gap-4">
                         {(
                           Array.isArray(code.requirements)
