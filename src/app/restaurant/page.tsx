@@ -401,6 +401,13 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
                             Used by: {code.redemptions[0].influencer.name}
                           </div>
                         )}
+                      {code.status === 'awarded' &&
+                        code.redemptions &&
+                        code.redemptions.length > 0 && (
+                          <div className="mb-4 text-sm text-emerald-800 font-semibold">
+                            Awarded to: {code.redemptions[0].influencer.name}
+                          </div>
+                        )}
                       <div className="flex flex-wrap gap-4">
                         {(
                           Array.isArray(code.requirements)
