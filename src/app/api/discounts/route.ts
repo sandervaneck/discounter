@@ -17,6 +17,9 @@ export async function GET(req: NextRequest) {
           applicableItems: {
             include: { item: true },
           },
+          redemptions: {
+            include: { influencer: { select: { name: true } } },
+          },
         },
       });
       return NextResponse.json(discounts);
@@ -38,6 +41,9 @@ export async function GET(req: NextRequest) {
       include: {
         applicableItems: {
           include: { item: true },
+        },
+        redemptions: {
+          include: { influencer: { select: { name: true } } },
         },
       },
     });
