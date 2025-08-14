@@ -24,7 +24,7 @@ export default function UserPage() {
   const [discounts, setDiscounts] = useState<any[]>([]);
   const [myDiscounts, setMyDiscounts] = useState<any[]>([]);
   const [submitted, setSubmitted] = useState(false);
-  const [statusFilter, setStatusFilter] = useState<DiscountStatus | 'all'>('awarded');
+  const [statusFilter, setStatusFilter] = useState<DiscountStatus | 'all'>('all');
 
   const fetchDiscounts = async (id: number) => {
     try {
