@@ -64,7 +64,9 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
 
   function updateCode(id: number, field: keyof DiscountCode, value: number | string | string[]) {
     setDiscountCodes((codes) =>
-      codes.map((code) => (code.id === id ? { ...code, [field]: value } : code))
+      codes
+        .map((code) => (code.id === id ? { ...code, [field]: value } : code))
+        .sort((a, b) => a.code.localeCompare(b.code))
     );
   }
 
@@ -84,7 +86,11 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
         return;
       }
 
-      setDiscountCodes((codes) => codes.filter((c) => c.id !== id));
+      setDiscountCodes((codes) =>
+        codes
+          .filter((c) => c.id !== id)
+          .sort((a, b) => a.code.localeCompare(b.code))
+      );
     } catch (err) {
       console.error("Unexpected delete error:", err);
       alert("Something went wrong deleting discount.");
@@ -157,9 +163,16 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
       const updated = await res.json();
 
       setDiscountCodes((codes) =>
-        codes.map((c) => (c.id === editingId ? { ...c, ...updated } : c))
+        codes
+          .map((c) => (c.id === editingId ? { ...c, ...updated } : c))
+          .sort((a, b) => a.code.localeCompare(b.code))
       );
-      setItemsByDiscountId((prev) => ({ ...prev, [editingId!]: editForm.items }));
+      setItemsByDiscountId((prev) => ({
+        ...prev,
+        [editingId!]: [...editForm.items].sort((a, b) =>
+          a.name.localeCompare(b.name)
+        ),
+      }));
       setEditingId(null);
     } catch (err) {
       console.error("Unexpected update error:", err);
@@ -186,6 +199,7 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
         credentials: "include",
       });
       const data: DiscountWithUser[] = await res.json();
+      data.sort((a, b) => a.code.localeCompare(b.code));
       setDiscountCodes(data);
 
       const fetchedMap: Record<number, Item[]> = {};
@@ -194,7 +208,8 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
           method: "GET",
           credentials: "include",
         });
-        const items = await res.json();
+        const items: Item[] = await res.json();
+        items.sort((a, b) => a.name.localeCompare(b.name));
         fetchedMap[discount.id] = items;
       }
       setItemsByDiscountId(fetchedMap);
@@ -205,7 +220,8 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
         method: "GET",
         credentials: "include",
       });
-      const items = await res.json();
+      const items: Item[] = await res.json();
+      items.sort((a, b) => a.name.localeCompare(b.name));
       setAvailableItems(items);
     };
 
@@ -252,8 +268,15 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
       }
 
       const newDiscount = await res.json();
-      setDiscountCodes([...discountCodes, newDiscount]);
-      setItemsByDiscountId((prev) => ({ ...prev, [newDiscount.id]: form.items }));
+      setDiscountCodes(
+        [...discountCodes, newDiscount].sort((a, b) =>
+          a.code.localeCompare(b.code)
+        )
+      );
+      setItemsByDiscountId((prev) => ({
+        ...prev,
+        [newDiscount.id]: [...form.items].sort((a, b) => a.name.localeCompare(b.name)),
+      }));
       setForm(emptyForm);
     } catch (err) {
       console.error("Unexpected error:", err);

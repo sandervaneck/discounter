@@ -13,6 +13,7 @@ export async function GET(req: NextRequest) {
     try {
       const discounts = await prisma.discountCode.findMany({
         where: { restaurantId: Number(restaurantId) },
+        orderBy: { code: 'asc' },
         include: {
           applicableItems: {
             include: { item: true },
@@ -38,6 +39,7 @@ export async function GET(req: NextRequest) {
   try {
     const discounts = await prisma.discountCode.findMany({
       where: { restaurant: { email: session.user.email } },
+      orderBy: { code: 'asc' },
       include: {
         applicableItems: {
           include: { item: true },

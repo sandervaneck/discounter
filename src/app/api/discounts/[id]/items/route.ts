@@ -37,6 +37,7 @@ export async function GET(
           },
         },
       },
+      orderBy: { item: { name: 'asc' } },
       include: {
         item: true,
       },
