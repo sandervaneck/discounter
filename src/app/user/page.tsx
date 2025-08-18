@@ -31,6 +31,7 @@ export default function UserPage() {
       const res = await fetch(`/api/discounts?restaurantId=${id}`);
       if (res.ok) {
         const data = await res.json();
+        data.sort((a: any, b: any) => a.code.localeCompare(b.code));
         setDiscounts(data);
       }
     } catch (e) {
@@ -43,6 +44,7 @@ export default function UserPage() {
       const res = await fetch('/api/user/discounts');
       if (res.ok) {
         const data = await res.json();
+        data.sort((a: any, b: any) => a.code.localeCompare(b.code));
         setMyDiscounts(data);
       }
     } catch (e) {

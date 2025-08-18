@@ -20,7 +20,9 @@ const [items, setItems] = useState<{ id: number; name: string }[]>([]);
       body: JSON.stringify({ id }),
     });
     if (res.ok) {
-      setItems((prev) => prev.filter((i) => i.id !== id));
+      setItems((prev) =>
+        prev.filter((i) => i.id !== id).sort((a, b) => a.name.localeCompare(b.name))
+      );
     }
   };
 
@@ -31,6 +33,7 @@ const [items, setItems] = useState<{ id: number; name: string }[]>([]);
         credentials: "include",
       });
       const data = await res.json();
+      data.sort((a, b) => a.name.localeCompare(b.name));
       setItems(data);
     };
     if (status === "authenticated") fetchItems();
@@ -45,7 +48,7 @@ const [items, setItems] = useState<{ id: number; name: string }[]>([]);
       body: JSON.stringify({ name: newItem }),
     });
     const item = await res.json();
-    setItems([...items, item]);
+    setItems([...items, item].sort((a, b) => a.name.localeCompare(b.name)));
     setNewItem("");
   };
 

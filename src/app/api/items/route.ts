@@ -18,6 +18,7 @@ export async function GET(req: NextRequest) {
   try {
     const items = await prisma.item.findMany({
       where: { restaurant: { email: session.user.email } },
+      orderBy: { name: 'asc' },
     });
     return NextResponse.json(items);
   } catch (err) {
