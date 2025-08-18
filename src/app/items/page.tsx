@@ -32,7 +32,7 @@ const [items, setItems] = useState<{ id: number; name: string }[]>([]);
         method: "GET",
         credentials: "include",
       });
-      const data = await res.json();
+      const data: { id: number; name: string }[] = await res.json();
       data.sort((a, b) => a.name.localeCompare(b.name));
       setItems(data);
     };

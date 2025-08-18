@@ -208,7 +208,7 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
           method: "GET",
           credentials: "include",
         });
-        const items = await res.json();
+        const items: Item[] = await res.json();
         items.sort((a, b) => a.name.localeCompare(b.name));
         fetchedMap[discount.id] = items;
       }
@@ -220,7 +220,7 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
         method: "GET",
         credentials: "include",
       });
-      const items = await res.json();
+      const items: Item[] = await res.json();
       items.sort((a, b) => a.name.localeCompare(b.name));
       setAvailableItems(items);
     };
