@@ -16,6 +16,14 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+### Environment Variables
+
+To enable Facebook/Instagram authentication, configure the following variable in your environment:
+
+```bash
+NEXT_PUBLIC_FACEBOOK_APP_ID=your_app_id_here
+```
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
