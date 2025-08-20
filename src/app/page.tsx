@@ -109,7 +109,11 @@ export default function Home() {
   };
 
   const handleInstagramConnect = () => {
-    const appId = process.env.NEXT_FACEBOOK_APP_ID;
+    const appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
+    if (!appId) {
+      alert("Facebook App ID is not configured.");
+      return;
+    }
     const redirectUri = `${window.location.origin}`;
     const scope = "instagram_basic,pages_show_list";
 
