@@ -66,18 +66,25 @@ export default function Home() {
     }
   };
 
-  const handleSignUp = async () => {
-    if (!registerForm?.email || !registerForm.password || !registerForm.userType || !registerForm.name) {
-      alert("Please fill in all fields.");
+  const handleConfirmRegistration = async () => {
+    if (
+      !registerForm?.email ||
+      !registerForm.password ||
+      !registerForm.userType ||
+      !registerForm.name ||
+      !registerForm.url
+    ) {
+      alert("Please fill in all fields and connect Instagram.");
       return;
     }
 
-    const mappedUserType = registerForm.userType === "restaurant" ? "business" : "influencer";
+    const mappedUserType =
+      registerForm.userType === "restaurant" ? "business" : "influencer";
     const mappedEmail = registerForm.email.trim().toLowerCase();
     const mappedPassword = registerForm.password;
     const mappedName = registerForm.name.trim();
     const mappedUrl = registerForm.url;
-    
+
     const res = await fetch("/api/auth/signup", {
       method: "POST",
       headers: {
@@ -88,14 +95,22 @@ export default function Home() {
         password: mappedPassword,
         name: mappedName,
         userType: mappedUserType,
-        url: mappedUrl ? mappedUrl : 'www.instagram.com',
-      })
-
+        url: mappedUrl ? mappedUrl : "www.instagram.com",
+      }),
     });
 
     if (res.ok) {
-      alert("Signed up successfully! Please log in.");
-      setOpenSignUp(false);
+      const loginRes = await signIn("credentials", {
+        redirect: false,
+        email: mappedEmail,
+        password: mappedPassword,
+      });
+
+      if (loginRes?.ok) {
+        router.push("/user");
+      } else {
+        alert("Login failed after registration.");
+      }
     } else {
       let errorMsg = "Unknown error";
       try {
@@ -114,7 +129,7 @@ export default function Home() {
       alert("Facebook App ID is not configured.");
       return;
     }
-    const redirectUri = `${window.location.origin}`;
+    const redirectUri = `${window.location.origin}/instagram-callback`;
     const scope = "instagram_basic,pages_show_list";
 
     const authUrl = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&response_type=token`;
@@ -265,27 +280,32 @@ export default function Home() {
               >
                 Connect Instagram
               </button>
-              {/* <input
-                type="text"
-                placeholder="Instagram Access Token"
-                value={registerForm?.url || ""}
-                readOnly
-                className="w-full max-w-sm mt-2 px-4 py-2 border border-emerald-300 rounded-md text-emerald-800 bg-white placeholder-emerald-400"
-              /> */}
-                {checkFields() && (
-                  <div className="w-full max-w-sm text-sm text-emerald-600 mt-2">
-                    Please enter your email and password to create an account.
-                    <br />
-                    <strong>Note:</strong> Passwords must be at least 6 characters long.
-                  </div>
-                )}
-                <button
-                  onClick={handleSignUp}
-                  disabled={!registerForm?.email || !registerForm?.password || !registerForm?.userType || !registerForm?.name || !registerForm || registerForm.password.length < 6}
-                  className="w-full max-w-sm mt-4 px-6 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition-colors"
-                >
-                  Sign Up
-                </button>
+              {registerForm?.url && (
+                <div className="w-full max-w-sm mt-2 text-emerald-700">
+                  Instagram connected!
+                </div>
+              )}
+              {checkFields() && (
+                <div className="w-full max-w-sm text-sm text-emerald-600 mt-2">
+                  Please enter your email and password to create an account.
+                  <br />
+                  <strong>Note:</strong> Passwords must be at least 6 characters long.
+                </div>
+              )}
+              <button
+                onClick={handleConfirmRegistration}
+                disabled={
+                  !registerForm?.email ||
+                  !registerForm?.password ||
+                  !registerForm?.userType ||
+                  !registerForm?.name ||
+                  !registerForm?.url ||
+                  registerForm.password.length < 6
+                }
+                className="w-full max-w-sm mt-4 px-6 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition-colors"
+              >
+                Confirm Registration
+              </button>
           </div>
             )}
         {showLoginFields && (
