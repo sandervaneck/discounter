@@ -42,6 +42,13 @@ export default function RootLayout({
               >
                 Privacy Policy
               </a>
+              {" | "}
+              <a
+                href="/terms-of-service"
+                className="underline hover:text-gray-700"
+              >
+                Terms of Service
+              </a>
             </footer>
           </div>
         </Providers>
