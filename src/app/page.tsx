@@ -124,15 +124,18 @@ export default function Home() {
   };
 
   const handleInstagramConnect = () => {
-    const appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
+    const appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID ?? "788193503894407";
     if (!appId) {
       alert("Facebook App ID is not configured.");
       return;
     }
     const redirectUri = `${window.location.origin}/instagram-callback`;
-    const scope = "instagram_basic,pages_show_list";
+    const scope =
+      "instagram_basic,instagram_manage_messages,instagram_content_publish,pages_show_list";
 
-    const authUrl = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&response_type=token`;
+    const authUrl = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(
+      redirectUri,
+    )}&scope=${encodeURIComponent(scope)}&response_type=code`;
 
     const popup = window.open(authUrl, "instagramLogin", "width=600,height=700");
 

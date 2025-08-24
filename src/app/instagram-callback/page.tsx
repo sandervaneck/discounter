@@ -3,12 +3,21 @@ import { useEffect } from "react";
 
 export default function InstagramCallback() {
   useEffect(() => {
-    const hash = window.location.hash.substring(1);
-    const params = new URLSearchParams(hash);
-    const token = params.get("access_token");
-    if (token && window.opener) {
-      window.opener.postMessage({ type: "instagram-token", token }, window.location.origin);
-      window.close();
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    if (code && window.opener) {
+      fetch(`/api/instagram/token?code=${code}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.access_token) {
+            window.opener.postMessage(
+              { type: "instagram-token", token: data.access_token },
+              window.location.origin,
+            );
+          }
+          window.close();
+        })
+        .catch(() => window.close());
     }
   }, []);
   return <p>Connecting to Instagram...</p>;
