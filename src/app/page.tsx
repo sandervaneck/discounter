@@ -273,8 +273,11 @@ export default function Home() {
                     className="w-full px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
                   />
                 </label>
-                <a href="/api/meta/login">
-      <button>Connect Instagram</button>
+                <a href="/api/meta/login"
+                target="_blank">
+      <button
+      className="w-full max-w-sm mt-4 px-6 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition-colors"
+      >Connect Instagram</button>
     </a>
               
               {registerForm?.url && (
