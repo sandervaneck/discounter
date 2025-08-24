@@ -130,9 +130,9 @@ export default function Home() {
       return;
     }
     const redirectUri = `${window.location.origin}/instagram-callback`;
-    const scope = "instagram_basic,pages_show_list";
+    const scope = "instagram_basic";
 
-    const authUrl = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&response_type=token`;
+    const authUrl = `https://www.facebook.com/v23.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&response_type=token`;
 
     const popup = window.open(authUrl, "instagramLogin", "width=600,height=700");
 
@@ -273,13 +273,10 @@ export default function Home() {
                     className="w-full px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
                   />
                 </label>
-              <button
-                type="button"
-                onClick={handleInstagramConnect}
-                className="w-full max-w-sm mt-2 px-4 py-2 bg-pink-600 text-white rounded-md hover:bg-pink-700 transition-colors"
-              >
-                Connect Instagram
-              </button>
+                <a href="/api/meta/login">
+      <button>Connect Instagram</button>
+    </a>
+              
               {registerForm?.url && (
                 <div className="w-full max-w-sm mt-2 text-emerald-700">
                   Instagram connected!
