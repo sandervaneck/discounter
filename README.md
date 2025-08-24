@@ -18,10 +18,11 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ### Environment Variables
 
-To enable Facebook/Instagram authentication, configure the following variable in your environment:
+To enable Facebook/Instagram authentication, configure the following variables in your environment:
 
 ```bash
-NEXT_PUBLIC_FACEBOOK_APP_ID=your_app_id_here
+NEXT_PUBLIC_FACEBOOK_APP_ID=788193503894407
+FACEBOOK_APP_SECRET=your_app_secret_here
 ```
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
