@@ -95,7 +95,7 @@ export default function Home() {
         password: mappedPassword,
         name: mappedName,
         userType: mappedUserType,
-        url: mappedUrl ? mappedUrl : "www.instagram.com",
+        url: mappedUrl,
       }),
     });
 
@@ -130,9 +130,15 @@ export default function Home() {
       return;
     }
     const redirectUri = `${window.location.origin}/instagram-callback`;
-    const scope = "instagram_basic";
+    const scope = process.env.NEXT_PUBLIC_FACEBOOK_SCOPE;
+    const apiVersion = process.env.NEXT_PUBLIC_FACEBOOK_API_VERSION;
 
-    const authUrl = `https://www.facebook.com/v23.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&response_type=token`;
+    if (!scope || !apiVersion) {
+      alert("Facebook OAuth configuration is missing.");
+      return;
+    }
+
+    const authUrl = `https://www.facebook.com/${apiVersion}/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&response_type=token`;
 
     const popup = window.open(authUrl, "instagramLogin", "width=600,height=700");
 

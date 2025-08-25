@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-const FB_VER = "v23.0";
+const FB_API_VERSION = process.env.FACEBOOK_API_VERSION!;
 const G = (p: Record<string, string>) => new URLSearchParams(p).toString();
 
 export async function GET(req: NextRequest) {
@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
 
   // 1) Exchange code for SHORT-LIVED user access token
   const tokenRes = await fetch(
-    `https://graph.facebook.com/${FB_VER}/oauth/access_token?` + G({
+    `https://graph.facebook.com/${FB_API_VERSION}/oauth/access_token?` + G({
       client_id: process.env.FACEBOOK_CLIENT_ID!,
       client_secret: process.env.FACEBOOK_CLIENT_SECRET!,
       redirect_uri: `${process.env.NEXTAUTH_URL}/api/meta/callback`,
@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
 
   // 2) Upgrade to LONG-LIVED user token (~60 days)
   const longRes = await fetch(
-    `https://graph.facebook.com/${FB_VER}/oauth/access_token?` + G({
+    `https://graph.facebook.com/${FB_API_VERSION}/oauth/access_token?` + G({
       grant_type: "fb_exchange_token",
       client_id: process.env.FACEBOOK_CLIENT_ID!,
       client_secret: process.env.FACEBOOK_CLIENT_SECRET!,
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
 
   // 3) List Pages the user manages (returns Page access tokens)
   const pagesRes = await fetch(
-    `https://graph.facebook.com/${FB_VER}/me/accounts?` + G({
+    `https://graph.facebook.com/${FB_API_VERSION}/me/accounts?` + G({
       fields: "name,access_token,instagram_business_account",
     }),
     { headers: { Authorization: `Bearer ${userAccessToken}` } }
@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
       const ig = page.instagram_business_account?.id as string | undefined;
       if (pageToken && ig) {
         const igRes = await fetch(
-          `https://graph.facebook.com/${FB_VER}/${ig}?` + G({
+          `https://graph.facebook.com/${FB_API_VERSION}/${ig}?` + G({
             fields: "id,username,profile_picture_url,followers_count,media_count",
           }),
           { headers: { Authorization: `Bearer ${pageToken}` } }
