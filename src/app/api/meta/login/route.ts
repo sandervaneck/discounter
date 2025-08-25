@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import crypto from "crypto";
 
-const FB_API_VERSION = process.env.FACEBOOK_API_VERSION!;
-const FB_OAUTH_SCOPES = process.env.FACEBOOK_OAUTH_SCOPES!;
+const FB_OAUTH_SCOPES =
+  process.env.FACEBOOK_OAUTH_SCOPES ||
+  "public_profile,email,pages_show_list,pages_read_engagement,instagram_basic,instagram_manage_insights";
 
 export async function GET() {
   const state = crypto.randomBytes(16).toString("hex");
@@ -20,6 +21,6 @@ export async function GET() {
   });
 
   return NextResponse.redirect(
-    `https://www.facebook.com/${FB_API_VERSION}/dialog/oauth?${params.toString()}`
+    `https://api.instagram.com/oauth/authorize?${params.toString()}`
   );
 }

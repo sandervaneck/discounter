@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-const FB_API_VERSION = process.env.FACEBOOK_API_VERSION!;
+const FB_API_VERSION = process.env.FACEBOOK_API_VERSION || "v23.0";
 const G = (p: Record<string, string>) => new URLSearchParams(p).toString();
 
 export async function GET(req: NextRequest) {

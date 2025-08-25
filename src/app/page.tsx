@@ -124,23 +124,26 @@ export default function Home() {
   };
 
   const handleInstagramConnect = () => {
-    const appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
+    const appId =
+      process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID ||
+      process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
     if (!appId) {
-      alert("Facebook App ID is not configured.");
+      alert("Instagram App ID is not configured.");
       return;
     }
     const redirectUri = `${window.location.origin}/instagram-callback`;
-    const scope = process.env.NEXT_PUBLIC_FACEBOOK_SCOPE;
-    const apiVersion = process.env.NEXT_PUBLIC_FACEBOOK_API_VERSION;
+    const scope =
+      process.env.NEXT_PUBLIC_INSTAGRAM_SCOPE ||
+      process.env.NEXT_PUBLIC_FACEBOOK_SCOPE ||
+      "user_profile,user_media";
 
-    if (!scope || !apiVersion) {
-      alert("Facebook OAuth configuration is missing.");
-      return;
-    }
+    const authUrl = `https://api.instagram.com/oauth/authorize?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&response_type=token`;
 
-    const authUrl = `https://www.facebook.com/${apiVersion}/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&response_type=token`;
-
-    const popup = window.open(authUrl, "instagramLogin", "width=600,height=700");
+    const popup = window.open(
+      authUrl,
+      "instagramLogin",
+      "popup=yes,width=600,height=700,menubar=no,toolbar=no,location=no,status=no"
+    );
 
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
