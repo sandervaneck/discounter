@@ -95,7 +95,7 @@ export default function Home() {
         password: mappedPassword,
         name: mappedName,
         userType: mappedUserType,
-        url: mappedUrl,
+        url: mappedUrl ? mappedUrl : "www.instagram.com",
       }),
     });
 
