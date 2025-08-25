@@ -17,7 +17,7 @@ model User {
   discounts   DiscountCode[] @relation("RestaurantDiscounts")
   items       Item[]
   redemptions Redemption[]
-  url         String  @default("https://www.instagram.com/sanderveck/")
+  url         String         @default("https://www.instagram.com/sanderveck/")
 }
 
 model Item {
