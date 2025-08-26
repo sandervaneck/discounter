@@ -122,47 +122,6 @@ export default function Home() {
       alert(`Sign up failed: ${errorMsg}`);
     }
   };
-
-  const handleInstagramConnect = () => {
-    const appId =
-      process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID ||
-      process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
-    if (!appId) {
-      alert("Instagram App ID is not configured.");
-      return;
-    }
-    const redirectUri = `${window.location.origin}/instagram-callback`;
-    const scope =
-      process.env.NEXT_PUBLIC_INSTAGRAM_SCOPE ||
-      process.env.NEXT_PUBLIC_FACEBOOK_SCOPE ||
-      "user_profile,user_media";
-
-    const authUrl = `https://api.instagram.com/oauth/authorize?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&response_type=token`;
-
-    const popup = window.open(
-      authUrl,
-      "instagramLogin",
-      "popup=yes,width=600,height=700,menubar=no,toolbar=no,location=no,status=no"
-    );
-
-    const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return;
-      if (event.data.type === "instagram-token") {
-        const token = event.data.token;
-        setRegisterForm((prev) => ({
-          email: prev?.email,
-          password: prev?.password,
-          name: prev?.name,
-          userType: prev?.userType,
-          url: token,
-        }));
-        window.removeEventListener("message", handleMessage);
-        popup?.close();
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-  };
   return (
     <main className="min-h-screen bg-gradient-to-br from-emerald-50 to-white flex flex-col items-center justify-center px-4">
       <div className="max-w-xl text-center">
@@ -294,7 +253,7 @@ export default function Home() {
                   Instagram connected!
                 </div>
               )}
-              {checkFields() && (
+              {!checkFields() && (
                 <div className="w-full max-w-sm text-sm text-emerald-600 mt-2">
                   Please enter your email and password to create an account.
                   <br />
