@@ -131,12 +131,11 @@ export default function Home() {
       alert("Instagram App ID is not configured.");
       return;
     }
-    const redirectUri = `${window.location.origin}/instagram-callback`;
-    const scope =
-      process.env.NEXT_PUBLIC_INSTAGRAM_SCOPE ||
-      process.env.NEXT_PUBLIC_FACEBOOK_SCOPE ||
-      "user_profile,user_media";
-
+    // const redirectUri = `${window.location.origin}/instagram-callback`;
+    // const scope =
+    //   process.env.NEXT_PUBLIC_INSTAGRAM_SCOPE ||
+    //   process.env.NEXT_PUBLIC_FACEBOOK_SCOPE ||
+    //   "user_profile,user_media";
     // const authUrl = `https://api.instagram.com/oauth/authorize?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&response_type=token`;
    const authUrl = 'https://www.instagram.com/oauth/authorize?force_reauth=true&client_id=750340034464298&redirect_uri=https://discounter-coral.vercel.app/instagram-callback&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_insights';
 
