@@ -1,12 +1,15 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+export const dynamic = "force-dynamic";
+
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "./components/Button";
 import { useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 
 export default function Home() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [userType, setUserType] = useState<"influencer" | "restaurant" | null>(null);
   const [openSignUp, setOpenSignUp] = useState(false);
   const [showLoginFields, setShowLoginFields] = useState(false);
@@ -37,6 +40,21 @@ export default function Home() {
       setShowLoginFields(true);
     }
   }, [userType]);
+
+  useEffect(() => {
+    const igToken = searchParams.get("instagram_token");
+    if (igToken) {
+      setOpenSignUp(true);
+      setRegisterForm((prev) => ({
+        email: prev?.email,
+        password: prev?.password,
+        name: prev?.name,
+        userType: prev?.userType,
+        url: igToken,
+      }));
+      router.replace("/");
+    }
+  }, [searchParams, router]);
 
   const handleLogin = async () => {
     const res = await signIn("credentials", {
@@ -131,37 +149,13 @@ export default function Home() {
       alert("Instagram App ID is not configured.");
       return;
     }
-    // const redirectUri = `${window.location.origin}/instagram-callback`;
-    // const scope =
-    //   process.env.NEXT_PUBLIC_INSTAGRAM_SCOPE ||
-    //   process.env.NEXT_PUBLIC_FACEBOOK_SCOPE ||
-    //   "user_profile,user_media";
-    // const authUrl = `https://api.instagram.com/oauth/authorize?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&response_type=token`;
-   const authUrl = 'https://www.instagram.com/oauth/authorize?force_reauth=true&client_id=750340034464298&redirect_uri=https://discounter-coral.vercel.app/instagram-callback&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_insights';
-
-    const popup = window.open(
-      authUrl,
-      "instagramLogin",
-      "popup=yes,width=600,height=700,menubar=no,toolbar=no,location=no,status=no"
-    );
-
-    const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return;
-      if (event.data.type === "instagram-token") {
-        const token = event.data.token;
-        setRegisterForm((prev) => ({
-          email: prev?.email,
-          password: prev?.password,
-          name: prev?.name,
-          userType: prev?.userType,
-          url: token,
-        }));
-        window.removeEventListener("message", handleMessage);
-        popup?.close();
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
+    const redirectUri = `${window.location.origin}/instagram-callback`;
+    const scope =
+      process.env.NEXT_PUBLIC_INSTAGRAM_SCOPE ||
+      process.env.NEXT_PUBLIC_FACEBOOK_SCOPE ||
+      "user_profile,user_media";
+    const authUrl = `https://api.instagram.com/oauth/authorize?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&response_type=token`;
+    window.location.href = authUrl;
   };
   return (
     <main className="min-h-screen bg-gradient-to-br from-emerald-50 to-white flex flex-col items-center justify-center px-4">
