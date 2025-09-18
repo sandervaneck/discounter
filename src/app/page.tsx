@@ -133,7 +133,7 @@ export default function Home() {
     }
     // const redirectUri = `${window.location.origin}/instagram-callback`;
     // const scope =
-    //   process.env.NEXT_PUBLIC_INSTAGRAM_SCOPE ||
+    //  process.env.NEXT_PUBLIC_INSTAGRAM_SCOPE ||
     //   process.env.NEXT_PUBLIC_FACEBOOK_SCOPE ||
     //   "user_profile,user_media";
     //const authUrl = `https://api.instagram.com/oauth/authorize?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&response_type=token`;
