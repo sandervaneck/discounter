@@ -123,7 +123,7 @@ export default function Home() {
     }
   };
 
-  handleInstagramConnect = () => {
+  const handleInstagramConnect = () => {
   const appId = 75034003446429
 
   if (!appId) {
