@@ -135,9 +135,7 @@ export default function Home() {
   const redirectUri = window.location.origin + window.location.pathname;
   const scope = "instagram_business_basic";
 
-  const authUrl = `https://www.instagram.com/oauth/authorize?force_reauth=true&client_id=${encodeURIComponent(
-    appId
-  )}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}`;
+  const authUrl = `https://www.instagram.com/oauth/authorize?force_reauth=true&client_id=${encodeURIComponent( appId )}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}`;
 
   
   window.location.href = authUrl;
