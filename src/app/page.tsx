@@ -130,7 +130,7 @@ export default function Home() {
     alert("Instagram App ID is not configured.");
     return;
   }
-  // instagrm
+
   // Use same page as redirect (must match the URI configured in your app settings)
   const redirectUri = window.location.origin + window.location.pathname;
   const scope = "instagram_business_basic";
