@@ -125,7 +125,6 @@ export default function Home() {
 
   const handleInstagramConnect = () => {
   const appId = 75034003446429
-https://www.instagram.com/oauth/authorize?force_reauth=true&client_id=750340034464298&redirect_uri=https://discounter-coral.vercel.app/api/auth/instagram/callback&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_messages%2Cinstagram_business_manage_comments%2Cinstagram_business_content_publish%2Cinstagram_business_manage_insights
   if (!appId) {
     alert("Instagram App ID is not configured.");
     return;
