@@ -1435,6 +1435,13 @@ export namespace Prisma {
     name: string | null
     userType: $Enums.UserType | null
     url: string | null
+    instagramToken: string | null
+    instagramUserId: string | null
+    instagramUsername: string | null
+    instagramConnected: boolean | null
+    tokenExpiresAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type UserMaxAggregateOutputType = {
@@ -1444,6 +1451,13 @@ export namespace Prisma {
     name: string | null
     userType: $Enums.UserType | null
     url: string | null
+    instagramToken: string | null
+    instagramUserId: string | null
+    instagramUsername: string | null
+    instagramConnected: boolean | null
+    tokenExpiresAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type UserCountAggregateOutputType = {
@@ -1453,6 +1467,13 @@ export namespace Prisma {
     name: number
     userType: number
     url: number
+    instagramToken: number
+    instagramUserId: number
+    instagramUsername: number
+    instagramConnected: number
+    tokenExpiresAt: number
+    createdAt: number
+    updatedAt: number
     _all: number
   }
 
@@ -1472,6 +1493,13 @@ export namespace Prisma {
     name?: true
     userType?: true
     url?: true
+    instagramToken?: true
+    instagramUserId?: true
+    instagramUsername?: true
+    instagramConnected?: true
+    tokenExpiresAt?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
   export type UserMaxAggregateInputType = {
@@ -1481,6 +1509,13 @@ export namespace Prisma {
     name?: true
     userType?: true
     url?: true
+    instagramToken?: true
+    instagramUserId?: true
+    instagramUsername?: true
+    instagramConnected?: true
+    tokenExpiresAt?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
   export type UserCountAggregateInputType = {
@@ -1490,6 +1525,13 @@ export namespace Prisma {
     name?: true
     userType?: true
     url?: true
+    instagramToken?: true
+    instagramUserId?: true
+    instagramUsername?: true
+    instagramConnected?: true
+    tokenExpiresAt?: true
+    createdAt?: true
+    updatedAt?: true
     _all?: true
   }
 
@@ -1586,6 +1628,13 @@ export namespace Prisma {
     name: string
     userType: $Enums.UserType
     url: string
+    instagramToken: string | null
+    instagramUserId: string | null
+    instagramUsername: string | null
+    instagramConnected: boolean
+    tokenExpiresAt: Date | null
+    createdAt: Date
+    updatedAt: Date
     _count: UserCountAggregateOutputType | null
     _avg: UserAvgAggregateOutputType | null
     _sum: UserSumAggregateOutputType | null
@@ -1614,6 +1663,13 @@ export namespace Prisma {
     name?: boolean
     userType?: boolean
     url?: boolean
+    instagramToken?: boolean
+    instagramUserId?: boolean
+    instagramUsername?: boolean
+    instagramConnected?: boolean
+    tokenExpiresAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
     discounts?: boolean | User$discountsArgs<ExtArgs>
     items?: boolean | User$itemsArgs<ExtArgs>
     redemptions?: boolean | User$redemptionsArgs<ExtArgs>
@@ -1627,6 +1683,13 @@ export namespace Prisma {
     name?: boolean
     userType?: boolean
     url?: boolean
+    instagramToken?: boolean
+    instagramUserId?: boolean
+    instagramUsername?: boolean
+    instagramConnected?: boolean
+    tokenExpiresAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -1636,6 +1699,13 @@ export namespace Prisma {
     name?: boolean
     userType?: boolean
     url?: boolean
+    instagramToken?: boolean
+    instagramUserId?: boolean
+    instagramUsername?: boolean
+    instagramConnected?: boolean
+    tokenExpiresAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectScalar = {
@@ -1645,9 +1715,16 @@ export namespace Prisma {
     name?: boolean
     userType?: boolean
     url?: boolean
+    instagramToken?: boolean
+    instagramUserId?: boolean
+    instagramUsername?: boolean
+    instagramConnected?: boolean
+    tokenExpiresAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "name" | "userType" | "url", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "name" | "userType" | "url" | "instagramToken" | "instagramUserId" | "instagramUsername" | "instagramConnected" | "tokenExpiresAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     discounts?: boolean | User$discountsArgs<ExtArgs>
     items?: boolean | User$itemsArgs<ExtArgs>
@@ -1671,6 +1748,13 @@ export namespace Prisma {
       name: string
       userType: $Enums.UserType
       url: string
+      instagramToken: string | null
+      instagramUserId: string | null
+      instagramUsername: string | null
+      instagramConnected: boolean
+      tokenExpiresAt: Date | null
+      createdAt: Date
+      updatedAt: Date
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -2103,6 +2187,13 @@ export namespace Prisma {
     readonly name: FieldRef<"User", 'String'>
     readonly userType: FieldRef<"User", 'UserType'>
     readonly url: FieldRef<"User", 'String'>
+    readonly instagramToken: FieldRef<"User", 'String'>
+    readonly instagramUserId: FieldRef<"User", 'String'>
+    readonly instagramUsername: FieldRef<"User", 'String'>
+    readonly instagramConnected: FieldRef<"User", 'Boolean'>
+    readonly tokenExpiresAt: FieldRef<"User", 'DateTime'>
+    readonly createdAt: FieldRef<"User", 'DateTime'>
+    readonly updatedAt: FieldRef<"User", 'DateTime'>
   }
     
 
@@ -7097,7 +7188,14 @@ export namespace Prisma {
     password: 'password',
     name: 'name',
     userType: 'userType',
-    url: 'url'
+    url: 'url',
+    instagramToken: 'instagramToken',
+    instagramUserId: 'instagramUserId',
+    instagramUsername: 'instagramUsername',
+    instagramConnected: 'instagramConnected',
+    tokenExpiresAt: 'tokenExpiresAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -7235,6 +7333,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
    * Reference to a field of type 'DateTime'
    */
   export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -7303,6 +7408,13 @@ export namespace Prisma {
     name?: StringFilter<"User"> | string
     userType?: EnumUserTypeFilter<"User"> | $Enums.UserType
     url?: StringFilter<"User"> | string
+    instagramToken?: StringNullableFilter<"User"> | string | null
+    instagramUserId?: StringNullableFilter<"User"> | string | null
+    instagramUsername?: StringNullableFilter<"User"> | string | null
+    instagramConnected?: BoolFilter<"User"> | boolean
+    tokenExpiresAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    createdAt?: DateTimeFilter<"User"> | Date | string
+    updatedAt?: DateTimeFilter<"User"> | Date | string
     discounts?: DiscountCodeListRelationFilter
     items?: ItemListRelationFilter
     redemptions?: RedemptionListRelationFilter
@@ -7315,6 +7427,13 @@ export namespace Prisma {
     name?: SortOrder
     userType?: SortOrder
     url?: SortOrder
+    instagramToken?: SortOrderInput | SortOrder
+    instagramUserId?: SortOrderInput | SortOrder
+    instagramUsername?: SortOrderInput | SortOrder
+    instagramConnected?: SortOrder
+    tokenExpiresAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
     discounts?: DiscountCodeOrderByRelationAggregateInput
     items?: ItemOrderByRelationAggregateInput
     redemptions?: RedemptionOrderByRelationAggregateInput
@@ -7330,6 +7449,13 @@ export namespace Prisma {
     name?: StringFilter<"User"> | string
     userType?: EnumUserTypeFilter<"User"> | $Enums.UserType
     url?: StringFilter<"User"> | string
+    instagramToken?: StringNullableFilter<"User"> | string | null
+    instagramUserId?: StringNullableFilter<"User"> | string | null
+    instagramUsername?: StringNullableFilter<"User"> | string | null
+    instagramConnected?: BoolFilter<"User"> | boolean
+    tokenExpiresAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    createdAt?: DateTimeFilter<"User"> | Date | string
+    updatedAt?: DateTimeFilter<"User"> | Date | string
     discounts?: DiscountCodeListRelationFilter
     items?: ItemListRelationFilter
     redemptions?: RedemptionListRelationFilter
@@ -7342,6 +7468,13 @@ export namespace Prisma {
     name?: SortOrder
     userType?: SortOrder
     url?: SortOrder
+    instagramToken?: SortOrderInput | SortOrder
+    instagramUserId?: SortOrderInput | SortOrder
+    instagramUsername?: SortOrderInput | SortOrder
+    instagramConnected?: SortOrder
+    tokenExpiresAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
     _count?: UserCountOrderByAggregateInput
     _avg?: UserAvgOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
@@ -7359,6 +7492,13 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"User"> | string
     userType?: EnumUserTypeWithAggregatesFilter<"User"> | $Enums.UserType
     url?: StringWithAggregatesFilter<"User"> | string
+    instagramToken?: StringNullableWithAggregatesFilter<"User"> | string | null
+    instagramUserId?: StringNullableWithAggregatesFilter<"User"> | string | null
+    instagramUsername?: StringNullableWithAggregatesFilter<"User"> | string | null
+    instagramConnected?: BoolWithAggregatesFilter<"User"> | boolean
+    tokenExpiresAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
   }
 
   export type ItemWhereInput = {
@@ -7610,6 +7750,13 @@ export namespace Prisma {
     name: string
     userType: $Enums.UserType
     url?: string
+    instagramToken?: string | null
+    instagramUserId?: string | null
+    instagramUsername?: string | null
+    instagramConnected?: boolean
+    tokenExpiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
     discounts?: DiscountCodeCreateNestedManyWithoutRestaurantInput
     items?: ItemCreateNestedManyWithoutRestaurantInput
     redemptions?: RedemptionCreateNestedManyWithoutInfluencerInput
@@ -7622,6 +7769,13 @@ export namespace Prisma {
     name: string
     userType: $Enums.UserType
     url?: string
+    instagramToken?: string | null
+    instagramUserId?: string | null
+    instagramUsername?: string | null
+    instagramConnected?: boolean
+    tokenExpiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
     discounts?: DiscountCodeUncheckedCreateNestedManyWithoutRestaurantInput
     items?: ItemUncheckedCreateNestedManyWithoutRestaurantInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutInfluencerInput
@@ -7633,6 +7787,13 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
     url?: StringFieldUpdateOperationsInput | string
+    instagramToken?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramConnected?: BoolFieldUpdateOperationsInput | boolean
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     discounts?: DiscountCodeUpdateManyWithoutRestaurantNestedInput
     items?: ItemUpdateManyWithoutRestaurantNestedInput
     redemptions?: RedemptionUpdateManyWithoutInfluencerNestedInput
@@ -7645,6 +7806,13 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
     url?: StringFieldUpdateOperationsInput | string
+    instagramToken?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramConnected?: BoolFieldUpdateOperationsInput | boolean
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     discounts?: DiscountCodeUncheckedUpdateManyWithoutRestaurantNestedInput
     items?: ItemUncheckedUpdateManyWithoutRestaurantNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutInfluencerNestedInput
@@ -7657,6 +7825,13 @@ export namespace Prisma {
     name: string
     userType: $Enums.UserType
     url?: string
+    instagramToken?: string | null
+    instagramUserId?: string | null
+    instagramUsername?: string | null
+    instagramConnected?: boolean
+    tokenExpiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type UserUpdateManyMutationInput = {
@@ -7665,6 +7840,13 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
     url?: StringFieldUpdateOperationsInput | string
+    instagramToken?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramConnected?: BoolFieldUpdateOperationsInput | boolean
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserUncheckedUpdateManyInput = {
@@ -7674,6 +7856,13 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
     url?: StringFieldUpdateOperationsInput | string
+    instagramToken?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramConnected?: BoolFieldUpdateOperationsInput | boolean
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ItemCreateInput = {
@@ -7928,6 +8117,48 @@ export namespace Prisma {
     not?: NestedEnumUserTypeFilter<$PrismaModel> | $Enums.UserType
   }
 
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type DateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
   export type DiscountCodeListRelationFilter = {
     every?: DiscountCodeWhereInput
     some?: DiscountCodeWhereInput
@@ -7944,6 +8175,11 @@ export namespace Prisma {
     every?: RedemptionWhereInput
     some?: RedemptionWhereInput
     none?: RedemptionWhereInput
+  }
+
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
   }
 
   export type DiscountCodeOrderByRelationAggregateInput = {
@@ -7965,6 +8201,13 @@ export namespace Prisma {
     name?: SortOrder
     userType?: SortOrder
     url?: SortOrder
+    instagramToken?: SortOrder
+    instagramUserId?: SortOrder
+    instagramUsername?: SortOrder
+    instagramConnected?: SortOrder
+    tokenExpiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type UserAvgOrderByAggregateInput = {
@@ -7978,6 +8221,13 @@ export namespace Prisma {
     name?: SortOrder
     userType?: SortOrder
     url?: SortOrder
+    instagramToken?: SortOrder
+    instagramUserId?: SortOrder
+    instagramUsername?: SortOrder
+    instagramConnected?: SortOrder
+    tokenExpiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type UserMinOrderByAggregateInput = {
@@ -7987,6 +8237,13 @@ export namespace Prisma {
     name?: SortOrder
     userType?: SortOrder
     url?: SortOrder
+    instagramToken?: SortOrder
+    instagramUserId?: SortOrder
+    instagramUsername?: SortOrder
+    instagramConnected?: SortOrder
+    tokenExpiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type UserSumOrderByAggregateInput = {
@@ -8037,7 +8294,7 @@ export namespace Prisma {
     _max?: NestedEnumUserTypeFilter<$PrismaModel>
   }
 
-  export type StringNullableFilter<$PrismaModel = never> = {
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
     notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -8049,7 +8306,46 @@ export namespace Prisma {
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
     mode?: QueryMode
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
   export type DiscountCodeItemListRelationFilter = {
@@ -8061,11 +8357,6 @@ export namespace Prisma {
   export type UserScalarRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
-  }
-
-  export type SortOrderInput = {
-    sort: SortOrder
-    nulls?: NullsOrder
   }
 
   export type DiscountCodeItemOrderByRelationAggregateInput = {
@@ -8101,35 +8392,6 @@ export namespace Prisma {
   export type ItemSumOrderByAggregateInput = {
     id?: SortOrder
     restaurantId?: SortOrder
-  }
-
-  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
-  }
-
-  export type DateTimeFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
   export type FloatFilter<$PrismaModel = never> = {
@@ -8214,20 +8476,6 @@ export namespace Prisma {
     id?: SortOrder
     discountPercent?: SortOrder
     restaurantId?: SortOrder
-  }
-
-  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedDateTimeFilter<$PrismaModel>
-    _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
   export type FloatWithAggregatesFilter<$PrismaModel = never> = {
@@ -8322,17 +8570,6 @@ export namespace Prisma {
     itemId?: SortOrder
   }
 
-  export type DateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
-
   export type RedemptionCountOrderByAggregateInput = {
     id?: SortOrder
     influencerId?: SortOrder
@@ -8367,20 +8604,6 @@ export namespace Prisma {
     id?: SortOrder
     influencerId?: SortOrder
     discountCodeId?: SortOrder
-  }
-
-  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type DiscountCodeCreateNestedManyWithoutRestaurantInput = {
@@ -8431,6 +8654,22 @@ export namespace Prisma {
 
   export type EnumUserTypeFieldUpdateOperationsInput = {
     set?: $Enums.UserType
+  }
+
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
+  export type DateTimeFieldUpdateOperationsInput = {
+    set?: Date | string
   }
 
   export type DiscountCodeUpdateManyWithoutRestaurantNestedInput = {
@@ -8545,10 +8784,6 @@ export namespace Prisma {
     connect?: DiscountCodeItemWhereUniqueInput | DiscountCodeItemWhereUniqueInput[]
   }
 
-  export type NullableStringFieldUpdateOperationsInput = {
-    set?: string | null
-  }
-
   export type DiscountCodeItemUpdateManyWithoutItemNestedInput = {
     create?: XOR<DiscountCodeItemCreateWithoutItemInput, DiscountCodeItemUncheckedCreateWithoutItemInput> | DiscountCodeItemCreateWithoutItemInput[] | DiscountCodeItemUncheckedCreateWithoutItemInput[]
     connectOrCreate?: DiscountCodeItemCreateOrConnectWithoutItemInput | DiscountCodeItemCreateOrConnectWithoutItemInput[]
@@ -8617,10 +8852,6 @@ export namespace Prisma {
     connectOrCreate?: RedemptionCreateOrConnectWithoutDiscountCodeInput | RedemptionCreateOrConnectWithoutDiscountCodeInput[]
     createMany?: RedemptionCreateManyDiscountCodeInputEnvelope
     connect?: RedemptionWhereUniqueInput | RedemptionWhereUniqueInput[]
-  }
-
-  export type DateTimeFieldUpdateOperationsInput = {
-    set?: Date | string
   }
 
   export type FloatFieldUpdateOperationsInput = {
@@ -8739,10 +8970,6 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
-  }
-
   export type DiscountCodeUpdateOneRequiredWithoutRedemptionsNestedInput = {
     create?: XOR<DiscountCodeCreateWithoutRedemptionsInput, DiscountCodeUncheckedCreateWithoutRedemptionsInput>
     connectOrCreate?: DiscountCodeCreateOrConnectWithoutRedemptionsInput
@@ -8789,6 +9016,47 @@ export namespace Prisma {
     in?: $Enums.UserType[] | ListEnumUserTypeFieldRefInput<$PrismaModel>
     notIn?: $Enums.UserType[] | ListEnumUserTypeFieldRefInput<$PrismaModel>
     not?: NestedEnumUserTypeFilter<$PrismaModel> | $Enums.UserType
+  }
+
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type NestedDateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
@@ -8845,20 +9113,6 @@ export namespace Prisma {
     _max?: NestedEnumUserTypeFilter<$PrismaModel>
   }
 
-  export type NestedStringNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
-  }
-
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -8887,22 +9141,26 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
-  export type NestedDateTimeFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
-  }
-
-  export type NestedEnumDiscountStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.DiscountStatus | EnumDiscountStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumDiscountStatusFilter<$PrismaModel> | $Enums.DiscountStatus
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -8917,6 +9175,13 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumDiscountStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.DiscountStatus | EnumDiscountStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DiscountStatus[] | ListEnumDiscountStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDiscountStatusFilter<$PrismaModel> | $Enums.DiscountStatus
   }
 
   export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
@@ -8966,31 +9231,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumDiscountStatusFilter<$PrismaModel>
     _max?: NestedEnumDiscountStatusFilter<$PrismaModel>
-  }
-
-  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
-
-  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type DiscountCodeCreateWithoutRestaurantInput = {
@@ -9180,6 +9420,13 @@ export namespace Prisma {
     name: string
     userType: $Enums.UserType
     url?: string
+    instagramToken?: string | null
+    instagramUserId?: string | null
+    instagramUsername?: string | null
+    instagramConnected?: boolean
+    tokenExpiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
     discounts?: DiscountCodeCreateNestedManyWithoutRestaurantInput
     redemptions?: RedemptionCreateNestedManyWithoutInfluencerInput
   }
@@ -9191,6 +9438,13 @@ export namespace Prisma {
     name: string
     userType: $Enums.UserType
     url?: string
+    instagramToken?: string | null
+    instagramUserId?: string | null
+    instagramUsername?: string | null
+    instagramConnected?: boolean
+    tokenExpiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
     discounts?: DiscountCodeUncheckedCreateNestedManyWithoutRestaurantInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutInfluencerInput
   }
@@ -9242,6 +9496,13 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
     url?: StringFieldUpdateOperationsInput | string
+    instagramToken?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramConnected?: BoolFieldUpdateOperationsInput | boolean
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     discounts?: DiscountCodeUpdateManyWithoutRestaurantNestedInput
     redemptions?: RedemptionUpdateManyWithoutInfluencerNestedInput
   }
@@ -9253,6 +9514,13 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
     url?: StringFieldUpdateOperationsInput | string
+    instagramToken?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramConnected?: BoolFieldUpdateOperationsInput | boolean
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     discounts?: DiscountCodeUncheckedUpdateManyWithoutRestaurantNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutInfluencerNestedInput
   }
@@ -9263,6 +9531,13 @@ export namespace Prisma {
     name: string
     userType: $Enums.UserType
     url?: string
+    instagramToken?: string | null
+    instagramUserId?: string | null
+    instagramUsername?: string | null
+    instagramConnected?: boolean
+    tokenExpiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
     items?: ItemCreateNestedManyWithoutRestaurantInput
     redemptions?: RedemptionCreateNestedManyWithoutInfluencerInput
   }
@@ -9274,6 +9549,13 @@ export namespace Prisma {
     name: string
     userType: $Enums.UserType
     url?: string
+    instagramToken?: string | null
+    instagramUserId?: string | null
+    instagramUsername?: string | null
+    instagramConnected?: boolean
+    tokenExpiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
     items?: ItemUncheckedCreateNestedManyWithoutRestaurantInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutInfluencerInput
   }
@@ -9342,6 +9624,13 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
     url?: StringFieldUpdateOperationsInput | string
+    instagramToken?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramConnected?: BoolFieldUpdateOperationsInput | boolean
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: ItemUpdateManyWithoutRestaurantNestedInput
     redemptions?: RedemptionUpdateManyWithoutInfluencerNestedInput
   }
@@ -9353,6 +9642,13 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
     url?: StringFieldUpdateOperationsInput | string
+    instagramToken?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramConnected?: BoolFieldUpdateOperationsInput | boolean
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     items?: ItemUncheckedUpdateManyWithoutRestaurantNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutInfluencerNestedInput
   }
@@ -9527,6 +9823,13 @@ export namespace Prisma {
     name: string
     userType: $Enums.UserType
     url?: string
+    instagramToken?: string | null
+    instagramUserId?: string | null
+    instagramUsername?: string | null
+    instagramConnected?: boolean
+    tokenExpiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
     discounts?: DiscountCodeCreateNestedManyWithoutRestaurantInput
     items?: ItemCreateNestedManyWithoutRestaurantInput
   }
@@ -9538,6 +9841,13 @@ export namespace Prisma {
     name: string
     userType: $Enums.UserType
     url?: string
+    instagramToken?: string | null
+    instagramUserId?: string | null
+    instagramUsername?: string | null
+    instagramConnected?: boolean
+    tokenExpiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
     discounts?: DiscountCodeUncheckedCreateNestedManyWithoutRestaurantInput
     items?: ItemUncheckedCreateNestedManyWithoutRestaurantInput
   }
@@ -9598,6 +9908,13 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
     url?: StringFieldUpdateOperationsInput | string
+    instagramToken?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramConnected?: BoolFieldUpdateOperationsInput | boolean
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     discounts?: DiscountCodeUpdateManyWithoutRestaurantNestedInput
     items?: ItemUpdateManyWithoutRestaurantNestedInput
   }
@@ -9609,6 +9926,13 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     userType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
     url?: StringFieldUpdateOperationsInput | string
+    instagramToken?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    instagramConnected?: BoolFieldUpdateOperationsInput | boolean
+    tokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     discounts?: DiscountCodeUncheckedUpdateManyWithoutRestaurantNestedInput
     items?: ItemUncheckedUpdateManyWithoutRestaurantNestedInput
   }

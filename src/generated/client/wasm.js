@@ -126,7 +126,14 @@ exports.Prisma.UserScalarFieldEnum = {
   password: 'password',
   name: 'name',
   userType: 'userType',
-  url: 'url'
+  url: 'url',
+  instagramToken: 'instagramToken',
+  instagramUserId: 'instagramUserId',
+  instagramUsername: 'instagramUsername',
+  instagramConnected: 'instagramConnected',
+  tokenExpiresAt: 'tokenExpiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.ItemScalarFieldEnum = {

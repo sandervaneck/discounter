@@ -5,19 +5,29 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("PRISMA_DATABASE_URL")
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id          Int            @id @default(autoincrement())
-  email       String         @unique
-  password    String
-  name        String
-  userType    UserType
-  discounts   DiscountCode[] @relation("RestaurantDiscounts")
-  items       Item[]
-  redemptions Redemption[]
-  url         String         @default("https://www.instagram.com/sanderveck/")
+  id                  Int            @id @default(autoincrement())
+  email               String         @unique
+  password            String
+  name                String
+  userType            UserType
+  discounts           DiscountCode[] @relation("RestaurantDiscounts")
+  items               Item[]
+  redemptions         Redemption[]
+  url                 String         @default("https://www.instagram.com/")
+  
+  // Instagram integration fields
+  instagramToken      String?        // Instagram access token
+  instagramUserId     String?        // Instagram user ID
+  instagramUsername   String?        // Instagram username
+  instagramConnected  Boolean        @default(false)
+  tokenExpiresAt      DateTime?      // Token expiration time
+  
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
 }
 
 model Item {
@@ -40,7 +50,7 @@ model DiscountCode {
   restaurant      User               @relation("RestaurantDiscounts", fields: [restaurantId], references: [id])
   applicableItems DiscountCodeItem[]
   redemptions     Redemption[]
-  status          DiscountStatus @default(available)
+  status          DiscountStatus     @default(available)
 }
 
 model DiscountCodeItem {
