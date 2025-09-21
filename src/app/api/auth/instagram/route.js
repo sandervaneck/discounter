@@ -17,11 +17,13 @@ export async function GET(req) {
     }
 
     // Exchange code for access token (server-side)
-    const tokenUrl = https://graph.facebook.com/v16.0/oauth/access_token +
-      ?client_id=${encodeURIComponent(process.env.FB_CLIENT_ID)} +
-      &redirect_uri=${encodeURIComponent("https://discounter-coral.vercel.app/api/auth/instagram/callback")} +
-      &client_secret=${encodeURIComponent(process.env.FB_CLIENT_SECRET)} +
-      &code=${encodeURIComponent(code)};
+    const tokenUrl = `https://graph.facebook.com/v16.0/oauth/access_token
+  ?client_id=${encodeURIComponent(process.env.FB_CLIENT_ID)}
+  &redirect_uri=${encodeURIComponent(
+    "https://discounter-coral.vercel.app/api/auth/instagram/callback"
+  )}
+  &client_secret=${encodeURIComponent(process.env.FB_CLIENT_SECRET)}
+  &code=${encodeURIComponent(code)}`;
 
     const tokenRes = await fetch(tokenUrl);
     const tokenData = await tokenRes.json();
