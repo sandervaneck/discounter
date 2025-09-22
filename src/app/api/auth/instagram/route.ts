@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
       console.error("No code in callback");
       return NextResponse.redirect(new URL("/?auth_error=true", req.url));
     }
-//Exchange
+
     // Exchange code for access token (server-side)
     const tokenUrl = `https://graph.facebook.com/v16.0/oauth/access_token
   ?client_id=${encodeURIComponent(process.env.FACEBOOK_CLIENT_ID || "")}
