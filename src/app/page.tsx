@@ -74,7 +74,7 @@ export default function Home() {
     
     if (code && !registerForm?.url) {
       // Instagram connected successfully, save the code
-      setRegisterForm((prev) => {
+      setRegisterForm((prev:any) => {
         const updatedForm = {
           ...prev,
           url: code
@@ -288,7 +288,7 @@ export default function Home() {
               <select
                 value={registerForm?.userType || ""}
                 onChange={(e) =>
-                  setRegisterForm((prev) => ({
+                  setRegisterForm((prev:any) => ({
                     ...prev,
                     userType: e.target.value as "influencer" | "restaurant",
                   }))
@@ -308,7 +308,7 @@ export default function Home() {
                 placeholder="Username"
                 value={registerForm?.name || ""}
                 onChange={(e) =>
-                  setRegisterForm((prev) => ({
+                  setRegisterForm((prev:any) => ({
                     ...prev,
                     name: e.target.value,
                   }))
@@ -324,7 +324,7 @@ export default function Home() {
                 placeholder="Email"
                 value={registerForm?.email || ""}
                 onChange={(e) =>
-                  setRegisterForm((prev) => ({
+                  setRegisterForm((prev:any) => ({
                     ...prev,
                     email: e.target.value,
                   }))
@@ -340,7 +340,7 @@ export default function Home() {
                 placeholder="Password"
                 value={registerForm?.password || ""}
                 onChange={(e) =>
-                  setRegisterForm((prev) => ({
+                  setRegisterForm((prev:any) => ({
                     ...prev,
                     password: e.target.value,
                   }))

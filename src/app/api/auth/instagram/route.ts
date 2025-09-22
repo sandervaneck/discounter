@@ -1,7 +1,6 @@
 // app/api/auth/instagram/route.js
 import { NextRequest, NextResponse } from "next/server";
 
-
 export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
@@ -16,14 +15,15 @@ export async function GET(req: NextRequest) {
       console.error("No code in callback");
       return NextResponse.redirect(new URL("/?auth_error=true", req.url));
     }
-
+//Exchange
     // Exchange code for access token (server-side)
-const tokenUrl = `https://graph.facebook.com/v16.0/oauth/access_token
-  ?client_id=${encodeURIComponent(process.env.FB_CLIENT_ID)}
-  &redirect_uri=${encodeURIComponent("https://discounter-coral.vercel.app/api/auth/instagram/callback")}
-  &client_secret=${encodeURIComponent(process.env.FB_CLIENT_SECRET)}
+    const tokenUrl = `https://graph.facebook.com/v16.0/oauth/access_token
+  ?client_id=${encodeURIComponent(process.env.FACEBOOK_CLIENT_ID || "")}
+  &redirect_uri=${encodeURIComponent(
+    "https://discounter-coral.vercel.app/api/auth/instagram/callback"
+  )}
+  &client_secret=${encodeURIComponent(process.env.FACEBOOK_CLIENT_SECRET || "")}
   &code=${encodeURIComponent(code)}`;
-
 
     const tokenRes = await fetch(tokenUrl);
     const tokenData = await tokenRes.json();
