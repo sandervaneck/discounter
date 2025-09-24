@@ -53,6 +53,7 @@ export type UserType = (typeof UserType)[keyof typeof UserType]
 
 export const DiscountStatus: {
   available: 'available',
+  requested: 'requested',
   awarded: 'awarded',
   used: 'used',
   expired: 'expired'

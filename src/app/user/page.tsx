@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { CheckCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { QRCode } from 'react-qrcode-logo';
 import { useRouter } from "next/navigation";
 import { signOut } from 'next-auth/react';
@@ -13,7 +13,8 @@ export default function UserPage() {
   
   const [reelLink, setReelLink] = useState('');
   const [verifying, setVerifying] = useState(false);
-  const [redeemed, setRedeemed] = useState<any | null>(null);
+  const [requestingCodeId, setRequestingCodeId] = useState<number | null>(null);
+  const [hoveredCodeId, setHoveredCodeId] = useState<number | null>(null);
   const [tab, setTab] = useState<0 | 1>(0);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [platform, setPlatform] = useState<'instagram' | 'tiktok'>('instagram');
@@ -52,24 +53,25 @@ export default function UserPage() {
     }
   };
 
-  const handleRedeem = async (id: number) => {
+  const handleRequest = async (id: number, action: 'request' | 'cancel') => {
+    setRequestingCodeId(id);
     try {
-      const res = await fetch('/api/discounts/redeem', {
+      const res = await fetch('/api/discounts/request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ codeId: id }),
+        body: JSON.stringify({ codeId: id, action }),
       });
       if (!res.ok) {
-        throw new Error('Redeem failed');
+        throw new Error('Request update failed');
       }
-      const data = await res.json();
-      setRedeemed(data);
       if (selectedRestaurant) {
         await fetchDiscounts(selectedRestaurant.id);
       }
       await fetchMyDiscounts();
     } catch (e) {
       console.error(e);
+    } finally {
+      setRequestingCodeId(null);
     }
   };
 
@@ -152,6 +154,14 @@ export default function UserPage() {
           badgeBg: 'bg-gray-100',
           badgeText: 'text-gray-800',
         };
+      case 'requested':
+        return {
+          container: 'bg-amber-50 border-amber-100',
+          text: 'text-amber-800',
+          subtext: 'text-amber-600',
+          badgeBg: 'bg-amber-100',
+          badgeText: 'text-amber-800',
+        };
       default:
         return {
           container: 'bg-emerald-50 border-emerald-100',
@@ -163,16 +173,25 @@ export default function UserPage() {
     }
   };
 
-  const [user, setUser] = useState<{ email: string, name: string } | null>(null);
+  const [user, setUser] = useState<{ id: number; email: string; name: string; userType: string } | null>(null);
 
   useEffect(() => {
     // Fetch the authenticated user info from your API/session endpoint
     fetch('/api/auth/me')
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error('Unauthorized');
+        }
+        return res.json();
+      })
       .then((data) => {
-
         if (data) {
-          setUser(data);
+          setUser({
+            id: Number(data.id),
+            email: data.email,
+            name: data.name,
+            userType: data.userType,
+          });
         }
       })
       .catch(() => {
@@ -212,12 +231,29 @@ export default function UserPage() {
     }
   }, [userDefined]);
 
+  const isRequestedByCurrentUser = (discount: any) => {
+    if (!user) return false;
+    return (
+      discount.status === 'requested' &&
+      Array.isArray(discount.redemptions) &&
+      discount.redemptions.some(
+        (r: any) =>
+          r.status === 'requested' &&
+          Number((r as any).influencerId ?? r.influencer?.id) === Number(user.id)
+      )
+    );
+  };
+
   const filteredMyDiscounts = myDiscounts
     .filter((d) => d.code.toLowerCase().includes(search.toLowerCase()))
     .filter((d) => (statusFilter === 'all' ? true : d.status === statusFilter));
 
-  const eligibleDiscounts = submitted ? discounts.filter((d) => d.status === 'available') : [];
-  const disabledDiscounts = submitted ? discounts.filter((d) => d.status !== 'available') : discounts;
+  const eligibleDiscounts = submitted
+    ? discounts.filter((d) => d.status === 'available' || isRequestedByCurrentUser(d))
+    : [];
+  const disabledDiscounts = submitted
+    ? discounts.filter((d) => !(d.status === 'available' || isRequestedByCurrentUser(d)))
+    : discounts;
 
 
   return (
@@ -309,22 +345,57 @@ export default function UserPage() {
                 <div className="mt-6 overflow-hidden rounded-xl border border-emerald-200">
                   <table className="w-full text-sm">
                     <tbody>
-                      {eligibleDiscounts.map((d, idx) => (
-                        <React.Fragment key={d.code}>
-                          <tr className="bg-green-50">
-                            <td
-                              className="p-3 w-full cursor-pointer"
-                              onClick={() => toggleEligible(idx)}
-                            >
-                              <div className="flex justify-between items-center">
-                                <span className="font-semibold text-emerald-800">{d.code}</span>
-                                {eligibleCollapsed.includes(idx) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                              </div>
-                            </td>
-                            <td className="p-3 text-right">
-                              <button type="button" onClick={() => handleRedeem(d.id)} className="px-3 py-1 bg-emerald-600 text-white rounded">Redeem</button>
-                            </td>
-                          </tr>
+                      {eligibleDiscounts.map((d, idx) => {
+                        const isRequested = isRequestedByCurrentUser(d);
+                        const isHovered = hoveredCodeId === d.id;
+                        const isProcessing = requestingCodeId === d.id;
+                        const buttonLabel = isProcessing
+                          ? isRequested
+                            ? 'Updating...'
+                            : 'Requesting...'
+                          : isRequested
+                            ? isHovered
+                              ? 'Cancel Request'
+                              : 'Requested'
+                            : 'Request';
+                        const buttonAction = isRequested ? 'cancel' : 'request';
+
+                        return (
+                          <React.Fragment key={d.code}>
+                            <tr className="bg-green-50">
+                              <td
+                                className="p-3 w-full cursor-pointer"
+                                onClick={() => toggleEligible(idx)}
+                              >
+                                <div className="flex justify-between items-center gap-2">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-semibold text-emerald-800">{d.code}</span>
+                                    {isRequested && (
+                                      <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-300">
+                                        Requested
+                                      </span>
+                                    )}
+                                  </div>
+                                  {eligibleCollapsed.includes(idx) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                </div>
+                              </td>
+                              <td className="p-3 text-right">
+                                <button
+                                  type="button"
+                                  onMouseEnter={() => setHoveredCodeId(d.id)}
+                                  onMouseLeave={() => setHoveredCodeId(null)}
+                                  onClick={() => handleRequest(d.id, buttonAction)}
+                                  disabled={isProcessing}
+                                  className={`px-3 py-1 rounded transition-colors ${
+                                    isRequested
+                                      ? 'bg-white border border-emerald-500 text-emerald-700 hover:bg-emerald-50'
+                                      : 'bg-emerald-600 text-white hover:bg-emerald-700'
+                                  } ${isProcessing ? 'opacity-60 cursor-not-allowed' : ''}`}
+                                >
+                                  {buttonLabel}
+                                </button>
+                              </td>
+                            </tr>
                           {eligibleCollapsed.includes(idx) && (
                             <tr className="bg-green-50 border-t border-emerald-200">
                               <td colSpan={2} className="p-3 text-emerald-800 space-y-1">
@@ -334,29 +405,49 @@ export default function UserPage() {
                               </td>
                             </tr>
                           )}
-                        </React.Fragment>
-                      ))}
-                      {disabledDiscounts.map((d, idx) => (
-                        <React.Fragment key={d.code}>
-                          <tr className="bg-orange-50">
-                            <td
-                              className="p-3 w-full cursor-pointer"
-                              onClick={() => toggleDisabled(idx)}
-                            >
-                              <div className="flex justify-between items-center">
-                                <span className="font-semibold text-orange-800">{d.code}</span>
-                                {disabledCollapsed.includes(idx) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                              </div>
-                            </td>
-                            <td className="p-3 text-right">
-                              <button
-                                disabled
-                                className="px-3 py-1 bg-orange-200 text-orange-600 rounded cursor-not-allowed"
+                          </React.Fragment>
+                        );
+                      })}
+                      {disabledDiscounts.map((d, idx) => {
+                        const statusLabel = d.status.charAt(0).toUpperCase() + d.status.slice(1);
+                        const isRequestedElsewhere = d.status === 'requested';
+
+                        return (
+                          <React.Fragment key={d.code}>
+                            <tr className="bg-orange-50">
+                              <td
+                                className="p-3 w-full cursor-pointer"
+                                onClick={() => toggleDisabled(idx)}
                               >
-                                Redeem
-                              </button>
-                            </td>
-                          </tr>
+                                <div className="flex justify-between items-center gap-2">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-semibold text-orange-800">{d.code}</span>
+                                    <span
+                                      className={`text-xs px-2 py-0.5 rounded-full border ${
+                                        isRequestedElsewhere
+                                          ? 'bg-amber-100 text-amber-700 border-amber-300'
+                                          : 'bg-orange-100 text-orange-700 border-orange-200'
+                                      }`}
+                                    >
+                                      {statusLabel}
+                                    </span>
+                                  </div>
+                                  {disabledCollapsed.includes(idx) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                </div>
+                              </td>
+                              <td className="p-3 text-right">
+                                <button
+                                  disabled
+                                  className={`px-3 py-1 rounded cursor-not-allowed ${
+                                    isRequestedElsewhere
+                                      ? 'bg-amber-100 text-amber-700 border border-amber-200'
+                                      : 'bg-orange-200 text-orange-600'
+                                  }`}
+                                >
+                                  {statusLabel}
+                                </button>
+                              </td>
+                            </tr>
                           {disabledCollapsed.includes(idx) && (
                             <tr className="bg-orange-50 border-t border-orange-200">
                               <td colSpan={2} className="p-3 text-orange-800 space-y-1">
@@ -366,8 +457,9 @@ export default function UserPage() {
                               </td>
                             </tr>
                           )}
-                        </React.Fragment>
-                      ))}
+                          </React.Fragment>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -467,22 +559,6 @@ export default function UserPage() {
 
             </form>
 
-            {redeemed && (
-              <div className="mt-6 space-y-4">
-                <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-5">
-                  <CheckCircle className="text-emerald-500 w-6 h-6 mx-auto mb-2" />
-                  <div className="text-sm text-emerald-800 space-y-2">
-                    <p><strong>🎟️ Code:</strong> {redeemed.code}</p>
-                    <p><strong>🏷️ Discount:</strong> {redeemed.discountPercent}%</p>
-                    <p><strong>🍽️ Items:</strong> {redeemed.applicableItems.map((a: any) => a.item.name).join(', ')}</p>
-                    <p><strong>📆 Expiration:</strong> {new Date(redeemed.expirationTime).toISOString().split('T')[0]}</p>
-                  </div>
-                  <div className="mt-5 flex justify-center">
-                    <QRCode value={redeemed.code} size={120} />
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       ) : (
@@ -502,6 +578,7 @@ export default function UserPage() {
             onChange={(e) => setStatusFilter(e.target.value as DiscountStatus | 'all')}
             className="w-full px-4 py-2 rounded-xl border border-emerald-300 bg-white text-emerald-800 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
+            <option value="requested">Requested</option>
             <option value="awarded">Awarded</option>
             <option value="used">Used</option>
             <option value="expired">Expired</option>

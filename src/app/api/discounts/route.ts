@@ -19,7 +19,11 @@ export async function GET(req: NextRequest) {
             include: { item: true },
           },
           redemptions: {
-            include: { influencer: { select: { name: true } } },
+            include: {
+              influencer: {
+                select: { id: true, name: true, email: true },
+              },
+            },
           },
         },
       });
@@ -40,14 +44,18 @@ export async function GET(req: NextRequest) {
     const discounts = await prisma.discountCode.findMany({
       where: { restaurant: { email: session.user.email } },
       orderBy: { code: 'asc' },
-      include: {
-        applicableItems: {
-          include: { item: true },
-        },
-        redemptions: {
-          include: { influencer: { select: { name: true } } },
+    include: {
+      applicableItems: {
+        include: { item: true },
+      },
+      redemptions: {
+        include: {
+          influencer: {
+            select: { id: true, name: true, email: true },
+          },
         },
       },
+    },
     });
     return NextResponse.json(discounts);
   } catch (err) {

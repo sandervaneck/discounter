@@ -199,6 +199,7 @@ exports.UserType = exports.$Enums.UserType = {
 
 exports.DiscountStatus = exports.$Enums.DiscountStatus = {
   available: 'available',
+  requested: 'requested',
   awarded: 'awarded',
   used: 'used',
   expired: 'expired'
