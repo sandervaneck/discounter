@@ -78,6 +78,7 @@ enum UserType {
 
 enum DiscountStatus {
   available
+  requested
   awarded
   used
   expired

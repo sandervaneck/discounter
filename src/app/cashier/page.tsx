@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { RestaurantToolbar } from "../components/Toolbar";
 
-type DiscountStatus = "available" | "awarded" | "used" | "expired";
+type DiscountStatus = "available" | "requested" | "awarded" | "used" | "expired";
 
 interface Requirement {
   platform: string;
@@ -21,6 +21,16 @@ interface DiscountCode {
   expiryDate: string;
   status: DiscountStatus;
   requirements?: Requirement[];
+}
+
+interface AwaitingRequest {
+  id: number;
+  code: string;
+  discountPercent: number;
+  items: string[];
+  expiryDate: string;
+  influencerName: string;
+  influencerEmail?: string;
 }
 
 interface AwardedPost {
@@ -83,6 +93,52 @@ export default function CashierDiscountScanner() {
   const [error, setError] = useState("");
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [scanResult, setScanResult] = useState<string | null>(null);
+  const [awaitingRequests, setAwaitingRequests] = useState<AwaitingRequest[]>([]);
+
+  const loadDiscounts = useCallback(async () => {
+    const res = await fetch("/api/discounts", {
+      method: "GET",
+      credentials: "include",
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch discount codes.");
+    }
+
+    const discounts = await res.json();
+
+    const requests: AwaitingRequest[] = discounts
+      .filter((d: any) => d.status === "requested")
+      .map((d: any) => {
+        const requester = Array.isArray(d.redemptions)
+          ? d.redemptions.find((r: any) => r.status === "requested")
+          : null;
+        const items = Array.isArray(d.applicableItems)
+          ? d.applicableItems
+              .map((item: any) => item?.item?.name ?? item?.name)
+              .filter((name: string | undefined): name is string => Boolean(name))
+          : [];
+
+        return {
+          id: d.id,
+          code: d.code,
+          discountPercent: d.discountPercent,
+          items,
+          expiryDate: d.expirationTime,
+          influencerName: requester?.influencer?.name ?? "Unknown influencer",
+          influencerEmail: requester?.influencer?.email ?? undefined,
+        };
+      });
+
+    setAwaitingRequests(requests);
+    return discounts;
+  }, []);
+
+  useEffect(() => {
+    loadDiscounts().catch((err) => {
+      console.error("Failed to load awaiting requests", err);
+    });
+  }, [loadDiscounts]);
 
   async function validateCode() {
     setError("");
@@ -94,45 +150,42 @@ export default function CashierDiscountScanner() {
 
     if (!code) return setError("Please enter a discount code.");
 
+    let discounts: any[] = [];
     try {
-      const res = await fetch("/api/discounts", {
+      discounts = await loadDiscounts();
+    } catch (err) {
+      console.error("Failed to fetch discount codes.", err);
+      return setError("Failed to fetch discount codes.");
+    }
+
+    const found = discounts.find(
+        (d: any) =>
+          d.code.toUpperCase() === code &&
+          (d.status === "available" || d.status === "awarded" || d.status === "requested")
+      );
+
+    if (!found) {
+      return setError("Discount code not found or not valid for use.");
+    }
+
+    const expiry = new Date(found.expirationTime);
+    if (expiry < new Date()) {
+      return setError("This discount code has expired.");
+    }
+
+    let items: string[] = [];
+    try {
+      const itemsRes = await fetch(`/api/discounts/${found.id}/items`, {
         method: "GET",
         credentials: "include",
       });
-
-      if (!res.ok) {
-        return setError("Failed to fetch discount codes.");
+      if (itemsRes.ok) {
+        const itemsData = await itemsRes.json();
+        items = itemsData.map((i: any) => i.name);
       }
-
-      const discounts = await res.json();
-      const found = discounts.find(
-        (d: any) =>
-          d.code.toUpperCase() === code &&
-          (d.status === "available" || d.status === "awarded")
-      );
-
-      if (!found) {
-        return setError("Discount code not found or not valid for use.");
-      }
-
-      const expiry = new Date(found.expirationTime);
-      if (expiry < new Date()) {
-        return setError("This discount code has expired.");
-      }
-
-      let items: string[] = [];
-      try {
-        const itemsRes = await fetch(`/api/discounts/${found.id}/items`, {
-          method: "GET",
-          credentials: "include",
-        });
-        if (itemsRes.ok) {
-          const itemsData = await itemsRes.json();
-          items = itemsData.map((i: any) => i.name);
-        }
-      } catch (e) {
-        console.error("Failed fetching items", e);
-      }
+    } catch (e) {
+      console.error("Failed fetching items", e);
+    }
 
       let requirements: Requirement[] = [];
       if (Array.isArray(found.requirements)) {
@@ -208,6 +261,9 @@ export default function CashierDiscountScanner() {
         code: { ...validationResult.code, status: "used" },
       });
       setScanResult(null);
+      await loadDiscounts().catch((err) => {
+        console.error("Failed to refresh awaiting requests", err);
+      });
     } catch (e) {
       setError("Failed to mark code as used.");
     }
@@ -221,6 +277,46 @@ export default function CashierDiscountScanner() {
         <h1 className="text-xl font-bold text-center text-[#117a65] mb-6">
           Scan or Enter Discount Code
         </h1>
+
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-[#117a65] mb-3 text-center">Awaiting Requests</h2>
+          {awaitingRequests.length > 0 ? (
+            <ul className="space-y-3">
+              {awaitingRequests.map((request) => (
+                <li
+                  key={request.id}
+                  className="bg-white border border-[#117a65] rounded-xl p-4 shadow-sm"
+                >
+                  <div className="flex justify-between items-start gap-3">
+                    <div>
+                      <p className="text-lg font-bold text-[#117a65]">{request.code}</p>
+                      <p className="text-sm text-gray-600">
+                        Requested by{' '}
+                        <span className="font-semibold text-[#0b4a3e]">{request.influencerName}</span>
+                      </p>
+                      {request.influencerEmail && (
+                        <p className="text-xs text-gray-500">{request.influencerEmail}</p>
+                      )}
+                      <p className="text-xs text-gray-500 mt-2">
+                        Discount: {request.discountPercent}% • Items: {request.items.join(", ") || 'N/A'}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Expires: {new Date(request.expiryDate).toISOString().split('T')[0]}
+                      </p>
+                    </div>
+                    <span className="px-3 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-700 border border-amber-200">
+                      Requested
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="bg-white border border-dashed border-[#117a65] rounded-xl p-4 text-center text-sm text-gray-600">
+              No pending discount requests.
+            </div>
+          )}
+        </div>
 
         <input
           type="text"
