@@ -228,11 +228,13 @@ export default function CashierDiscountScanner() {
       };
 
       setValidationResult({ code: mapped, awardedPost });
+    } try {
+      
     } catch (err) {
       console.error("Validation error", err);
       setError("Failed to validate discount code.");
     }
-  }
+  
 
   const handleCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
