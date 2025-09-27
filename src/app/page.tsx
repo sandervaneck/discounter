@@ -21,17 +21,16 @@ export default function Home() {
     url: string | undefined;
   } | null>(null);
 
-  const checkFields = () => {
+  const hasRequiredFields = () => {
     return (
       registerForm?.email &&
-      registerForm?.password && 
+      registerForm?.password &&
       registerForm?.email.includes("@") &&
       registerForm?.email.includes(".") &&
       registerForm?.email.length > 5 &&
       registerForm?.password.length >= 6 &&
       registerForm?.userType &&
-      registerForm?.name &&
-      registerForm?.url
+      registerForm?.name
     );
   };
 
@@ -152,8 +151,8 @@ export default function Home() {
   };
 
   const handleConfirmRegistration = async () => {
-    if (!checkFields()) {
-      alert("Please fill in all fields and connect Instagram.");
+    if (!hasRequiredFields()) {
+      alert("Please fill in all required fields before registering.");
       return;
     }
 
@@ -161,7 +160,7 @@ export default function Home() {
     const mappedEmail = registerForm!.email!.trim().toLowerCase();
     const mappedPassword = registerForm!.password!;
     const mappedName = registerForm!.name!.trim();
-    const mappedUrl = registerForm!.url!;
+    const mappedUrl = registerForm?.url ? registerForm.url : undefined;
 
     try {
       const res = await fetch("/api/auth/signup", {
@@ -174,7 +173,7 @@ export default function Home() {
           password: mappedPassword,
           name: mappedName,
           userType: mappedUserType,
-          url: mappedUrl,
+          ...(mappedUrl ? { url: mappedUrl } : {}),
         }),
       });
 
@@ -365,9 +364,9 @@ export default function Home() {
               </div>
             )}
 
-            {!checkFields() && (
+            {!hasRequiredFields() && (
               <div className="w-full max-w-sm text-sm text-emerald-600 mt-2">
-                Please fill in all fields and connect Instagram to create an account.
+                Please fill in all required fields to create an account. Connecting Instagram is optional but recommended.
                 <br />
                 <strong>Note:</strong> Passwords must be at least 6 characters long.
               </div>
@@ -375,10 +374,10 @@ export default function Home() {
 
             <button
               onClick={handleConfirmRegistration}
-              disabled={!checkFields()}
+              disabled={!hasRequiredFields()}
               className="w-full max-w-sm mt-4 px-6 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Confirm Registration
+              {registerForm?.url ? "Register" : "Register without Instagram"}
             </button>
           </div>
         )}
