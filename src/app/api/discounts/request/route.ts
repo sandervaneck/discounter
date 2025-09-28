@@ -79,6 +79,23 @@ export async function POST(req: NextRequest) {
   }
 
   if (discount.status !== DiscountStatus.available) {
+    const alreadyRequestedByInfluencer =
+      discount.status === DiscountStatus.requested &&
+      Array.isArray(discount.redemptions) &&
+      discount.redemptions.some((redemption: any) => {
+        const requesterId = Number(
+          (redemption as any).influencerId ?? redemption.influencer?.id
+        );
+        return (
+          redemption.status === DiscountStatus.requested &&
+          requesterId === influencerId
+        );
+      });
+
+    if (alreadyRequestedByInfluencer) {
+      return NextResponse.json({ discount, previousCodeId: parsedCodeId, alreadyRequested: true });
+    }
+
     return NextResponse.json({ error: "Discount not available" }, { status: 400 });
   }
 
