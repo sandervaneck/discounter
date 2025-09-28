@@ -14,7 +14,6 @@ export default function UserPage() {
   const [reelLink, setReelLink] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [requestingCodeId, setRequestingCodeId] = useState<number | null>(null);
-  const [hoveredCodeId, setHoveredCodeId] = useState<number | null>(null);
   const [tab, setTab] = useState<0 | 1>(0);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [platform, setPlatform] = useState<'instagram' | 'tiktok'>('instagram');
@@ -259,7 +258,11 @@ export default function UserPage() {
     );
   };
 
-  const filteredMyDiscounts = myDiscounts
+  const visibleMyDiscounts = myDiscounts.filter((d) =>
+    ["available", "requested"].includes(d.status)
+  );
+
+  const filteredMyDiscounts = visibleMyDiscounts
     .filter((d) => d.code.toLowerCase().includes(search.toLowerCase()))
     .filter((d) => (statusFilter === 'all' ? true : d.status === statusFilter));
 
@@ -362,16 +365,13 @@ export default function UserPage() {
                     <tbody>
                       {eligibleDiscounts.map((d, idx) => {
                         const isRequested = isRequestedByCurrentUser(d);
-                        const isHovered = hoveredCodeId === d.id;
                         const isProcessing = requestingCodeId === d.id;
                         const buttonLabel = isProcessing
                           ? isRequested
                             ? 'Updating...'
                             : 'Requesting...'
                           : isRequested
-                            ? isHovered
-                              ? 'Cancel Request'
-                              : 'Requested'
+                            ? 'Cancel Request'
                             : 'Request';
                         const buttonAction = isRequested ? 'cancel' : 'request';
                         const requirements = extractRequirements(d.requirements);
@@ -398,8 +398,6 @@ export default function UserPage() {
                               <td className="p-3 text-right">
                                 <button
                                   type="button"
-                                  onMouseEnter={() => setHoveredCodeId(d.id)}
-                                  onMouseLeave={() => setHoveredCodeId(null)}
                                   onClick={() => handleRequest(d.id, buttonAction)}
                                   disabled={isProcessing}
                                   className={`px-3 py-1 rounded transition-colors ${
@@ -635,11 +633,9 @@ export default function UserPage() {
             onChange={(e) => setStatusFilter(e.target.value as DiscountStatus | 'all')}
             className="w-full px-4 py-2 rounded-xl border border-emerald-300 bg-white text-emerald-800 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
-            <option value="requested">Requested</option>
-            <option value="awarded">Awarded</option>
-            <option value="used">Used</option>
-            <option value="expired">Expired</option>
             <option value="all">All</option>
+            <option value="available">Available</option>
+            <option value="requested">Requested</option>
           </select>
         </div>
         <ul className="space-y-3">
