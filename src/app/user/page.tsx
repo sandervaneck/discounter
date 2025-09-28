@@ -173,6 +173,21 @@ export default function UserPage() {
     }
   };
 
+  const extractRequirements = (requirementsData: any) => {
+    if (Array.isArray(requirementsData)) {
+      return requirementsData;
+    }
+    if (typeof requirementsData === 'string') {
+      try {
+        const parsed = JSON.parse(requirementsData);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  };
+
   const [user, setUser] = useState<{ id: number; email: string; name: string; userType: string } | null>(null);
 
   useEffect(() => {
@@ -359,6 +374,7 @@ export default function UserPage() {
                               : 'Requested'
                             : 'Request';
                         const buttonAction = isRequested ? 'cancel' : 'request';
+                        const requirements = extractRequirements(d.requirements);
 
                         return (
                           <React.Fragment key={d.code}>
@@ -398,10 +414,30 @@ export default function UserPage() {
                             </tr>
                           {eligibleCollapsed.includes(idx) && (
                             <tr className="bg-green-50 border-t border-emerald-200">
-                              <td colSpan={2} className="p-3 text-emerald-800 space-y-1">
-                                <p><strong>Discount:</strong> {d.discountPercent}%</p>
-                                <p><strong>Items:</strong> {d.applicableItems.map((a: any) => a.item.name).join(', ')}</p>
-                                <p><strong>Expiration:</strong> {new Date(d.expirationTime).toISOString().split('T')[0]}</p>
+                              <td colSpan={2} className="p-3 text-emerald-800">
+                                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                                  <div className="space-y-1">
+                                    <p><strong>Discount:</strong> {d.discountPercent}%</p>
+                                    <p><strong>Items:</strong> {d.applicableItems.map((a: any) => a.item.name).join(', ')}</p>
+                                    <p><strong>Expiration:</strong> {new Date(d.expirationTime).toISOString().split('T')[0]}</p>
+                                  </div>
+                                  <div className="space-y-2 sm:text-right">
+                                    <p className="font-semibold">Requirements</p>
+                                    <div className="space-y-2 text-sm">
+                                      {requirements.map((req: any, reqIdx: number) => (
+                                        <div key={reqIdx} className="rounded-lg border border-emerald-200 bg-white/70 px-3 py-2">
+                                          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">{req.platform}</p>
+                                          <p><strong>Views:</strong> {req.views ?? 'N/A'}</p>
+                                          <p><strong>Likes:</strong> {req.likes ?? 'N/A'}</p>
+                                          <p><strong>Comments:</strong> {req.comments ?? 'N/A'}</p>
+                                        </div>
+                                      ))}
+                                      {requirements.length === 0 && (
+                                        <p className="text-xs text-emerald-600">No requirements provided.</p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
                               </td>
                             </tr>
                           )}
@@ -411,6 +447,7 @@ export default function UserPage() {
                       {disabledDiscounts.map((d, idx) => {
                         const statusLabel = d.status.charAt(0).toUpperCase() + d.status.slice(1);
                         const isRequestedElsewhere = d.status === 'requested';
+                        const requirements = extractRequirements(d.requirements);
 
                         return (
                           <React.Fragment key={d.code}>
@@ -450,10 +487,30 @@ export default function UserPage() {
                             </tr>
                           {disabledCollapsed.includes(idx) && (
                             <tr className="bg-orange-50 border-t border-orange-200">
-                              <td colSpan={2} className="p-3 text-orange-800 space-y-1">
-                                <p><strong>Discount:</strong> {d.discountPercent}%</p>
-                                <p><strong>Items:</strong> {d.applicableItems.map((a: any) => a.item.name).join(', ')}</p>
-                                <p><strong>Expiration:</strong> {new Date(d.expirationTime).toISOString().split('T')[0]}</p>
+                              <td colSpan={2} className="p-3 text-orange-800">
+                                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                                  <div className="space-y-1">
+                                    <p><strong>Discount:</strong> {d.discountPercent}%</p>
+                                    <p><strong>Items:</strong> {d.applicableItems.map((a: any) => a.item.name).join(', ')}</p>
+                                    <p><strong>Expiration:</strong> {new Date(d.expirationTime).toISOString().split('T')[0]}</p>
+                                  </div>
+                                  <div className="space-y-2 sm:text-right">
+                                    <p className="font-semibold">Requirements</p>
+                                    <div className="space-y-2 text-sm">
+                                      {requirements.map((req: any, reqIdx: number) => (
+                                        <div key={reqIdx} className="rounded-lg border border-orange-200 bg-white/70 px-3 py-2">
+                                          <p className="text-xs font-semibold uppercase tracking-wide text-orange-700">{req.platform}</p>
+                                          <p><strong>Views:</strong> {req.views ?? 'N/A'}</p>
+                                          <p><strong>Likes:</strong> {req.likes ?? 'N/A'}</p>
+                                          <p><strong>Comments:</strong> {req.comments ?? 'N/A'}</p>
+                                        </div>
+                                      ))}
+                                      {requirements.length === 0 && (
+                                        <p className="text-xs text-orange-600">No requirements provided.</p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
                               </td>
                             </tr>
                           )}
