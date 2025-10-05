@@ -693,6 +693,7 @@ export default function UserPage() {
               return (
                 <li
                   key={`${d.id}-${discount.code}`}
+
                   className={`border rounded-xl p-4 ${styles.container}`}
                 >
                   <div
@@ -700,7 +701,7 @@ export default function UserPage() {
                     onClick={() => toggleCollapse(idx)}
                   >
                     <div>
-                      <p className={`font-semibold ${styles.text}`}>{discount.code}</p>
+<p className={`font-semibold ${styles.text}`}>{discount.code}</p>
                       <p className={`text-xs ${styles.subtext}`}>{discount.restaurant?.name}</p>
                       <p className={`text-xs ${styles.subtext}`}>
                         Expires: {new Date(discount.expirationTime).toISOString().split('T')[0]}
@@ -715,7 +716,7 @@ export default function UserPage() {
                   </div>
                   {isCollapsed && (
                     <div className={`mt-3 text-sm ${styles.text} space-y-1`}>
-                      <p><strong>🎟️ Code:</strong> {discount.code}</p>
+<p><strong>🎟️ Code:</strong> {discount.code}</p>
                       <p><strong>🏠 Restaurant:</strong> {discount.restaurant?.name}</p>
                       <p><strong>🏷️ Discount:</strong> {discount.discountPercent}%</p>
                       <p><strong>🍽️ Items:</strong> {discount.applicableItems.map((a: any) => a.item.name).join(', ')}</p>
