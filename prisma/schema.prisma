@@ -69,6 +69,8 @@ model Redemption {
   redeemedAt     DateTime?
   discountCode   DiscountCode   @relation(fields: [discountCodeId], references: [id])
   influencer     User           @relation(fields: [influencerId], references: [id])
+
+  @@unique([discountCodeId, influencerId])
 }
 
 enum UserType {

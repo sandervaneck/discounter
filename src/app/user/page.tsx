@@ -7,6 +7,21 @@ import { useRouter } from "next/navigation";
 import { signOut } from 'next-auth/react';
 import { DiscountStatus } from "@/generated/client";
 
+type MyDiscountRedemption = {
+  id: number;
+  status: DiscountStatus;
+  redeemedAt: string | null;
+  discountCode: {
+    id: number;
+    code: string;
+    expirationTime: string;
+    discountPercent: number;
+    requirements: unknown;
+    restaurant: { id: number; name: string } | null;
+    applicableItems: { item: { name: string } }[];
+  };
+};
+
 
 export default function UserPage() {
     const router = useRouter();
@@ -22,7 +37,7 @@ export default function UserPage() {
   const [restaurantResults, setRestaurantResults] = useState<{ id: number; name: string }[]>([]);
   const [selectedRestaurant, setSelectedRestaurant] = useState<{ id: number; name: string } | null>(null);
   const [discounts, setDiscounts] = useState<any[]>([]);
-  const [myDiscounts, setMyDiscounts] = useState<any[]>([]);
+  const [myDiscounts, setMyDiscounts] = useState<MyDiscountRedemption[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [statusFilter, setStatusFilter] = useState<DiscountStatus | 'all'>('all');
 
@@ -43,8 +58,10 @@ export default function UserPage() {
     try {
       const res = await fetch('/api/user/discounts');
       if (res.ok) {
-        const data = await res.json();
-        data.sort((a: any, b: any) => a.code.localeCompare(b.code));
+        const data: MyDiscountRedemption[] = await res.json();
+        data.sort((a, b) =>
+          a.discountCode.code.localeCompare(b.discountCode.code)
+        );
         setMyDiscounts(data);
       }
     } catch (e) {
@@ -278,9 +295,10 @@ export default function UserPage() {
   const filteredMyDiscounts = visibleMyDiscounts
     .filter((d) => {
       if (!searchTerm) return true;
-      const restaurantName = d.restaurant?.name?.toLowerCase() ?? '';
+      const restaurantName =
+        d.discountCode.restaurant?.name?.toLowerCase() ?? '';
       return (
-        d.code.toLowerCase().includes(searchTerm) ||
+        d.discountCode.code.toLowerCase().includes(searchTerm) ||
         restaurantName.includes(searchTerm)
       );
     })
@@ -669,11 +687,13 @@ export default function UserPage() {
         ) : (
           <ul className="space-y-3">
             {filteredMyDiscounts.map((d, idx) => {
+              const discount = d.discountCode;
               const isCollapsed = collapsedIndexes.includes(idx);
               const styles = getStatusStyles(d.status);
               return (
                 <li
-                  key={d.code}
+                  key={`${d.id}-${discount.code}`}
+
                   className={`border rounded-xl p-4 ${styles.container}`}
                 >
                   <div
@@ -681,10 +701,10 @@ export default function UserPage() {
                     onClick={() => toggleCollapse(idx)}
                   >
                     <div>
-                      <p className={`font-semibold ${styles.text}`}>{d.code}</p>
-                      <p className={`text-xs ${styles.subtext}`}>{d.restaurant?.name}</p>
+<p className={`font-semibold ${styles.text}`}>{discount.code}</p>
+                      <p className={`text-xs ${styles.subtext}`}>{discount.restaurant?.name}</p>
                       <p className={`text-xs ${styles.subtext}`}>
-                        Expires: {new Date(d.expirationTime).toISOString().split('T')[0]}
+                        Expires: {new Date(discount.expirationTime).toISOString().split('T')[0]}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -696,13 +716,13 @@ export default function UserPage() {
                   </div>
                   {isCollapsed && (
                     <div className={`mt-3 text-sm ${styles.text} space-y-1`}>
-                      <p><strong>🎟️ Code:</strong> {d.code}</p>
-                      <p><strong>🏠 Restaurant:</strong> {d.restaurant?.name}</p>
-                      <p><strong>🏷️ Discount:</strong> {d.discountPercent}%</p>
-                      <p><strong>🍽️ Items:</strong> {d.applicableItems.map((a: any) => a.item.name).join(', ')}</p>
-                      <p><strong>📆 Expiration:</strong> {new Date(d.expirationTime).toISOString().split('T')[0]}</p>
+<p><strong>🎟️ Code:</strong> {discount.code}</p>
+                      <p><strong>🏠 Restaurant:</strong> {discount.restaurant?.name}</p>
+                      <p><strong>🏷️ Discount:</strong> {discount.discountPercent}%</p>
+                      <p><strong>🍽️ Items:</strong> {discount.applicableItems.map((a: any) => a.item.name).join(', ')}</p>
+                      <p><strong>📆 Expiration:</strong> {new Date(discount.expirationTime).toISOString().split('T')[0]}</p>
                       <div className="pt-2 flex justify-center">
-                        <QRCode value={d.code} size={80} />
+                        <QRCode value={discount.code} size={80} />
                       </div>
                     </div>
                   )}
