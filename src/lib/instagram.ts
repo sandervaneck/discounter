@@ -18,6 +18,8 @@ interface InstagramMediaResponse {
   caption?: string | null;
   permalink?: string;
   media_type?: string;
+  like_count?: number;
+  comments_count?: number;
 }
 
 interface InstagramInsightsResponse {
@@ -33,6 +35,10 @@ export interface InstagramReelInfo {
   caption: string;
   permalink: string;
   views: number | null;
+  likes: number | null;
+  comments: number | null;
+  shares: number | null;
+  fetchedAt: string;
 }
 
 const GRAPH_API_VERSION = "v19.0";
@@ -100,24 +106,50 @@ async function findMediaIdByPermalink(
 }
 
 async function fetchMediaDetails(mediaId: string, accessToken: string): Promise<InstagramMediaResponse> {
-  const url = `https://graph.facebook.com/${GRAPH_API_VERSION}/${mediaId}?fields=caption,permalink,media_type&access_token=${accessToken}`;
+  const fields = ["caption", "permalink", "media_type", "like_count", "comments_count"].join(",");
+  const url = `https://graph.facebook.com/${GRAPH_API_VERSION}/${mediaId}?fields=${fields}&access_token=${accessToken}`;
   return fetchJson(url) as Promise<InstagramMediaResponse>;
 }
 
-async function fetchMediaInsights(mediaId: string, accessToken: string): Promise<number | null> {
-  const metrics = ["plays"];
+async function fetchMediaInsights(
+  mediaId: string,
+  accessToken: string
+): Promise<{ plays: number | null; likes: number | null; comments: number | null; shares: number | null }> {
+  const metrics = ["plays", "likes", "comments", "shares"];
   const url = `https://graph.facebook.com/${GRAPH_API_VERSION}/${mediaId}/insights?metric=${metrics.join(",")}&access_token=${accessToken}`;
   const insights = (await fetchJson(url)) as InstagramInsightsResponse;
+  const result = {
+    plays: null as number | null,
+    likes: null as number | null,
+    comments: null as number | null,
+    shares: null as number | null,
+  };
   if (!Array.isArray(insights.data)) {
-    return null;
+    return result;
   }
   for (const entry of insights.data) {
-    if (entry.name === "plays") {
-      const value = entry.values?.[0]?.value;
-      return typeof value === "number" ? value : null;
+    const value = entry.values?.[0]?.value;
+    if (typeof value !== "number") {
+      continue;
+    }
+    switch (entry.name) {
+      case "plays":
+        result.plays = value;
+        break;
+      case "likes":
+        result.likes = value;
+        break;
+      case "comments":
+        result.comments = value;
+        break;
+      case "shares":
+        result.shares = value;
+        break;
+      default:
+        break;
     }
   }
-  return null;
+  return result;
 }
 
 export async function getInstagramReelInfo(params: {
@@ -131,12 +163,17 @@ export async function getInstagramReelInfo(params: {
   }
   const mediaId = await findMediaIdByPermalink(igUserId, accessToken, reelUrl);
   const media = await fetchMediaDetails(mediaId, accessToken);
-  const views = await fetchMediaInsights(mediaId, accessToken);
+  const metrics = await fetchMediaInsights(mediaId, accessToken);
 
   return {
     mediaId,
     caption: media.caption ?? "",
     permalink: media.permalink ?? reelUrl,
-    views,
+    views: metrics.plays,
+    likes: typeof media.like_count === "number" ? media.like_count : metrics.likes,
+    comments:
+      typeof media.comments_count === "number" ? media.comments_count : metrics.comments,
+    shares: metrics.shares,
+    fetchedAt: new Date().toISOString(),
   };
 }

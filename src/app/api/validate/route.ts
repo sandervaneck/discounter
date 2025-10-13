@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
         instagramToken: true,
         instagramUserId: true,
         instagramConnected: true,
+        id: true,
       },
     });
 
@@ -70,6 +71,15 @@ export async function POST(req: NextRequest) {
       reelUrl: payload.reelLink,
     });
 
+    try {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { url: payload.reelLink },
+      });
+    } catch (updateError) {
+      console.error('Failed to persist latest reel link for user', updateError);
+    }
+
     return NextResponse.json({
       platform: payload.platform,
       username: session.user.name || 'unknown',
@@ -78,6 +88,10 @@ export async function POST(req: NextRequest) {
       caption: info.caption,
       permalink: info.permalink,
       views: info.views,
+      likes: info.likes,
+      comments: info.comments,
+      shares: info.shares,
+      fetchedAt: info.fetchedAt,
     });
   }
 

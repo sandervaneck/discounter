@@ -45,7 +45,12 @@ export default function UserPage() {
   const [instagramResult, setInstagramResult] = useState<{
     caption: string;
     views: number | null;
+    likes: number | null;
+    comments: number | null;
+    shares: number | null;
     permalink: string;
+    mediaId: string | null;
+    fetchedAt: string | null;
   } | null>(null);
   const [instagramLookupError, setInstagramLookupError] = useState<string | null>(null);
 
@@ -80,10 +85,14 @@ export default function UserPage() {
   const handleRequest = async (id: number, action: 'request' | 'cancel') => {
     setRequestingCodeId(id);
     try {
+      const payload: Record<string, unknown> = { codeId: id, action };
+      if (action === 'request' && platform === 'instagram' && reelLink) {
+        payload.reelUrl = reelLink;
+      }
       const res = await fetch('/api/discounts/request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ codeId: id, action }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         throw new Error('Request update failed');
@@ -157,7 +166,12 @@ export default function UserPage() {
         setInstagramResult({
           caption: data.caption ?? '',
           views: typeof data.views === 'number' ? data.views : null,
+          likes: typeof data.likes === 'number' ? data.likes : null,
+          comments: typeof data.comments === 'number' ? data.comments : null,
+          shares: typeof data.shares === 'number' ? data.shares : null,
           permalink: data.permalink ?? reelLink,
+          mediaId: typeof data.mediaId === 'string' ? data.mediaId : null,
+          fetchedAt: typeof data.fetchedAt === 'string' ? data.fetchedAt : null,
         });
       }
       setSubmitted(true);
@@ -384,7 +398,12 @@ export default function UserPage() {
         setInstagramResult({
           caption: data.caption ?? '',
           views: typeof data.views === 'number' ? data.views : null,
+          likes: typeof data.likes === 'number' ? data.likes : null,
+          comments: typeof data.comments === 'number' ? data.comments : null,
+          shares: typeof data.shares === 'number' ? data.shares : null,
           permalink: data.permalink ?? reelLink,
+          mediaId: typeof data.mediaId === 'string' ? data.mediaId : null,
+          fetchedAt: typeof data.fetchedAt === 'string' ? data.fetchedAt : null,
         });
       } catch (error) {
         if (cancelled) return;
@@ -824,14 +843,33 @@ export default function UserPage() {
               </button>
               {instagramResult && (
                 <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-xs text-emerald-800 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold">Views</span>
-                    <span>{instagramResult.views ?? 'Not available'}</span>
+                  <div className="grid grid-cols-2 gap-2 text-center text-emerald-800">
+                    <div className="rounded-lg bg-white/60 p-2">
+                      <p className="font-semibold">Views</p>
+                      <p>{instagramResult.views ?? '—'}</p>
+                    </div>
+                    <div className="rounded-lg bg-white/60 p-2">
+                      <p className="font-semibold">Likes</p>
+                      <p>{instagramResult.likes ?? '—'}</p>
+                    </div>
+                    <div className="rounded-lg bg-white/60 p-2">
+                      <p className="font-semibold">Comments</p>
+                      <p>{instagramResult.comments ?? '—'}</p>
+                    </div>
+                    <div className="rounded-lg bg-white/60 p-2">
+                      <p className="font-semibold">Shares</p>
+                      <p>{instagramResult.shares ?? '—'}</p>
+                    </div>
                   </div>
                   <div>
                     <p className="font-semibold">Caption</p>
                     <p className="whitespace-pre-wrap break-words">{instagramResult.caption || 'No caption provided.'}</p>
                   </div>
+                  {instagramResult.fetchedAt && (
+                    <p className="text-[10px] text-emerald-600">
+                      Metrics fetched at {new Date(instagramResult.fetchedAt).toLocaleString()}
+                    </p>
+                  )}
                   <div>
                     <a
                       href={instagramResult.permalink}

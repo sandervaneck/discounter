@@ -4,8 +4,110 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { DiscountStatus, PrismaClient } from "../../../generated/client";
 import { authOptions } from "@/lib/auth";
+import { getInstagramReelInfo } from "@/lib/instagram";
 
 const prisma = new PrismaClient();
+
+async function enrichDiscountWithVerification(discount: any) {
+  if (!Array.isArray(discount?.redemptions) || discount.redemptions.length === 0) {
+    return discount;
+  }
+
+  const enrichedRedemptions = await Promise.all(
+    discount.redemptions.map(async (redemption: any) => {
+      if (!redemption || redemption.status !== DiscountStatus.requested) {
+        return { ...redemption };
+      }
+
+      const influencerId = Number(
+        (redemption as any).influencerId ?? redemption.influencer?.id ?? redemption.influencerId
+      );
+
+      if (!influencerId) {
+        return {
+          ...redemption,
+          verification: {
+            error: "Missing influencer information for this request.",
+          },
+        };
+      }
+
+      const influencer = await prisma.user.findUnique({
+        where: { id: influencerId },
+        select: {
+          instagramToken: true,
+          instagramUserId: true,
+          instagramConnected: true,
+          url: true,
+        },
+      });
+
+      if (!influencer || !influencer.instagramConnected || !influencer.instagramToken || !influencer.instagramUserId) {
+        return {
+          ...redemption,
+          verification: {
+            error: "Influencer Instagram account is not connected.",
+            reelUrl: influencer?.url ?? null,
+          },
+        };
+      }
+
+      if (!influencer.url) {
+        return {
+          ...redemption,
+          verification: {
+            error: "No Instagram reel link submitted for this request yet.",
+            reelUrl: null,
+          },
+        };
+      }
+
+      try {
+        const info = await getInstagramReelInfo({
+          igUserId: influencer.instagramUserId,
+          accessToken: influencer.instagramToken,
+          reelUrl: influencer.url,
+        });
+
+        return {
+          ...redemption,
+          verification: {
+            mediaId: info.mediaId,
+            caption: info.caption,
+            permalink: info.permalink,
+            reelUrl: influencer.url,
+            metrics: {
+              views: info.views,
+              likes: info.likes,
+              comments: info.comments,
+              shares: info.shares,
+            },
+            fetchedAt: info.fetchedAt,
+          },
+        };
+      } catch (error) {
+        console.error("Failed to resolve Instagram metrics for redemption", {
+          redemptionId: redemption.id,
+          influencerId,
+          error,
+        });
+
+        return {
+          ...redemption,
+          verification: {
+            error:
+              error instanceof Error
+                ? error.message
+                : "Unable to fetch Instagram metrics for this request.",
+            reelUrl: influencer.url,
+          },
+        };
+      }
+    })
+  );
+
+  return { ...discount, redemptions: enrichedRedemptions };
+}
 
 export async function GET(req: NextRequest) {
   const restaurantId = req.nextUrl.searchParams.get("restaurantId");
@@ -21,13 +123,14 @@ export async function GET(req: NextRequest) {
           redemptions: {
             include: {
               influencer: {
-                select: { id: true, name: true, email: true },
+                select: { id: true, name: true, email: true, url: true },
               },
             },
           },
         },
       });
-      return NextResponse.json(discounts);
+      const enriched = await Promise.all(discounts.map(enrichDiscountWithVerification));
+      return NextResponse.json(enriched);
     } catch (err) {
       console.error("Error fetching discounts by restaurant:", err);
       return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -51,13 +154,14 @@ export async function GET(req: NextRequest) {
       redemptions: {
         include: {
           influencer: {
-            select: { id: true, name: true, email: true },
+            select: { id: true, name: true, email: true, url: true },
           },
         },
       },
     },
     });
-    return NextResponse.json(discounts);
+    const enriched = await Promise.all(discounts.map(enrichDiscountWithVerification));
+    return NextResponse.json(enriched);
   } catch (err) {
     console.error("Error fetching discounts:", err);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
