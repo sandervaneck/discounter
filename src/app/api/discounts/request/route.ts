@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { codeId, action } = body ?? {};
+  const { codeId, action, reelUrl } = body ?? {};
   const parsedCodeId = Number(codeId);
 
   if (!codeId || Number.isNaN(parsedCodeId)) {
@@ -130,6 +130,13 @@ export async function POST(req: NextRequest) {
         status: DiscountStatus.requested,
       },
     });
+
+    if (typeof reelUrl === 'string' && reelUrl.trim()) {
+      await tx.user.update({
+        where: { id: influencerId },
+        data: { url: reelUrl.trim() },
+      });
+    }
   });
 
   const updatedDiscount = await prisma.discountCode.findUnique({

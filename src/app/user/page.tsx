@@ -6,6 +6,7 @@ import { QRCode } from 'react-qrcode-logo';
 import { useRouter } from "next/navigation";
 import { signOut } from 'next-auth/react';
 import { DiscountStatus } from "@/generated/client";
+import { decodeQrFileToUrl } from '@/lib/qrToUrl';
 
 type MyDiscountRedemption = {
   id: number;
@@ -40,6 +41,18 @@ export default function UserPage() {
   const [myDiscounts, setMyDiscounts] = useState<MyDiscountRedemption[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [statusFilter, setStatusFilter] = useState<DiscountStatus | 'all'>('all');
+  const [qrDecodeError, setQrDecodeError] = useState<string | null>(null);
+  const [instagramResult, setInstagramResult] = useState<{
+    caption: string;
+    views: number | null;
+    likes: number | null;
+    comments: number | null;
+    shares: number | null;
+    permalink: string;
+    mediaId: string | null;
+    fetchedAt: string | null;
+  } | null>(null);
+  const [instagramLookupError, setInstagramLookupError] = useState<string | null>(null);
 
   const fetchDiscounts = async (id: number) => {
     try {
@@ -72,10 +85,14 @@ export default function UserPage() {
   const handleRequest = async (id: number, action: 'request' | 'cancel') => {
     setRequestingCodeId(id);
     try {
+      const payload: Record<string, unknown> = { codeId: id, action };
+      if (action === 'request' && platform === 'instagram' && reelLink) {
+        payload.reelUrl = reelLink;
+      }
       const res = await fetch('/api/discounts/request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ codeId: id, action }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         throw new Error('Request update failed');
@@ -97,7 +114,27 @@ export default function UserPage() {
       alert('Please select a restaurant');
       return;
     }
+
+    if (platform === 'instagram') {
+      if (qrDecodeError) {
+        alert(qrDecodeError);
+        return;
+      }
+      if (instagramLookupError) {
+        alert(instagramLookupError);
+        return;
+      }
+      if (!reelLink) {
+        alert('We could not decode the Instagram link from your QR code yet.');
+        return;
+      }
+    } else if (!reelLink) {
+      alert('Please provide the TikTok post URL.');
+      return;
+    }
+
     setVerifying(true);
+    setInstagramResult(null);
 
     try {
       const res = await fetch('/api/validate', {
@@ -111,14 +148,41 @@ export default function UserPage() {
       });
 
       if (!res.ok) {
-        throw new Error('Validation failed');
+        let errorMessage = 'Validation failed';
+        try {
+          const errorBody = await res.json();
+          if (errorBody?.error) {
+            errorMessage = errorBody.error;
+          }
+        } catch (parseError) {
+          console.error('Failed to parse validation error response', parseError);
+        }
+        throw new Error(errorMessage);
       }
 
-      await res.json();
+      const data = await res.json();
+      if (platform === 'instagram') {
+        setInstagramLookupError(null);
+        setInstagramResult({
+          caption: data.caption ?? '',
+          views: typeof data.views === 'number' ? data.views : null,
+          likes: typeof data.likes === 'number' ? data.likes : null,
+          comments: typeof data.comments === 'number' ? data.comments : null,
+          shares: typeof data.shares === 'number' ? data.shares : null,
+          permalink: data.permalink ?? reelLink,
+          mediaId: typeof data.mediaId === 'string' ? data.mediaId : null,
+          fetchedAt: typeof data.fetchedAt === 'string' ? data.fetchedAt : null,
+        });
+      }
       setSubmitted(true);
       await fetchDiscounts(selectedRestaurant.id);
     } catch (err) {
       console.error(err);
+      if (err instanceof Error) {
+        alert(err.message);
+      } else {
+        alert('An unexpected error occurred while verifying your post.');
+      }
     } finally {
       setVerifying(false);
     }
@@ -253,6 +317,123 @@ export default function UserPage() {
     setSubmitted(false);
     fetchDiscounts(selectedRestaurant.id);
   }, [selectedRestaurant]);
+
+  useEffect(() => {
+    if (platform !== 'instagram') {
+      setQrDecodeError(null);
+      setInstagramResult(null);
+      setInstagramLookupError(null);
+      return;
+    }
+
+    if (!uploadedImage) {
+      setReelLink('');
+      setQrDecodeError(null);
+      setInstagramLookupError(null);
+      return;
+    }
+
+    let cancelled = false;
+    setQrDecodeError(null);
+    setInstagramResult(null);
+    setInstagramLookupError(null);
+
+    decodeQrFileToUrl(uploadedImage)
+      .then((url) => {
+        if (cancelled) return;
+        setReelLink(url);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        console.error('Failed to decode QR code', error);
+        setReelLink('');
+        setQrDecodeError(
+          error instanceof Error
+            ? error.message
+            : 'Unable to decode the QR code. Please try again with a clearer image.'
+        );
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [uploadedImage, platform]);
+
+  useEffect(() => {
+    if (platform !== 'instagram') {
+      return;
+    }
+    if (!reelLink || qrDecodeError) {
+      return;
+    }
+
+    let cancelled = false;
+    const controller = new AbortController();
+    setInstagramLookupError(null);
+
+    const fetchInfo = async () => {
+      try {
+        const response = await fetch('/api/instagram/reel-info', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reelUrl: reelLink }),
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          let message = 'Failed to fetch Instagram details.';
+          try {
+            const body = await response.json();
+            if (body?.error) {
+              message = body.error;
+            }
+          } catch (parseError) {
+            console.error('Unable to parse Instagram details response', parseError);
+          }
+          throw new Error(message);
+        }
+
+        const data = await response.json();
+        if (cancelled) return;
+        setInstagramResult({
+          caption: data.caption ?? '',
+          views: typeof data.views === 'number' ? data.views : null,
+          likes: typeof data.likes === 'number' ? data.likes : null,
+          comments: typeof data.comments === 'number' ? data.comments : null,
+          shares: typeof data.shares === 'number' ? data.shares : null,
+          permalink: data.permalink ?? reelLink,
+          mediaId: typeof data.mediaId === 'string' ? data.mediaId : null,
+          fetchedAt: typeof data.fetchedAt === 'string' ? data.fetchedAt : null,
+        });
+      } catch (error) {
+        if (cancelled) return;
+        if ((error as any)?.name === 'AbortError') {
+          return;
+        }
+        console.error('Instagram lookup failed', error);
+        setInstagramLookupError(
+          error instanceof Error ? error.message : 'Unable to reach Instagram at the moment.'
+        );
+      }
+    };
+
+    fetchInfo();
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [platform, reelLink, qrDecodeError]);
+
+  useEffect(() => {
+    if (platform === 'tiktok') {
+      setUploadedImage(null);
+      setQrDecodeError(null);
+      setInstagramResult(null);
+      setInstagramLookupError(null);
+      setReelLink('');
+    }
+  }, [platform]);
 
   const userDefined =  user && !(user as any).error;
 
@@ -634,6 +815,22 @@ export default function UserPage() {
                     />
                   </div>
                 )}
+                {platform === 'instagram' && reelLink && !qrDecodeError && (
+                  <p className="mt-3 text-xs text-emerald-700 break-words">
+                    Decoded link:{' '}
+                    <a
+                      href={reelLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="underline"
+                    >
+                      {reelLink}
+                    </a>
+                  </p>
+                )}
+                {qrDecodeError && (
+                  <p className="mt-3 text-xs text-red-600">{qrDecodeError}</p>
+                )}
               </>
             )}
 
@@ -644,6 +841,50 @@ export default function UserPage() {
               >
                 {verifying ? '⏳ Verifying post...' : '🎬 Submit post'}
               </button>
+              {instagramResult && (
+                <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-xs text-emerald-800 space-y-2">
+                  <div className="grid grid-cols-2 gap-2 text-center text-emerald-800">
+                    <div className="rounded-lg bg-white/60 p-2">
+                      <p className="font-semibold">Views</p>
+                      <p>{instagramResult.views ?? '—'}</p>
+                    </div>
+                    <div className="rounded-lg bg-white/60 p-2">
+                      <p className="font-semibold">Likes</p>
+                      <p>{instagramResult.likes ?? '—'}</p>
+                    </div>
+                    <div className="rounded-lg bg-white/60 p-2">
+                      <p className="font-semibold">Comments</p>
+                      <p>{instagramResult.comments ?? '—'}</p>
+                    </div>
+                    <div className="rounded-lg bg-white/60 p-2">
+                      <p className="font-semibold">Shares</p>
+                      <p>{instagramResult.shares ?? '—'}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="font-semibold">Caption</p>
+                    <p className="whitespace-pre-wrap break-words">{instagramResult.caption || 'No caption provided.'}</p>
+                  </div>
+                  {instagramResult.fetchedAt && (
+                    <p className="text-[10px] text-emerald-600">
+                      Metrics fetched at {new Date(instagramResult.fetchedAt).toLocaleString()}
+                    </p>
+                  )}
+                  <div>
+                    <a
+                      href={instagramResult.permalink}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-emerald-700 underline"
+                    >
+                      View on Instagram
+                    </a>
+                  </div>
+                </div>
+              )}
+              {instagramLookupError && (
+                <p className="mt-3 text-xs text-red-600">{instagramLookupError}</p>
+              )}
               {!selectedRestaurant && (
                 <p className="text-xs text-emerald-600 mt-1">
                   Please select a restaurant to submit.

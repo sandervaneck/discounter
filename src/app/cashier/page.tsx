@@ -18,6 +18,23 @@ interface Requirement {
   reposts?: number;
 }
 
+interface VerificationMetrics {
+  views?: number | null;
+  likes?: number | null;
+  comments?: number | null;
+  shares?: number | null;
+}
+
+interface RedemptionVerification {
+  mediaId?: string | null;
+  permalink?: string | null;
+  reelUrl?: string | null;
+  caption?: string | null;
+  metrics?: VerificationMetrics | null;
+  fetchedAt?: string | null;
+  error?: string | null;
+}
+
 interface AwaitingRequest {
   id: number;
   code: string;
@@ -27,14 +44,9 @@ interface AwaitingRequest {
   influencerName: string;
   influencerEmail?: string;
   requirements: Requirement[];
+  verification?: RedemptionVerification;
+  reelUrl?: string | null;
 }
-
-const HARD_CODED_METRICS = {
-  views: 4567,
-  likes: 300,
-  comments: 10,
-  reposts: 5,
-};
 
 const normalizeRequirement = (req: any): Requirement => ({
   platform: typeof req?.platform === "string" ? req.platform : undefined,
@@ -74,6 +86,60 @@ const extractRequirements = (requirementsData: any): Requirement[] => {
   return [];
 };
 
+const parseNumber = (value: unknown): number | null => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+};
+
+const parseVerification = (source: any): RedemptionVerification | undefined => {
+  if (!source || typeof source !== "object") {
+    return undefined;
+  }
+
+  const metricsSource = (source as any).metrics;
+  const metrics =
+    metricsSource && typeof metricsSource === "object"
+      ? {
+          views: parseNumber((metricsSource as any).views),
+          likes: parseNumber((metricsSource as any).likes),
+          comments: parseNumber((metricsSource as any).comments),
+          shares: parseNumber((metricsSource as any).shares),
+        }
+      : undefined;
+
+  const verification: RedemptionVerification = {
+    mediaId: typeof source.mediaId === "string" ? source.mediaId : null,
+    permalink: typeof source.permalink === "string" ? source.permalink : null,
+    reelUrl: typeof source.reelUrl === "string" ? source.reelUrl : null,
+    caption: typeof source.caption === "string" ? source.caption : null,
+    fetchedAt: typeof source.fetchedAt === "string" ? source.fetchedAt : null,
+    error: typeof source.error === "string" ? source.error : null,
+    metrics: metrics ?? null,
+  };
+
+  if (
+    !verification.mediaId &&
+    !verification.permalink &&
+    !verification.reelUrl &&
+    !verification.caption &&
+    !verification.metrics &&
+    !verification.error
+  ) {
+    return undefined;
+  }
+
+  return verification;
+};
+
+const formatMetric = (value: number | null | undefined) =>
+  typeof value === "number" ? value.toLocaleString() : "—";
+
 export default function CashierDiscountScanner() {
   const [tab, setTab] = useState(1);
   const [awaitingRequests, setAwaitingRequests] = useState<AwaitingRequest[]>([]);
@@ -108,6 +174,11 @@ export default function CashierDiscountScanner() {
                 .map((item: any) => item?.item?.name ?? item?.name)
                 .filter((name: string | undefined): name is string => Boolean(name))
             : [];
+          const verification = parseVerification(requester?.verification);
+          const fallbackReelUrl =
+            verification?.permalink ??
+            verification?.reelUrl ??
+            (typeof requester?.influencer?.url === "string" ? requester.influencer.url : null);
 
           return {
             id: d.id,
@@ -118,6 +189,8 @@ export default function CashierDiscountScanner() {
             influencerName: requester?.influencer?.name ?? "Unknown influencer",
             influencerEmail: requester?.influencer?.email ?? undefined,
             requirements: extractRequirements(d.requirements),
+            verification,
+            reelUrl: fallbackReelUrl ?? null,
           };
         });
 
@@ -163,16 +236,23 @@ export default function CashierDiscountScanner() {
     }
 
     const passesRequirement = (req: Requirement) => {
-      const viewPass =
-        typeof req.views !== "number" || HARD_CODED_METRICS.views >= req.views;
-      const likePass =
-        typeof req.likes !== "number" || HARD_CODED_METRICS.likes >= req.likes;
-      const commentPass =
-        typeof req.comments !== "number" || HARD_CODED_METRICS.comments >= req.comments;
-      const repostPass =
-        typeof req.reposts !== "number" || HARD_CODED_METRICS.reposts >= req.reposts;
+      const metrics = selectedRequest.verification?.metrics;
+      const meetsNumber = (actual: number | null | undefined, required?: number) => {
+        if (typeof required !== "number") {
+          return true;
+        }
+        if (typeof actual !== "number") {
+          return false;
+        }
+        return actual >= required;
+      };
 
-      return viewPass && likePass && commentPass && repostPass;
+      const viewPass = meetsNumber(metrics?.views ?? null, req.views);
+      const likePass = meetsNumber(metrics?.likes ?? null, req.likes);
+      const commentPass = meetsNumber(metrics?.comments ?? null, req.comments);
+      const sharePass = meetsNumber(metrics?.shares ?? null, req.reposts);
+
+      return viewPass && likePass && commentPass && sharePass;
     };
 
     return selectedRequest.requirements.some(passesRequirement);
@@ -215,6 +295,24 @@ export default function CashierDiscountScanner() {
       setIsSubmitting(false);
     }
   }, [decision, loadDiscounts, selectedRequest]);
+
+  const selectedVerification = selectedRequest?.verification;
+  const selectedMetrics = selectedVerification?.metrics;
+  const reelHref =
+    selectedVerification?.permalink ??
+    selectedVerification?.reelUrl ??
+    selectedRequest?.reelUrl ??
+    null;
+  const metricsUpdatedAt = (() => {
+    if (!selectedVerification?.fetchedAt) {
+      return null;
+    }
+    const timestamp = Date.parse(selectedVerification.fetchedAt);
+    if (Number.isNaN(timestamp)) {
+      return null;
+    }
+    return new Date(timestamp).toLocaleString();
+  })();
 
   return (
     <div className="min-h-screen bg-[#e0f2f1] px-4 py-6 font-sans">
@@ -305,39 +403,65 @@ export default function CashierDiscountScanner() {
               </span>
             </div>
 
-            <button
-              type="button"
-              className="w-full rounded-xl border border-[#117a65] bg-white py-3 text-center text-lg font-semibold text-[#117a65] transition-colors hover:bg-[#d9f5f1]"
-            >
-              View Post
-            </button>
+            {reelHref ? (
+              <a
+                href={reelHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full rounded-xl border border-[#117a65] bg-white py-3 text-center text-lg font-semibold text-[#117a65] transition-colors hover:bg-[#d9f5f1]"
+              >
+                View Post
+              </a>
+            ) : (
+              <div className="w-full rounded-xl border border-dashed border-[#117a65] bg-white py-3 text-center text-lg font-semibold text-[#117a65] opacity-70">
+                Reel link not provided
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div className="rounded-xl border border-[#b2dfdb] bg-[#f1f8f6] p-3 text-center">
                 <p className="text-xs uppercase tracking-wide text-gray-500">Views</p>
                 <p className="text-lg font-bold text-[#117a65]">
-                  {HARD_CODED_METRICS.views.toLocaleString()}
+                  {formatMetric(selectedMetrics?.views)}
                 </p>
               </div>
               <div className="rounded-xl border border-[#b2dfdb] bg-[#f1f8f6] p-3 text-center">
                 <p className="text-xs uppercase tracking-wide text-gray-500">Likes</p>
                 <p className="text-lg font-bold text-[#117a65]">
-                  {HARD_CODED_METRICS.likes.toLocaleString()}
+                  {formatMetric(selectedMetrics?.likes)}
                 </p>
               </div>
               <div className="rounded-xl border border-[#b2dfdb] bg-[#f1f8f6] p-3 text-center">
                 <p className="text-xs uppercase tracking-wide text-gray-500">Comments</p>
                 <p className="text-lg font-bold text-[#117a65]">
-                  {HARD_CODED_METRICS.comments.toLocaleString()}
+                  {formatMetric(selectedMetrics?.comments)}
                 </p>
               </div>
               <div className="rounded-xl border border-[#b2dfdb] bg-[#f1f8f6] p-3 text-center">
-                <p className="text-xs uppercase tracking-wide text-gray-500">Reposts</p>
+                <p className="text-xs uppercase tracking-wide text-gray-500">Shares</p>
                 <p className="text-lg font-bold text-[#117a65]">
-                  {HARD_CODED_METRICS.reposts.toLocaleString()}
+                  {formatMetric(selectedMetrics?.shares)}
                 </p>
               </div>
             </div>
+
+            {selectedVerification?.caption && (
+              <p className="rounded-xl border border-[#b2dfdb] bg-white/80 p-3 text-sm text-gray-700 italic">
+                “{selectedVerification.caption}”
+              </p>
+            )}
+
+            {selectedVerification?.error ? (
+              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {selectedVerification.error}
+              </div>
+            ) : (
+              metricsUpdatedAt && (
+                <p className="text-xs text-gray-500 text-center">
+                  Metrics last updated {metricsUpdatedAt}
+                </p>
+              )
+            )}
 
             {selectedRequest.requirements.length > 0 && (
               <div className="rounded-xl border border-[#b2dfdb] bg-[#f6fffd] p-4 text-sm text-gray-700">
