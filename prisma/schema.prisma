@@ -67,6 +67,7 @@ model Redemption {
   discountCodeId Int
   status         DiscountStatus
   redeemedAt     DateTime?
+  postUrl        String?
   discountCode   DiscountCode   @relation(fields: [discountCodeId], references: [id])
   influencer     User           @relation(fields: [influencerId], references: [id])
 

@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { codeId, action } = body ?? {};
+  const { codeId, action, postUrl } = body ?? {};
   const parsedCodeId = Number(codeId);
 
   if (!codeId || Number.isNaN(parsedCodeId)) {
@@ -39,6 +39,17 @@ export async function POST(req: NextRequest) {
   }
 
   const influencerId = Number(session.user.id);
+
+  const trimmedPostUrl =
+    typeof postUrl === "string" ? postUrl.trim() : "";
+  const normalizedPostUrl =
+    trimmedPostUrl && !/^https?:\/\//i.test(trimmedPostUrl)
+      ? `https://${trimmedPostUrl}`
+      : trimmedPostUrl;
+
+  if (action === "request" && !normalizedPostUrl) {
+    return NextResponse.json({ error: "postUrl required" }, { status: 400 });
+  }
 
   if (action === "cancel") {
     const existing = await prisma.redemption.findFirst({
@@ -128,7 +139,8 @@ export async function POST(req: NextRequest) {
         influencerId,
         discountCodeId: parsedCodeId,
         status: DiscountStatus.requested,
-      },
+        postUrl: normalizedPostUrl,
+      } as any,
     });
   });
 
