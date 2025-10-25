@@ -165,7 +165,8 @@ exports.Prisma.RedemptionScalarFieldEnum = {
   influencerId: 'influencerId',
   discountCodeId: 'discountCodeId',
   status: 'status',
-  redeemedAt: 'redeemedAt'
+  redeemedAt: 'redeemedAt',
+  postUrl: 'postUrl'
 };
 
 exports.Prisma.SortOrder = {

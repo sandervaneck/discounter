@@ -27,6 +27,7 @@ interface AwaitingRequest {
   influencerName: string;
   influencerEmail?: string;
   requirements: Requirement[];
+  postUrl?: string | null;
 }
 
 const HARD_CODED_METRICS = {
@@ -78,10 +79,14 @@ export default function CashierDiscountScanner() {
   const [tab, setTab] = useState(1);
   const [awaitingRequests, setAwaitingRequests] = useState<AwaitingRequest[]>([]);
   const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
-  const [decision, setDecision] = useState<"approve" | "reject">("approve");
   const [loadingError, setLoadingError] = useState<string | null>(null);
   const [decisionError, setDecisionError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [decisionInFlight, setDecisionInFlight] = useState<"approve" | "reject" | null>(null);
+  const [embedHtml, setEmbedHtml] = useState<string | null>(null);
+  const [isLoadingEmbed, setIsLoadingEmbed] = useState(false);
+  const [embedError, setEmbedError] = useState<string | null>(null);
+  const [showEmbed, setShowEmbed] = useState(false);
+  const [lastEmbedUrl, setLastEmbedUrl] = useState<string | null>(null);
 
   const loadDiscounts = useCallback(async () => {
     try {
@@ -118,6 +123,7 @@ export default function CashierDiscountScanner() {
             influencerName: requester?.influencer?.name ?? "Unknown influencer",
             influencerEmail: requester?.influencer?.email ?? undefined,
             requirements: extractRequirements(d.requirements),
+            postUrl: requester?.postUrl ?? null,
           };
         });
 
@@ -149,6 +155,14 @@ export default function CashierDiscountScanner() {
     });
   }, [awaitingRequests]);
 
+  useEffect(() => {
+    setShowEmbed(false);
+    setEmbedHtml(null);
+    setEmbedError(null);
+    setIsLoadingEmbed(false);
+    setLastEmbedUrl(null);
+  }, [selectedRequestId]);
+
   const selectedRequest = useMemo(
     () => awaitingRequests.find((request) => request.id === selectedRequestId) ?? null,
     [awaitingRequests, selectedRequestId]
@@ -178,43 +192,129 @@ export default function CashierDiscountScanner() {
     return selectedRequest.requirements.some(passesRequirement);
   }, [selectedRequest]);
 
-  useEffect(() => {
-    if (selectedRequest) {
-      setDecision(meetsRequirements ? "approve" : "reject");
-    } else {
-      setDecision("approve");
-    }
-  }, [selectedRequest, meetsRequirements]);
+  const recommendedDecision: "approve" | "reject" = meetsRequirements ? "approve" : "reject";
 
-  const handleConfirm = useCallback(async () => {
-    if (!selectedRequest) {
+  const handleDecision = useCallback(
+    async (nextDecision: "approve" | "reject") => {
+      if (!selectedRequest) {
+        return;
+      }
+
+      setDecisionError(null);
+      setDecisionInFlight(nextDecision);
+
+      try {
+        const res = await fetch("/api/discounts/decision", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ codeId: selectedRequest.id, decision: nextDecision }),
+        });
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({ error: "" }));
+          throw new Error(data?.error || "Failed to update request.");
+        }
+
+        await loadDiscounts();
+      } catch (err) {
+        console.error("Failed to update discount request", err);
+        setDecisionError("Something went wrong while updating the request. Please try again.");
+      } finally {
+        setDecisionInFlight(null);
+      }
+    },
+    [loadDiscounts, selectedRequest]
+  );
+
+  useEffect(() => {
+    if (!embedHtml) {
       return;
     }
 
-    setDecisionError(null);
-    setIsSubmitting(true);
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const processEmbeds = () => {
+      if (typeof window !== "undefined" && (window as any).instgrm?.Embeds?.process) {
+        (window as any).instgrm.Embeds.process();
+      }
+    };
+
+    const existingScript = document.getElementById("instagram-embed-script");
+    if (existingScript) {
+      processEmbeds();
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.id = "instagram-embed-script";
+    script.async = true;
+    script.src = "https://www.instagram.com/embed.js";
+    script.onload = processEmbeds;
+    document.body.appendChild(script);
+
+    return () => {
+      script.onload = null;
+    };
+  }, [embedHtml]);
+
+  const handleViewPost = useCallback(async () => {
+    if (!selectedRequest?.postUrl) {
+      setEmbedError("No post URL was provided with this request.");
+      setShowEmbed(false);
+      return;
+    }
+
+    const trimmed = selectedRequest.postUrl.trim();
+    if (!trimmed) {
+      setEmbedError("No post URL was provided with this request.");
+      setShowEmbed(false);
+      return;
+    }
+
+    const normalized = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+
+    if (typeof window !== "undefined") {
+      window.open(normalized, "_blank", "noopener,noreferrer");
+    }
+
+    if (lastEmbedUrl === normalized && embedHtml) {
+      setShowEmbed(true);
+      if (typeof window !== "undefined" && (window as any).instgrm?.Embeds?.process) {
+        (window as any).instgrm.Embeds.process();
+      }
+      return;
+    }
+
+    setIsLoadingEmbed(true);
+    setEmbedError(null);
 
     try {
-      const res = await fetch("/api/discounts/decision", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ codeId: selectedRequest.id, decision }),
-      });
+      const res = await fetch(`/api/instagram/oembed?url=${encodeURIComponent(normalized)}`);
+      const data = await res.json().catch(() => null);
 
       if (!res.ok) {
-        const data = await res.json().catch(() => ({ error: "" }));
-        throw new Error(data?.error || "Failed to update request.");
+        throw new Error((data as any)?.error || "Failed to load Instagram preview.");
       }
 
-      await loadDiscounts();
+      if (!data || typeof data !== "object" || typeof (data as any).html !== "string") {
+        throw new Error("Instagram response did not contain an embed preview.");
+      }
+
+      setEmbedHtml((data as any).html);
+      setShowEmbed(true);
+      setLastEmbedUrl(normalized);
     } catch (err) {
-      console.error("Failed to update discount request", err);
-      setDecisionError("Something went wrong while updating the request. Please try again.");
+      console.error("Failed to load Instagram oEmbed", err);
+      setEmbedError("We couldn't load a preview of this post. You can still open it in a new tab.");
+      setEmbedHtml(null);
+      setShowEmbed(false);
     } finally {
-      setIsSubmitting(false);
+      setIsLoadingEmbed(false);
     }
-  }, [decision, loadDiscounts, selectedRequest]);
+  }, [embedHtml, lastEmbedUrl, selectedRequest]);
 
   return (
     <div className="min-h-screen bg-[#e0f2f1] px-4 py-6 font-sans">
@@ -307,10 +407,37 @@ export default function CashierDiscountScanner() {
 
             <button
               type="button"
-              className="w-full rounded-xl border border-[#117a65] bg-white py-3 text-center text-lg font-semibold text-[#117a65] transition-colors hover:bg-[#d9f5f1]"
+              onClick={handleViewPost}
+              disabled={!selectedRequest.postUrl || isLoadingEmbed}
+              className={`w-full rounded-xl border border-[#117a65] bg-white py-3 text-center text-lg font-semibold transition-colors ${
+                !selectedRequest.postUrl || isLoadingEmbed
+                  ? "text-[#7ab8a9] cursor-not-allowed opacity-60"
+                  : "text-[#117a65] hover:bg-[#d9f5f1]"
+              }`}
             >
-              View Post
+              {isLoadingEmbed ? "Loading post..." : "View post"}
             </button>
+
+            {embedError && (
+              <p className="text-xs text-red-600 text-center">{embedError}</p>
+            )}
+
+            {showEmbed && embedHtml && (
+              <div className="overflow-hidden rounded-xl border border-[#b2dfdb] bg-[#f6fffd] p-3">
+                <div className="flex justify-center">
+                  <div
+                    className="max-w-full instagram-embed"
+                    dangerouslySetInnerHTML={{ __html: embedHtml }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {!selectedRequest.postUrl && (
+              <p className="text-xs text-amber-700 text-center">
+                This request does not include a post link yet.
+              </p>
+            )}
 
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div className="rounded-xl border border-[#b2dfdb] bg-[#f1f8f6] p-3 text-center">
@@ -362,32 +489,41 @@ export default function CashierDiscountScanner() {
               </div>
             )}
 
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-[#117a65]" htmlFor="decision-select">
-                Decision
-              </label>
-              <select
-                id="decision-select"
-                value={decision}
-                onChange={(event) => setDecision(event.target.value as "approve" | "reject")}
-                className="w-full rounded-xl border border-[#117a65] bg-white px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#117a65]"
-              >
-                <option value="approve">Approve Post</option>
-                <option value="reject">Disapprove Post</option>
-              </select>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold text-[#117a65]">Decision</p>
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                    recommendedDecision === "approve"
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-amber-100 text-amber-700"
+                  }`}
+                >
+                  Suggested: {recommendedDecision === "approve" ? "Approve" : "Disapprove"}
+                </span>
+              </div>
               {decisionError && (
                 <p className="text-xs text-red-600">{decisionError}</p>
               )}
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={() => handleDecision("approve")}
+                  disabled={decisionInFlight === "approve"}
+                  className="w-full rounded-xl bg-[#117a65] py-3 text-lg font-semibold text-white transition-colors hover:bg-[#0b4a3e] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {decisionInFlight === "approve" ? "Approving..." : "Approve post"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDecision("reject")}
+                  disabled={decisionInFlight === "reject"}
+                  className="w-full rounded-xl border border-[#e57373] bg-white py-3 text-lg font-semibold text-[#c62828] transition-colors hover:bg-[#fdeaea] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {decisionInFlight === "reject" ? "Disapproving..." : "Disapprove post"}
+                </button>
+              </div>
             </div>
-
-            <button
-              type="button"
-              onClick={handleConfirm}
-              disabled={isSubmitting}
-              className="w-full rounded-xl bg-[#117a65] py-3 text-lg font-semibold text-white transition-colors hover:bg-[#0b4a3e] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isSubmitting ? "Updating..." : "Confirm"}
-            </button>
           </div>
         )}
       </div>

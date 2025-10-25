@@ -11,6 +11,7 @@ type MyDiscountRedemption = {
   id: number;
   status: DiscountStatus;
   redeemedAt: string | null;
+  postUrl?: string | null;
   discountCode: {
     id: number;
     code: string;
@@ -73,10 +74,16 @@ export default function UserPage() {
     }
     setRequestingCodeId(id);
     try {
+      const trimmedLink = reelLink.trim();
+      const payload: Record<string, unknown> = { codeId: id, action };
+      if (action === 'request') {
+        payload.postUrl = trimmedLink;
+      }
+
       const res = await fetch('/api/discounts/request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ codeId: id, action }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         throw new Error('Request update failed');
