@@ -6,14 +6,7 @@ import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
-type InstagramExchangeResult = {
-  access_token: string;
-  user_id?: string;
-  username?: string;
-  instagram_user_id?: string;
-};
-
-async function exchangeInstagramCode(code: string): Promise<InstagramExchangeResult> {
+async function exchangeInstagramCode(code: string) {
   const clientId = process.env.NEXT_PUBLIC_INSTAGRAM_CLIENT_ID || "750340034464298";
   const clientSecret = process.env.INSTAGRAM_CLIENT_SECRET;
   const redirectUri = process.env.NEXT_PUBLIC_REDIRECT_URI || "https://discounter-coral.vercel.app";
@@ -46,9 +39,7 @@ async function exchangeInstagramCode(code: string): Promise<InstagramExchangeRes
   const tokenData = await tokenResponse.json();
   
   // Get user info from Instagram
-  const userResponse = await fetch(
-    `https://graph.instagram.com/me?fields=id,username&access_token=${tokenData.access_token}`
-  );
+  const userResponse = await fetch(`https://graph.instagram.com/me?fields=id,username&access_token=${tokenData.access_token}`);
   
   if (!userResponse.ok) {
     console.error('Failed to get Instagram user info');
@@ -93,15 +84,10 @@ export async function POST(req: NextRequest) {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    let instagramData: InstagramExchangeResult | null = null;
+    let instagramData = null;
     
     // If url is provided and looks like an Instagram auth code, exchange it for token
-    if (
-      userType === "influencer" &&
-      url &&
-      url !== "https://www.instagram.com/" &&
-      !url.startsWith("http")
-    ) {
+    if (url && url !== "https://www.instagram.com/" && !url.startsWith("http")) {
       try {
         instagramData = await exchangeInstagramCode(url);
       } catch (error) {
@@ -111,29 +97,24 @@ export async function POST(req: NextRequest) {
     }
 
     // Create the user with Instagram data if available
-    const instagramUserId = instagramData?.instagram_user_id || instagramData?.user_id || null;
-    const instagramUsername = instagramData?.username || null;
-
-    const userUrl = instagramUsername
-      ? `https://www.instagram.com/${instagramUsername}/`
-      : userType === "influencer"
-        ? "https://www.instagram.com/"
-        : url || "https://www.instagram.com/";
-
     const userData = {
       email,
       password: hashedPassword,
       name,
       userType,
-      url: userUrl,
-      instagramToken: instagramData?.access_token ?? null,
-      instagramUserId,
-      instagramUsername,
-      instagramConnected: Boolean(instagramData),
-      tokenExpiresAt: instagramData
-        ? new Date(Date.now() + 60 * 24 * 60 * 60 * 1000)
-        : null,
+      url: instagramData ? `https://www.instagram.com/${instagramData.username}/` : (url || "https://www.instagram.com/"),
     };
+
+    // Add Instagram fields if token exchange was successful
+    if (instagramData) {
+      Object.assign(userData, {
+        instagramToken: instagramData.access_token,
+        instagramUserId: instagramData.instagram_user_id,
+        instagramUsername: instagramData.username,
+        instagramConnected: true,
+        tokenExpiresAt: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 days from now
+      });
+    }
 
     const user = await prisma.user.create({
       data: userData,
