@@ -500,13 +500,15 @@ export default function Home() {
               />
             </label>
 
-            <button
-              onClick={handleInstagramConnect}
-              disabled={isInstagramConnecting}
-              className="w-full max-w-sm mt-4 px-6 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isInstagramConnecting ? "Connecting..." : "Connect Instagram"}
-            </button>
+            {!registerForm?.url && (
+              <button
+                onClick={handleInstagramConnect}
+                disabled={isInstagramConnecting}
+                className="w-full max-w-sm mt-4 px-6 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isInstagramConnecting ? "Connecting..." : "Connect Instagram"}
+              </button>
+            )}
             
             {registerForm?.url && (
               <div className="w-full max-w-sm mt-2 p-2 bg-green-100 text-green-700 rounded-md text-center">

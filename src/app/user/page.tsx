@@ -27,19 +27,16 @@ export default function UserPage() {
     const router = useRouter();
   
   const [reelLink, setReelLink] = useState('');
-  const [verifying, setVerifying] = useState(false);
   const [requestingCodeId, setRequestingCodeId] = useState<number | null>(null);
   const [tab, setTab] = useState<0 | 1>(0);
-  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
-  const [platform, setPlatform] = useState<'instagram' | 'tiktok'>('instagram');
-  const [showTooltip, setShowTooltip] = useState(false);
   const [restaurantQuery, setRestaurantQuery] = useState('');
   const [restaurantResults, setRestaurantResults] = useState<{ id: number; name: string }[]>([]);
   const [selectedRestaurant, setSelectedRestaurant] = useState<{ id: number; name: string } | null>(null);
   const [discounts, setDiscounts] = useState<any[]>([]);
   const [myDiscounts, setMyDiscounts] = useState<MyDiscountRedemption[]>([]);
-  const [submitted, setSubmitted] = useState(false);
   const [statusFilter, setStatusFilter] = useState<DiscountStatus | 'all'>('all');
+
+  const linkProvided = reelLink.trim().length > 0;
 
   const fetchDiscounts = async (id: number) => {
     try {
@@ -70,6 +67,10 @@ export default function UserPage() {
   };
 
   const handleRequest = async (id: number, action: 'request' | 'cancel') => {
+    if (action === 'request' && !linkProvided) {
+      alert('Please add your post link before requesting a discount code.');
+      return;
+    }
     setRequestingCodeId(id);
     try {
       const res = await fetch('/api/discounts/request', {
@@ -91,37 +92,14 @@ export default function UserPage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedRestaurant) {
-      alert('Please select a restaurant');
+  const handleReviewClick = () => {
+    if (!linkProvided) {
       return;
     }
-    setVerifying(true);
-
-    try {
-      const res = await fetch('/api/validate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          restaurantId: selectedRestaurant.id,
-          platform,
-          reelLink,
-        }),
-      });
-
-      if (!res.ok) {
-        throw new Error('Validation failed');
-      }
-
-      await res.json();
-      setSubmitted(true);
-      await fetchDiscounts(selectedRestaurant.id);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setVerifying(false);
-    }
+    const trimmedLink = reelLink.trim();
+    const hasProtocol = /^https?:\/\//i.test(trimmedLink);
+    const target = hasProtocol ? trimmedLink : `https://${trimmedLink}`;
+    window.open(target, '_blank', 'noopener,noreferrer');
   };
 
   const [search, setSearch] = useState('');
@@ -250,7 +228,7 @@ export default function UserPage() {
       setDiscounts([]);
       return;
     }
-    setSubmitted(false);
+    setReelLink('');
     fetchDiscounts(selectedRestaurant.id);
   }, [selectedRestaurant]);
 
@@ -304,12 +282,12 @@ export default function UserPage() {
     })
     .filter((d) => (statusFilter === 'all' ? true : d.status === statusFilter));
 
-  const eligibleDiscounts = submitted
-    ? discounts.filter((d) => d.status === 'available' || isRequestedByCurrentUser(d))
-    : [];
-  const disabledDiscounts = submitted
-    ? discounts.filter((d) => !(d.status === 'available' || isRequestedByCurrentUser(d)))
-    : discounts;
+  const eligibleDiscounts = discounts.filter(
+    (d) => d.status === 'available' || isRequestedByCurrentUser(d)
+  );
+  const disabledDiscounts = discounts.filter(
+    (d) => !(d.status === 'available' || isRequestedByCurrentUser(d))
+  );
 
 
   return (
@@ -369,7 +347,7 @@ export default function UserPage() {
           </div>
 
           <div className="p-6 sm:p-7">
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={(e) => e.preventDefault()} className="space-y-5">
               <div>
                 <label className="block text-emerald-700 font-semibold text-xs mb-1">Search Restaurant</label>
                 <input
@@ -398,6 +376,43 @@ export default function UserPage() {
               </div>
 
               {selectedRestaurant && (
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4 text-sm text-emerald-800">
+                  <p className="font-semibold text-emerald-900">🍝 Italian cuisine</p>
+                  <p>Via Morella 4</p>
+                  <p>5900 Milano, Italy</p>
+                </div>
+              )}
+
+              <div>
+                <label htmlFor="reel-link" className="block text-emerald-700 font-semibold text-xs mb-1">
+                  Reel link
+                </label>
+                <input
+                  id="reel-link"
+                  type="url"
+                  placeholder="https://www.instagram.com/reel/..."
+                  value={reelLink}
+                  onChange={(e) => setReelLink(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-emerald-300 bg-white text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={handleReviewClick}
+                disabled={!linkProvided}
+                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Review post
+              </button>
+
+              {!linkProvided && (
+                <p className="text-xs text-emerald-600">
+                  Add your reel link to enable discount requests.
+                </p>
+              )}
+
+              {selectedRestaurant && (
                 <div className="mt-6 overflow-hidden rounded-xl border border-emerald-200">
                   <table className="w-full text-sm">
                     <tbody>
@@ -413,6 +428,7 @@ export default function UserPage() {
                             : 'Request';
                         const buttonAction = isRequested ? 'cancel' : 'request';
                         const requirements = extractRequirements(d.requirements);
+                        const disableRequestButton = isProcessing || (!linkProvided && !isRequested);
 
                         return (
                           <React.Fragment key={d.code}>
@@ -437,12 +453,12 @@ export default function UserPage() {
                                 <button
                                   type="button"
                                   onClick={() => handleRequest(d.id, buttonAction)}
-                                  disabled={isProcessing}
+                                  disabled={disableRequestButton}
                                   className={`px-3 py-1 rounded transition-colors ${
                                     isRequested
                                       ? 'bg-white border border-emerald-500 text-emerald-700 hover:bg-emerald-50'
                                       : 'bg-emerald-600 text-white hover:bg-emerald-700'
-                                  } ${isProcessing ? 'opacity-60 cursor-not-allowed' : ''}`}
+                                  } ${disableRequestButton ? 'opacity-60 cursor-not-allowed' : ''}`}
                                 >
                                   {buttonLabel}
                                 </button>
@@ -557,99 +573,6 @@ export default function UserPage() {
                   </table>
                 </div>
               )}
-
-              <div className="flex gap-3 justify-center">
-                <button
-                  type="button"
-                  className={`flex items-center gap-1 px-4 py-2 rounded-lg border text-sm font-medium ${
-                    platform === 'instagram'
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-white border-emerald-300 text-emerald-700'
-                  }`}
-                  onClick={() => setPlatform('instagram')}
-                >
-                  📸 Instagram
-                </button>
-                <button
-                  type="button"
-                  className={`flex items-center gap-1 px-4 py-2 rounded-lg border text-sm font-medium ${
-                    platform === 'tiktok'
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-white border-emerald-300 text-emerald-700'
-                  }`}
-                  onClick={() => setPlatform('tiktok')}
-                >
-                  🎵 TikTok
-                </button>
-              </div>
-
-            {platform === 'tiktok' ? (
-              <>
-                <label htmlFor="reel" className="block text-emerald-700 font-semibold text-xs">
-                  TikTok Post URL
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="https://www.tiktok.com/@user/video/xyz"
-                  value={reelLink ?? ''}
-                  onChange={(e) => setReelLink(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-emerald-300 bg-white text-emerald-900 placeholder-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
-                />
-              </>
-            ) : (
-              <>
-                <label htmlFor="qr" className="block text-emerald-700 font-semibold text-sm flex items-start gap-2 relative">
-                  <button
-                    type="button"
-                    onClick={() => setShowTooltip((prev) => !prev)}
-                    className="w-5 h-5 flex items-center justify-center rounded-full bg-emerald-300 text-white text-xs font-bold focus:outline-none"
-                    aria-label="Help"
-                  >
-                    i
-                  </button>
-                  <span className="pt-0.5">Upload QR code of your Instagram post</span>
-                  {showTooltip && (
-                    <div className="absolute top-8 left-0 z-10 w-64 p-2 text-xs text-white bg-emerald-700 rounded-lg shadow-lg">
-                      To upload the QR code of your Instagram post, navigate to your post, hit the &ldquo;***&rdquo; on the top right of the post, choose &ldquo;QR Code&rdquo; and then &ldquo;Save to Camera Roll&rdquo;. Then upload the saved QR code right here below.
-                    </div>
-                  )}
-                </label>
-                <label htmlFor="qr-file" className="block w-full">
-                  <input
-                    id="qr-file"
-                    type="file"
-                    accept="image/*"
-                    required
-                    onChange={(e) => setUploadedImage(e.target.files?.[0] || null)}
-                    className="w-full px-4 py-3 rounded-xl border border-emerald-300 bg-white text-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
-                  />
-                </label>
-                {uploadedImage && (
-                  <div className="mt-4 flex justify-center">
-                    <img
-                      src={URL.createObjectURL(uploadedImage)}
-                      alt="QR Preview"
-                      className="max-w-full max-h-40 rounded-xl border border-emerald-300"
-                    />
-                  </div>
-                )}
-              </>
-            )}
-
-              <button
-                type="submit"
-                disabled={!selectedRestaurant}
-                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {verifying ? '⏳ Verifying post...' : '🎬 Submit post'}
-              </button>
-              {!selectedRestaurant && (
-                <p className="text-xs text-emerald-600 mt-1">
-                  Please select a restaurant to submit.
-                </p>
-              )}
-
             </form>
 
           </div>
