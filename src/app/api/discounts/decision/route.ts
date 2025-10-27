@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { DiscountStatus, PrismaClient } from "@/generated/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
+import { DiscountStatus } from "@prisma/client";
 
 const discountInclude = {
   applicableItems: {

@@ -5,7 +5,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { QRCode } from 'react-qrcode-logo';
 import { useRouter } from "next/navigation";
 import { signOut } from 'next-auth/react';
-import { DiscountStatus } from "@/generated/client";
+import { DiscountStatus } from "@prisma/client";
 
 type MyDiscountRedemption = {
   id: number;

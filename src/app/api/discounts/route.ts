@@ -2,10 +2,9 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { DiscountStatus, PrismaClient } from "../../../generated/client";
+import { DiscountStatus } from "@prisma/client";
 import { authOptions } from "@/lib/auth";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 export async function GET(req: NextRequest) {
   const restaurantId = req.nextUrl.searchParams.get("restaurantId");
@@ -44,18 +43,18 @@ export async function GET(req: NextRequest) {
     const discounts = await prisma.discountCode.findMany({
       where: { restaurant: { email: session.user.email } },
       orderBy: { code: 'asc' },
-    include: {
-      applicableItems: {
-        include: { item: true },
-      },
-      redemptions: {
-        include: {
-          influencer: {
-            select: { id: true, name: true, email: true },
+      include: {
+        applicableItems: {
+          include: { item: true },
+        },
+        redemptions: {
+          include: {
+            influencer: {
+              select: { id: true, name: true, email: true },
+            },
           },
         },
       },
-    },
     });
     return NextResponse.json(discounts);
   } catch (err) {

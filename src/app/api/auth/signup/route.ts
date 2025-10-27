@@ -1,10 +1,8 @@
 // File: src/app/api/auth/signup/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "../../../../generated/client";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
-
-const prisma = new PrismaClient();
 
 async function exchangeInstagramCode(code: string) {
   const clientId = process.env.NEXT_PUBLIC_INSTAGRAM_CLIENT_ID || "750340034464298";
@@ -58,15 +56,52 @@ async function exchangeInstagramCode(code: string) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, userType, name, url } = await req.json();
-    
-    if (!email || !password || !userType || !name) {
+    const { email, password, userType, name, url, restaurantDetails } = await req.json();
+
+    if (!email || !password || !userType || !name || !String(name).trim()) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (userType === 'business') {
+      const requiredRestaurantFields = [
+        'restaurantName',
+        'street',
+        'number',
+        'zipCode',
+        'city',
+        'country',
+        'contactEmail',
+      ] as const;
+
+      if (!restaurantDetails) {
+        return NextResponse.json({ error: 'Missing restaurant details' }, { status: 400 });
+      }
+
+      const missingField = requiredRestaurantFields.find((field) => {
+        const value = restaurantDetails[field];
+        if (typeof value !== 'string') {
+          return true;
+        }
+        return value.trim() === '';
+      });
+
+      if (missingField) {
+        return NextResponse.json({ error: `Missing required restaurant field: ${missingField}` }, { status: 400 });
+      }
+
+      const contactEmail = restaurantDetails.contactEmail.trim().toLowerCase();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(contactEmail)) {
+        return NextResponse.json({ error: 'Invalid restaurant contact email format' }, { status: 400 });
+      }
+      restaurantDetails.contactEmail = contactEmail;
     }
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(normalizedEmail)) {
       return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
     }
 
@@ -76,7 +111,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if user already exists
-    const existing = await prisma.user.findUnique({ where: { email } });
+    const existing = await prisma.user.findUnique({ where: { email: normalizedEmail } });
     if (existing) {
       return NextResponse.json({ error: 'User already exists' }, { status: 409 });
     }
@@ -97,10 +132,10 @@ export async function POST(req: NextRequest) {
     }
 
     // Create the user with Instagram data if available
-    const userData = {
-      email,
+    const userData: any = {
+      email: normalizedEmail,
       password: hashedPassword,
-      name,
+      name: name.trim(),
       userType,
       url: instagramData ? `https://www.instagram.com/${instagramData.username}/` : (url || "https://www.instagram.com/"),
     };
@@ -120,10 +155,27 @@ export async function POST(req: NextRequest) {
       data: userData,
     });
 
+    if (user.userType === 'business' && restaurantDetails) {
+      await prisma.restaurantProfile.create({
+        data: {
+          userId: user.id,
+          restaurantName: restaurantDetails.restaurantName.trim(),
+          street: restaurantDetails.street.trim(),
+          streetNumber: restaurantDetails.number.trim(),
+          zipCode: restaurantDetails.zipCode.trim(),
+          city: restaurantDetails.city.trim(),
+          country: restaurantDetails.country.trim(),
+          contactEmail: restaurantDetails.contactEmail.trim().toLowerCase(),
+          instagramUsername: restaurantDetails.instagramUsername?.trim() || null,
+          tiktokUsername: restaurantDetails.tiktokUsername?.trim() || null,
+        },
+      });
+    }
+
     // Return user data (excluding password and token)
-    return NextResponse.json({ 
-      id: user.id, 
-      email: user.email, 
+    return NextResponse.json({
+      id: user.id,
+      email: user.email,
       name: user.name, 
       userType: user.userType,
       url: user.url,
@@ -133,7 +185,5 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error('Signup error:', err);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
   }
 }

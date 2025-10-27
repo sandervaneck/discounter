@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { RestaurantToolbar } from "../components/Toolbar";
 import { useSession } from "next-auth/react";
-import { DiscountCode, DiscountStatus, Item } from "@/generated/client";
+import { DiscountCode, DiscountStatus, Item } from "@prisma/client";
 import { Pencil, Check } from "lucide-react";
 
 
