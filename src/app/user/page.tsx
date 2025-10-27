@@ -23,16 +23,34 @@ type MyDiscountRedemption = {
   };
 };
 
+type RestaurantDetails = {
+  id: number;
+  name: string;
+  profile: {
+    restaurantName: string;
+    street: string;
+    streetNumber: string;
+    zipCode: string;
+    city: string;
+    country: string;
+    contactEmail: string;
+    instagramUsername: string | null;
+    tiktokUsername: string | null;
+  } | null;
+};
+
 
 export default function UserPage() {
     const router = useRouter();
-  
+
   const [reelLink, setReelLink] = useState('');
   const [requestingCodeId, setRequestingCodeId] = useState<number | null>(null);
   const [tab, setTab] = useState<0 | 1>(0);
   const [restaurantQuery, setRestaurantQuery] = useState('');
   const [restaurantResults, setRestaurantResults] = useState<{ id: number; name: string }[]>([]);
   const [selectedRestaurant, setSelectedRestaurant] = useState<{ id: number; name: string } | null>(null);
+  const [restaurantDetails, setRestaurantDetails] = useState<RestaurantDetails | null>(null);
+  const [isLoadingRestaurantDetails, setIsLoadingRestaurantDetails] = useState(false);
   const [discounts, setDiscounts] = useState<any[]>([]);
   const [myDiscounts, setMyDiscounts] = useState<MyDiscountRedemption[]>([]);
   const [statusFilter, setStatusFilter] = useState<DiscountStatus | 'all'>('all');
@@ -49,6 +67,28 @@ export default function UserPage() {
       }
     } catch (e) {
       /* ignore */
+    }
+  };
+
+  const fetchRestaurantDetails = async (id: number) => {
+    setIsLoadingRestaurantDetails(true);
+    try {
+      const res = await fetch(`/api/restaurants/${id}`);
+      if (!res.ok) {
+        throw new Error('Failed to load restaurant details');
+      }
+      const data: RestaurantDetails = await res.json();
+      if (selectedRestaurant?.id === id) {
+        setRestaurantDetails(data);
+      }
+    } catch (e) {
+      if (selectedRestaurant?.id === id) {
+        setRestaurantDetails(null);
+      }
+    } finally {
+      if (selectedRestaurant?.id === id) {
+        setIsLoadingRestaurantDetails(false);
+      }
     }
   };
 
@@ -233,9 +273,14 @@ export default function UserPage() {
   useEffect(() => {
     if (!selectedRestaurant) {
       setDiscounts([]);
+      setRestaurantDetails(null);
+      setIsLoadingRestaurantDetails(false);
       return;
     }
     setReelLink('');
+    setRestaurantDetails(null);
+    setDiscounts([]);
+    fetchRestaurantDetails(selectedRestaurant.id);
     fetchDiscounts(selectedRestaurant.id);
   }, [selectedRestaurant]);
 
@@ -295,6 +340,20 @@ export default function UserPage() {
   const disabledDiscounts = discounts.filter(
     (d) => !(d.status === 'available' || isRequestedByCurrentUser(d))
   );
+
+  const restaurantProfile = restaurantDetails?.profile;
+  const restaurantName =
+    restaurantProfile?.restaurantName?.trim() ||
+    restaurantDetails?.name ||
+    selectedRestaurant?.name ||
+    '';
+  const streetLine = [restaurantProfile?.street, restaurantProfile?.streetNumber]
+    .filter((part) => !!part && `${part}`.trim().length > 0)
+    .join(' ');
+  const cityLine = [restaurantProfile?.zipCode, restaurantProfile?.city]
+    .filter((part) => !!part && `${part}`.trim().length > 0)
+    .join(' ');
+  const countryLine = restaurantProfile?.country ?? '';
 
 
   return (
@@ -384,9 +443,33 @@ export default function UserPage() {
 
               {selectedRestaurant && (
                 <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4 text-sm text-emerald-800">
-                  <p className="font-semibold text-emerald-900">🍝 Italian cuisine</p>
-                  <p>Via Morella 4</p>
-                  <p>5900 Milano, Italy</p>
+                  {isLoadingRestaurantDetails ? (
+                    <p className="text-emerald-700">Loading restaurant details...</p>
+                  ) : restaurantDetails ? (
+                    <div className="space-y-1">
+                      <p className="font-semibold text-emerald-900">{restaurantName}</p>
+                      {streetLine && <p>{streetLine}</p>}
+                      {cityLine && <p>{cityLine}</p>}
+                      {countryLine && <p>{countryLine}</p>}
+                      {restaurantProfile?.contactEmail && (
+                        <p className="text-xs text-emerald-600">
+                          Contact: {restaurantProfile.contactEmail}
+                        </p>
+                      )}
+                      {(restaurantProfile?.instagramUsername || restaurantProfile?.tiktokUsername) && (
+                        <div className="pt-1 text-xs text-emerald-600 space-y-0.5">
+                          {restaurantProfile.instagramUsername && (
+                            <p>Instagram: @{restaurantProfile.instagramUsername}</p>
+                          )}
+                          {restaurantProfile.tiktokUsername && (
+                            <p>TikTok: @{restaurantProfile.tiktokUsername}</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-emerald-700">Restaurant details not available.</p>
+                  )}
                 </div>
               )}
 
