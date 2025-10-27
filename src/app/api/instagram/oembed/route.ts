@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const DEFAULT_GRAPH_VERSION = process.env.INSTAGRAM_GRAPH_API_VERSION ?? "v22.0";
-const DEFAULT_APP_ID = process.env.INSTAGRAM_APP_ID ?? "788193503894407";
+const DEFAULT_APP_ID = process.env.INSTAGRAM_APP_ID;
 
 export async function GET(req: NextRequest) {
   const url = req.nextUrl.searchParams.get("url");
   if (!url) {
     return NextResponse.json({ error: "url query parameter is required" }, { status: 400 });
   }
+  console.log(DEFAULT_APP_ID)
 
   const embedUrl = new URL(`https://graph.facebook.com/${DEFAULT_GRAPH_VERSION}/instagram_oembed`);
   embedUrl.searchParams.set("url", url);
