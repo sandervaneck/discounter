@@ -347,73 +347,75 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
             <tbody>
               {/* ROWS */}
               {filteredCodes.map((code) => (
-                <>
-                <tr
-                  key={code.id}
-                  className={`border-b border-emerald-100 ${
-                    editingId === code.id ? "bg-emerald-200" : ""
-                  }`}
-                >
-                  <td className="p-2 border border-emerald-100">
-                    <span className="inline-block bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full mr-2 mb-2">
+                <React.Fragment key={code.id}>
+                  <tr
+                    className={`border-b border-emerald-100 ${
+                      editingId === code.id ? "bg-emerald-200" : ""
+                    }`}
+                  >
+                    <td className="p-2 border border-emerald-100">
+                      <span className="inline-block bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full mr-2 mb-2">
                         {code.code}
                       </span>
-                  </td>
-                  <td className="p-2 border border-emerald-100">
-                    <span className="inline-block bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full mr-2 mb-2">
+                    </td>
+                    <td className="p-2 border border-emerald-100">
+                      <span className="inline-block bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full mr-2 mb-2">
                         {code.discountPercent}%
                       </span>
-                  </td>
-                  <td className="p-2 border border-emerald-100">
-                    {(itemsByDiscountId[code.id] || []).map((item, idx) => (
-                      <span key={idx} className="inline-block bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full mr-2 mb-2">
-                        {item.name}
-                      </span>
-                    ))}
-                  </td>
-                  <td className="p-2 border border-emerald-100">
-                    <span className="inline-block bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full mr-2 mb-2">
+                    </td>
+                    <td className="p-2 border border-emerald-100">
+                      {(itemsByDiscountId[code.id] || []).map((item, idx) => (
+                        <span
+                          key={item.id ?? `${code.id}-item-${idx}`}
+                          className="inline-block bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full mr-2 mb-2"
+                        >
+                          {item.name}
+                        </span>
+                      ))}
+                    </td>
+                    <td className="p-2 border border-emerald-100">
+                      <span className="inline-block bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full mr-2 mb-2">
                         {code.expirationTime
                           ? new Date(code.expirationTime).toLocaleDateString()
                           : "No expiry"}
                       </span>
-                  </td>
-                  <td className="p-2 border border-emerald-100">
-                    <span
-                      className={`inline-block px-2 py-1 rounded-full mr-2 mb-2 ${
-                        code.status === 'used'
-                          ? 'bg-orange-100 text-orange-800'
-                          : 'bg-emerald-100 text-emerald-800'
-                      }`}
-                    >
+                    </td>
+                    <td className="p-2 border border-emerald-100">
+                      <span
+                        className={`inline-block px-2 py-1 rounded-full mr-2 mb-2 ${
+                          code.status === 'used'
+                            ? 'bg-orange-100 text-orange-800'
+                            : 'bg-emerald-100 text-emerald-800'
+                        }`}
+                      >
                         {code.status.charAt(0).toUpperCase() + code.status.slice(1)}
                       </span>
-                  </td>
-                  <td className="p-2 border border-emerald-100 text-center">
-                    <button
-                      onClick={() => toggleRow(code.id)}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded"
-                    >
-                      {expandedRows[code.id] ? 'Hide' : 'Show'}
-                    </button>
-                  </td>
-                  <td className="p-2 border border-emerald-100 text-center">
-                    <button
-                      onClick={() => startEdit(code)}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded mr-2"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => deleteCode(code.id)}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-                
-                
+                    </td>
+                    <td className="p-2 border border-emerald-100 text-center">
+                      <button
+                        onClick={() => toggleRow(code.id)}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded"
+                      >
+                        {expandedRows[code.id] ? 'Hide' : 'Show'}
+                      </button>
+                    </td>
+                    <td className="p-2 border border-emerald-100 text-center">
+                      <button
+                        onClick={() => startEdit(code)}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded mr-2"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => deleteCode(code.id)}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+
+
                 {expandedRows[code.id] && (
                   <tr className="bg-emerald-50 border-b border-emerald-100">
                     <td colSpan={7} className="p-3">
@@ -446,7 +448,10 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
                                 })()
                               : []
                         ).map((req: any, idx: number) => (
-                          <div key={idx} className="border rounded p-2 bg-white shadow-sm">
+                          <div
+                            key={`${req?.platform ?? "requirement"}-${idx}`}
+                            className="border rounded p-2 bg-white shadow-sm"
+                          >
                             <div className="font-semibold text-emerald-700 mb-1">
                               {req.platform}
                             </div>
@@ -462,7 +467,7 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
                     </td>
                   </tr>
                 )}
-                </>
+                </React.Fragment>
               ))}
             </tbody>
           </table>
@@ -516,11 +521,11 @@ const [user, setUser] = useState<{ email: string, name: string } | null>(null);
    <div className="mt-6">
     <label className="font-medium text-emerald-800">Applicable Items:</label>
     <div className="flex flex-wrap gap-3 mt-2">
-      {availableItems.map((item, idx) => {
+      {availableItems.map((item) => {
         const selected = editForm.items.some((i) => i.id === item.id);
         return (
           <label
-            key={idx}
+            key={item.id}
             className={`px-3 py-1 rounded-full text-sm cursor-pointer text-emerald-800 ${
               selected ? "bg-emerald-100 border-2 border-emerald-600" : "bg-gray-50 border border-gray-300"
             }`}
