@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const DEFAULT_GRAPH_VERSION = process.env.INSTAGRAM_GRAPH_API_VERSION ?? "v19.0";
-const DEFAULT_APP_ID = process.env.INSTAGRAM_APP_ID ?? "788193503894407";
+const DEFAULT_GRAPH_VERSION = process.env.NEXT_PUBLIC_INSTAGRAM_GRAPH_API_VERSION ?? "v22.0";
+const DEFAULT_APP_ID = process.env.NEXT_PUBLIC_INSTAGRAM_GRAPH_API_VERSION ?? "788193503894407";
 
 export async function GET(req: NextRequest) {
   const url = req.nextUrl.searchParams.get("url");
@@ -9,17 +9,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "url query parameter is required" }, { status: 400 });
   }
 
-  const appSecret = process.env.INSTAGRAM_APP_SECRET;
-  if (!appSecret) {
-    return NextResponse.json(
-      { error: "Instagram embed credentials are not configured." },
-      { status: 500 }
-    );
-  }
-
   const embedUrl = new URL(`https://graph.facebook.com/${DEFAULT_GRAPH_VERSION}/instagram_oembed`);
   embedUrl.searchParams.set("url", url);
-  embedUrl.searchParams.set("access_token", `${DEFAULT_APP_ID}|${appSecret}`);
+  embedUrl.searchParams.set("access_token", `${DEFAULT_APP_ID}`);
   embedUrl.searchParams.set("omitscript", "false");
 
   try {
