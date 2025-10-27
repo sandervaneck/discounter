@@ -6,21 +6,35 @@ import { useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
+type RegisterForm = {
+  userType?: "influencer" | "restaurant";
+  name?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+  url?: string;
+  restaurant?: {
+    restaurantName?: string;
+    street?: string;
+    number?: string;
+    zipCode?: string;
+    city?: string;
+    country?: string;
+    contactEmail?: string;
+    instagramUsername?: string;
+    tiktokUsername?: string;
+  };
+};
+
 export default function Home() {
   const router = useRouter();
-  const [userType, setUserType] = useState<"influencer" | "restaurant" | null>(null);
+  const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
   const [openSignUp, setOpenSignUp] = useState(false);
-  const [showLoginFields, setShowLoginFields] = useState(false);
+  const [showLoginFields, setShowLoginFields] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isInstagramConnecting, setIsInstagramConnecting] = useState(false);
-  const [registerForm, setRegisterForm] = useState<{
-    email: string | undefined;
-    password: string | undefined;
-    name: string | undefined;
-    userType: "influencer" | "restaurant" | undefined;
-    url: string | undefined;
-  } | null>(null);
+  const [registerForm, setRegisterForm] = useState<RegisterForm>({});
   const [showRestaurantSearch, setShowRestaurantSearch] = useState(false);
   const [restaurantSearchQuery, setRestaurantSearchQuery] = useState("");
   const [restaurantResults, setRestaurantResults] = useState<
@@ -34,16 +48,57 @@ export default function Home() {
   const [collapsedDiscountIndexes, setCollapsedDiscountIndexes] = useState<number[]>([]);
 
   const hasRequiredFields = () => {
-    return (
-      registerForm?.email &&
-      registerForm?.password &&
-      registerForm?.email.includes("@") &&
-      registerForm?.email.includes(".") &&
-      registerForm?.email.length > 5 &&
-      registerForm?.password.length >= 6 &&
-      registerForm?.userType &&
-      registerForm?.name
+    if (!registerForm.userType) {
+      return false;
+    }
+
+    const hasValidEmail = Boolean(
+      registerForm.email &&
+        registerForm.email.includes("@") &&
+        registerForm.email.includes(".") &&
+        registerForm.email.length > 5
     );
+
+    const hasValidPassword = Boolean(
+      registerForm.password &&
+        registerForm.confirmPassword &&
+        registerForm.password.length >= 6 &&
+        registerForm.password === registerForm.confirmPassword
+    );
+
+    if (!hasValidEmail || !hasValidPassword) {
+      return false;
+    }
+
+    if (registerForm.userType === "influencer") {
+      return Boolean(registerForm.name && registerForm.name.trim());
+    }
+
+    if (registerForm.userType === "restaurant") {
+      const details = registerForm.restaurant;
+      if (!details) {
+        return false;
+      }
+
+      const hasContactEmail = Boolean(
+        details.contactEmail &&
+          details.contactEmail.includes("@") &&
+          details.contactEmail.includes(".")
+      );
+
+      return (
+        Boolean(registerForm.name && registerForm.name.trim()) &&
+        Boolean(details.restaurantName && details.restaurantName.trim()) &&
+        Boolean(details.street && details.street.trim()) &&
+        Boolean(details.number && details.number.trim()) &&
+        Boolean(details.zipCode && details.zipCode.trim()) &&
+        Boolean(details.city && details.city.trim()) &&
+        Boolean(details.country && details.country.trim()) &&
+        hasContactEmail
+      );
+    }
+
+    return false;
   };
 
   const handleToggleRestaurantSearch = () => {
@@ -131,12 +186,6 @@ export default function Home() {
     }
   };
 
-  useEffect(() => {
-    if (userType && showLoginFields === false) {
-      setShowLoginFields(true);
-    }
-  }, [userType]);
-
   // Load data from localStorage on mount
   useEffect(() => {
     const savedFormData =
@@ -154,14 +203,18 @@ export default function Home() {
         console.error('Error parsing saved form data:', error);
       }
     }
-    
-    if (savedUserType) {
-      setUserType(savedUserType as "influencer" | "restaurant");
+
+    if (savedUserType && !savedFormData) {
+      setRegisterForm((prev) => ({ ...prev, userType: savedUserType as "influencer" | "restaurant" }));
     }
-    
+
     if (wasRegistering === 'true') {
       setOpenSignUp(true);
       setShowLoginFields(false);
+      setActiveTab("signup");
+    } else {
+      setActiveTab("login");
+      setShowLoginFields(true);
     }
   }, []);
 
@@ -225,7 +278,7 @@ export default function Home() {
     
     if (code && !registerForm?.url) {
       // Instagram connected successfully, save the code
-      setRegisterForm((prev:any) => {
+      setRegisterForm((prev) => {
         const updatedForm = {
           ...prev,
           url: code
@@ -257,17 +310,51 @@ export default function Home() {
 
   // Save form data to localStorage whenever it changes
   useEffect(() => {
-    if (registerForm) {
+    const hasData = Object.entries(registerForm).some(([key, value]) => {
+      if (value === undefined || value === null) {
+        return false;
+      }
+
+      if (typeof value === "string") {
+        return value.trim() !== "";
+      }
+
+      if (typeof value === "object") {
+        if (Array.isArray(value)) {
+          return value.length > 0;
+        }
+
+        return Object.values(value).some((nestedValue) => {
+          if (nestedValue === undefined || nestedValue === null) {
+            return false;
+          }
+
+          if (typeof nestedValue === "string") {
+            return nestedValue.trim() !== "";
+          }
+
+          return true;
+        });
+      }
+
+      return true;
+    });
+
+    if (hasData) {
       localStorage.setItem('registrationForm', JSON.stringify(registerForm));
+    } else {
+      localStorage.removeItem('registrationForm');
     }
   }, [registerForm]);
 
   // Save user type to localStorage whenever it changes
   useEffect(() => {
-    if (userType) {
-      localStorage.setItem('selectedUserType', userType);
+    if (registerForm.userType) {
+      localStorage.setItem('selectedUserType', registerForm.userType);
+    } else {
+      localStorage.removeItem('selectedUserType');
     }
-  }, [userType]);
+  }, [registerForm.userType]);
 
   // Save registration state to localStorage
   useEffect(() => {
@@ -308,11 +395,49 @@ export default function Home() {
       return;
     }
 
-    const mappedUserType = registerForm!.userType === "restaurant" ? "business" : "influencer";
-    const mappedEmail = registerForm!.email!.trim().toLowerCase();
-    const mappedPassword = registerForm!.password!;
-    const mappedName = registerForm!.name!.trim();
-    const mappedUrl = registerForm?.url ? registerForm.url : undefined;
+    if (registerForm.password !== registerForm.confirmPassword) {
+      alert("Passwords do not match. Please re-enter them.");
+      return;
+    }
+
+    const mappedUserType = registerForm.userType === "restaurant" ? "business" : "influencer";
+    const mappedEmail = registerForm.email!.trim().toLowerCase();
+    const mappedPassword = registerForm.password!;
+    const mappedName = registerForm.name?.trim() || "";
+    const mappedUrl = registerForm.url ? registerForm.url : undefined;
+    const restaurantDetails =
+      registerForm.userType === "restaurant" && registerForm.restaurant
+        ? {
+            restaurantName: registerForm.restaurant.restaurantName?.trim() || "",
+            street: registerForm.restaurant.street?.trim() || "",
+            number: registerForm.restaurant.number?.trim() || "",
+            zipCode: registerForm.restaurant.zipCode?.trim() || "",
+            city: registerForm.restaurant.city?.trim() || "",
+            country: registerForm.restaurant.country?.trim() || "",
+            contactEmail: registerForm.restaurant.contactEmail?.trim() || "",
+            instagramUsername: registerForm.restaurant.instagramUsername?.trim() || undefined,
+            tiktokUsername: registerForm.restaurant.tiktokUsername?.trim() || undefined,
+          }
+        : undefined;
+
+    if (!mappedName) {
+      alert("Please provide your name before registering.");
+      return;
+    }
+
+    if (registerForm.userType === "restaurant" && restaurantDetails) {
+      const missingField = Object.entries(restaurantDetails).find(([key, value]) => {
+        if (key === "instagramUsername" || key === "tiktokUsername") {
+          return false;
+        }
+        return !value;
+      });
+
+      if (missingField) {
+        alert("Please complete all required restaurant details.");
+        return;
+      }
+    }
 
     try {
       const res = await fetch("/api/auth/signup", {
@@ -326,6 +451,7 @@ export default function Home() {
           name: mappedName,
           userType: mappedUserType,
           ...(mappedUrl ? { url: mappedUrl } : {}),
+          ...(restaurantDetails ? { restaurantDetails } : {}),
         }),
       });
 
@@ -334,7 +460,11 @@ export default function Home() {
         localStorage.removeItem('registrationForm');
         localStorage.removeItem('selectedUserType');
         localStorage.removeItem('isRegistering');
-        
+        setRegisterForm({});
+        setOpenSignUp(false);
+        setActiveTab("login");
+        setShowLoginFields(true);
+
         // Now login
         const loginRes = await signIn("credentials", {
           redirect: false,
@@ -367,7 +497,7 @@ export default function Home() {
     if (registerForm) {
       localStorage.setItem('registrationForm', JSON.stringify(registerForm));
     }
-    localStorage.setItem('selectedUserType', userType || '');
+    localStorage.setItem('selectedUserType', registerForm?.userType || '');
     localStorage.setItem('isRegistering', 'true');
     
     setIsInstagramConnecting(true);
@@ -390,44 +520,37 @@ export default function Home() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
           <Button
             onClick={() => {
+              setActiveTab("login");
               setOpenSignUp(false);
-              setUserType("influencer");
+              setShowLoginFields(true);
             }}
-            className={`px-6 py-3 text-lg rounded-xl shadow-lg ${
-              userType === "influencer" 
-                ? "text-white bg-emerald-600 hover:bg-emerald-700" 
-                : "bg-white text-emerald-700 border border-emerald-600 hover:bg-emerald-50"
+            className={`px-6 py-3 text-lg rounded-xl shadow-lg border ${
+              activeTab === "login"
+                ? "bg-emerald-700 border-emerald-700 text-white"
+                : "bg-transparent text-emerald-700 border-emerald-600 hover:bg-emerald-50"
             }`}
           >
-            Login as Influencer
+            Log in
           </Button>
           <Button
             onClick={() => {
-              setOpenSignUp(false);
-              setUserType("restaurant");
-            }}
-            className={`px-6 py-3 text-lg rounded-xl shadow-md ${
-              userType === "restaurant" 
-                ? "text-white bg-emerald-600 hover:bg-emerald-700" 
-                : "bg-white text-emerald-700 border border-emerald-600 hover:bg-emerald-50"
-            }`}
-          >
-            Login as Restaurant
-          </Button>
-          <Button
-            onClick={() => {
-              setShowLoginFields(false);
+              setActiveTab("signup");
               setOpenSignUp(true);
+              setShowLoginFields(false);
             }}
-            className="px-6 py-3 text-lg rounded-xl shadow-lg bg-white text-emerald-700 border border-emerald-600 hover:bg-emerald-50"
+            className={`px-6 py-3 text-lg rounded-xl shadow-lg border ${
+              activeTab === "signup"
+                ? "bg-emerald-700 border-emerald-700 text-white"
+                : "bg-transparent text-emerald-700 border-emerald-600 hover:bg-emerald-50"
+            }`}
           >
-            Click to Register
+            Sign up
           </Button>
           <Button
             onClick={() => router.push("/user")}
-            className="px-6 py-3 text-lg rounded-xl shadow-lg bg-white text-emerald-700 border border-emerald-600 hover:bg-emerald-50"
+            className="px-6 py-3 text-lg rounded-xl shadow-lg border bg-transparent text-emerald-700 border-emerald-600 hover:bg-emerald-50"
           >
-            Continue without Login
+            Continue without account
           </Button>
         </div>
 
@@ -437,13 +560,15 @@ export default function Home() {
               Are you an influencer or restaurant?
               <br />
               <select
-                value={registerForm?.userType || ""}
-                onChange={(e) =>
-                  setRegisterForm((prev:any) => ({
+                value={registerForm.userType || ""}
+                onChange={(e) => {
+                  const nextUserType = e.target.value as "influencer" | "restaurant";
+                  setRegisterForm((prev) => ({
                     ...prev,
-                    userType: e.target.value as "influencer" | "restaurant",
-                  }))
-                }
+                    userType: nextUserType,
+                    restaurant: nextUserType === "restaurant" ? prev.restaurant ?? {} : undefined,
+                  }));
+                }}
                 className="w-full px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white"
               >
                 <option value="" disabled>Select User Type</option>
@@ -453,13 +578,13 @@ export default function Home() {
             </div>
 
             <label className="w-full max-w-sm flex flex-col text-emerald-900 font-medium mt-4">
-              Username
+              {registerForm.userType === "restaurant" ? "Contact name" : "Username"}
               <input
                 type="text"
-                placeholder="Username"
-                value={registerForm?.name || ""}
+                placeholder={registerForm.userType === "restaurant" ? "Contact name" : "Username"}
+                value={registerForm.name || ""}
                 onChange={(e) =>
-                  setRegisterForm((prev:any) => ({
+                  setRegisterForm((prev) => ({
                     ...prev,
                     name: e.target.value,
                   }))
@@ -473,9 +598,9 @@ export default function Home() {
               <input
                 type="email"
                 placeholder="Email"
-                value={registerForm?.email || ""}
+                value={registerForm.email || ""}
                 onChange={(e) =>
-                  setRegisterForm((prev:any) => ({
+                  setRegisterForm((prev) => ({
                     ...prev,
                     email: e.target.value,
                   }))
@@ -484,14 +609,191 @@ export default function Home() {
               />
             </label>
 
+            {registerForm.userType === "restaurant" && (
+              <div className="w-full max-w-sm grid grid-cols-1 gap-4 mt-4 text-emerald-900">
+                <div className="flex flex-col font-medium">
+                  Restaurant name
+                  <input
+                    type="text"
+                    placeholder="Restaurant name"
+                    value={registerForm.restaurant?.restaurantName || ""}
+                    onChange={(e) =>
+                      setRegisterForm((prev) => ({
+                        ...prev,
+                        restaurant: {
+                          ...prev.restaurant,
+                          restaurantName: e.target.value,
+                        },
+                      }))
+                    }
+                    className="mt-1 w-full px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 font-medium">
+                  <label className="flex flex-col">
+                    Street
+                    <input
+                      type="text"
+                      placeholder="Street"
+                      value={registerForm.restaurant?.street || ""}
+                      onChange={(e) =>
+                        setRegisterForm((prev) => ({
+                          ...prev,
+                          restaurant: {
+                            ...prev.restaurant,
+                            street: e.target.value,
+                          },
+                        }))
+                      }
+                      className="mt-1 px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
+                    />
+                  </label>
+                  <label className="flex flex-col">
+                    Number
+                    <input
+                      type="text"
+                      placeholder="Number"
+                      value={registerForm.restaurant?.number || ""}
+                      onChange={(e) =>
+                        setRegisterForm((prev) => ({
+                          ...prev,
+                          restaurant: {
+                            ...prev.restaurant,
+                            number: e.target.value,
+                          },
+                        }))
+                      }
+                      className="mt-1 px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
+                    />
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 font-medium">
+                  <label className="flex flex-col">
+                    ZIP code
+                    <input
+                      type="text"
+                      placeholder="ZIP code"
+                      value={registerForm.restaurant?.zipCode || ""}
+                      onChange={(e) =>
+                        setRegisterForm((prev) => ({
+                          ...prev,
+                          restaurant: {
+                            ...prev.restaurant,
+                            zipCode: e.target.value,
+                          },
+                        }))
+                      }
+                      className="mt-1 px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
+                    />
+                  </label>
+                  <label className="flex flex-col">
+                    City
+                    <input
+                      type="text"
+                      placeholder="City"
+                      value={registerForm.restaurant?.city || ""}
+                      onChange={(e) =>
+                        setRegisterForm((prev) => ({
+                          ...prev,
+                          restaurant: {
+                            ...prev.restaurant,
+                            city: e.target.value,
+                          },
+                        }))
+                      }
+                      className="mt-1 px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
+                    />
+                  </label>
+                </div>
+
+                <label className="flex flex-col font-medium">
+                  Country
+                  <input
+                    type="text"
+                    placeholder="Country"
+                    value={registerForm.restaurant?.country || ""}
+                    onChange={(e) =>
+                      setRegisterForm((prev) => ({
+                        ...prev,
+                        restaurant: {
+                          ...prev.restaurant,
+                          country: e.target.value,
+                        },
+                      }))
+                    }
+                    className="mt-1 px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
+                  />
+                </label>
+
+                <label className="flex flex-col font-medium">
+                  Contact email
+                  <input
+                    type="email"
+                    placeholder="Contact email"
+                    value={registerForm.restaurant?.contactEmail || ""}
+                    onChange={(e) =>
+                      setRegisterForm((prev) => ({
+                        ...prev,
+                        restaurant: {
+                          ...prev.restaurant,
+                          contactEmail: e.target.value,
+                        },
+                      }))
+                    }
+                    className="mt-1 px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
+                  />
+                </label>
+
+                <label className="flex flex-col font-medium">
+                  Instagram username (optional)
+                  <input
+                    type="text"
+                    placeholder="Instagram username"
+                    value={registerForm.restaurant?.instagramUsername || ""}
+                    onChange={(e) =>
+                      setRegisterForm((prev) => ({
+                        ...prev,
+                        restaurant: {
+                          ...prev.restaurant,
+                          instagramUsername: e.target.value,
+                        },
+                      }))
+                    }
+                    className="mt-1 px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
+                  />
+                </label>
+
+                <label className="flex flex-col font-medium">
+                  TikTok username (optional)
+                  <input
+                    type="text"
+                    placeholder="TikTok username"
+                    value={registerForm.restaurant?.tiktokUsername || ""}
+                    onChange={(e) =>
+                      setRegisterForm((prev) => ({
+                        ...prev,
+                        restaurant: {
+                          ...prev.restaurant,
+                          tiktokUsername: e.target.value,
+                        },
+                      }))
+                    }
+                    className="mt-1 px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
+                  />
+                </label>
+              </div>
+            )}
+
             <label className="w-full max-w-sm flex flex-col text-emerald-900 font-medium mt-4">
               Password
               <input
                 type="password"
                 placeholder="Password"
-                value={registerForm?.password || ""}
+                value={registerForm.password || ""}
                 onChange={(e) =>
-                  setRegisterForm((prev:any) => ({
+                  setRegisterForm((prev) => ({
                     ...prev,
                     password: e.target.value,
                   }))
@@ -500,7 +802,24 @@ export default function Home() {
               />
             </label>
 
-            {!registerForm?.url && (
+            <label className="w-full max-w-sm flex flex-col text-emerald-900 font-medium mt-4">
+              Confirm password
+              <input
+                type="password"
+                placeholder="Confirm password"
+                value={registerForm.confirmPassword || ""}
+                onChange={(e) =>
+                  setRegisterForm((prev) => ({
+                    ...prev,
+                    confirmPassword: e.target.value,
+                  }))
+                }
+                className="w-full px-4 py-2 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 text-emerald-800 bg-white placeholder-emerald-400"
+              />
+            </label>
+
+            {/*
+            {registerForm.userType === "influencer" && !registerForm.url && (
               <button
                 onClick={handleInstagramConnect}
                 disabled={isInstagramConnecting}
@@ -509,20 +828,19 @@ export default function Home() {
                 {isInstagramConnecting ? "Connecting..." : "Connect Instagram"}
               </button>
             )}
-            
-            {registerForm?.url && (
+
+            {registerForm.userType === "influencer" && registerForm.url && (
               <div className="w-full max-w-sm mt-2 p-2 bg-green-100 text-green-700 rounded-md text-center">
                 ✓ Instagram connected successfully!
                 <br />
                 <small className="text-green-600">Ready to create account with Instagram integration</small>
               </div>
             )}
+            */}
 
             {!hasRequiredFields() && (
               <div className="w-full max-w-sm text-sm text-emerald-600 mt-2">
-                Please fill in all required fields to create an account. Connecting Instagram is optional but recommended.
-                <br />
-                <strong>Note:</strong> Passwords must be at least 6 characters long.
+                Please fill in all required fields to create an account. Passwords must be at least 6 characters long and match.
               </div>
             )}
 
@@ -531,7 +849,7 @@ export default function Home() {
               disabled={!hasRequiredFields()}
               className="w-full max-w-sm mt-4 px-6 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {registerForm?.url ? "Register" : "Register without Instagram"}
+              Register
             </button>
           </div>
         )}

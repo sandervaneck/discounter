@@ -1,10 +1,8 @@
 // File: src/app/api/auth/instagram/refresh/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "../../../../../generated/client";
+import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
-
-const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
   try {
@@ -52,7 +50,5 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Token refresh error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
   }
 }
