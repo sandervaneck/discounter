@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     }
 
     const clientId =
-      process.env.NEXT_PUBLIC_INSTAGRAM_CLIENT_ID || "750340034464298";
+      process.env.INSTAGRAM_CLIENT_ID || "750340034464298";
     const clientSecret = process.env.INSTAGRAM_CLIENT_SECRET; // Add this to your .env
     const redirectUri =
       process.env.NEXT_PUBLIC_REDIRECT_URI ||
