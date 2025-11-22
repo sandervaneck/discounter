@@ -2,9 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "./components/Button";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { signIn } from "next-auth/react";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { restaurantMenuList, restaurantMenus } from "./data/restaurants";
+import { RestaurantMenu } from "./types/menu";
 
 type RegisterForm = {
   userType?: "influencer" | "restaurant";
@@ -46,6 +48,12 @@ export default function Home() {
   const [restaurantDiscounts, setRestaurantDiscounts] = useState<any[]>([]);
   const [isLoadingDiscounts, setIsLoadingDiscounts] = useState(false);
   const [collapsedDiscountIndexes, setCollapsedDiscountIndexes] = useState<number[]>([]);
+  const [activeMenuId, setActiveMenuId] = useState<string>(restaurantMenuList[0]?.id ?? "");
+
+  const activeMenu: RestaurantMenu | undefined = useMemo(
+    () => restaurantMenus[activeMenuId] ?? restaurantMenuList[0],
+    [activeMenuId]
+  );
 
   const hasRequiredFields = () => {
     if (!registerForm.userType) {
@@ -510,14 +518,136 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-emerald-50 to-white flex flex-col items-center justify-center px-4">
-      <div className="max-w-xl text-center">
-        <h1 className="text-4xl md:text-5xl font-extrabold text-emerald-800 mb-6">
-          Become a Food Influencer & Earn Discounts
-        </h1>
-        <p className="text-lg md:text-xl text-emerald-700 mb-10">
-          You can be our influencer! Post your food, show your results, and get rewarded with discounts at your favorite restaurants.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+      <div className="w-full max-w-5xl">
+        <div className="max-w-2xl text-center mx-auto">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-emerald-800 mb-6">
+            Become a Food Influencer & Earn Discounts
+          </h1>
+          <p className="text-lg md:text-xl text-emerald-700 mb-10">
+            You can be our influencer! Post your food, show your results, and get rewarded with discounts at your favorite restaurants.
+          </p>
+        </div>
+        <section className="w-full bg-white/80 backdrop-blur rounded-3xl shadow-lg border border-emerald-100 p-5 text-left mb-8">
+          <div className="flex flex-col gap-6">
+            <div>
+              <p className="text-xs font-semibold text-emerald-600 uppercase tracking-widest">Menus</p>
+              <h2 className="text-2xl font-bold text-emerald-800">{activeMenu?.name ?? "Restaurant menu"}</h2>
+              <p className="text-sm text-emerald-700">
+                {activeMenu?.tagline || activeMenu?.cuisine || "Choose a restaurant to explore its menu."}
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-5 gap-4">
+              <div className="md:col-span-2 space-y-3">
+                <p className="text-sm font-semibold text-emerald-700">Select a restaurant</p>
+                <div className="grid grid-cols-1 gap-3">
+                  {restaurantMenuList.map((menu) => {
+                    const isActive = menu.id === activeMenuId;
+                    return (
+                      <button
+                        key={menu.id}
+                        type="button"
+                        onClick={() => setActiveMenuId(menu.id)}
+                        className={`text-left rounded-2xl border p-3 transition shadow-sm ${
+                          isActive
+                            ? "bg-emerald-700 text-white border-emerald-700"
+                            : "bg-white text-emerald-800 border-emerald-200 hover:border-emerald-400"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold">{menu.name}</span>
+                          {isActive && <span className="text-xs px-2 py-1 rounded-full bg-white/20">Active</span>}
+                        </div>
+                        <p className={`text-sm ${isActive ? "text-emerald-50" : "text-emerald-700"}`}>
+                          {menu.cuisine}
+                        </p>
+                        {menu.tagline && (
+                          <p className={`text-xs mt-1 ${isActive ? "text-emerald-100" : "text-emerald-600"}`}>
+                            {menu.tagline}
+                          </p>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="md:col-span-3 space-y-4">
+                <div className="rounded-2xl bg-gradient-to-br from-emerald-900 to-emerald-700 text-white p-4 shadow-lg border border-emerald-800">
+                  <p className="text-xs uppercase tracking-widest text-emerald-100">Menu Courses</p>
+                  <h3 className="text-xl font-bold mt-1">{activeMenu?.name ?? "Menu"}</h3>
+                  <p className="text-sm text-emerald-100">{activeMenu?.cuisine}</p>
+
+                  <div className="mt-4 space-y-4">
+                    {activeMenu?.menuCourses.map((course) => (
+                      <div key={course.title} className="rounded-xl bg-white/10 p-3">
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <p className="text-sm uppercase tracking-wide text-emerald-100">{course.title}</p>
+                            {course.description && <p className="text-xs text-emerald-50">{course.description}</p>}
+                          </div>
+                        </div>
+                        <ul className="mt-2 space-y-2">
+                          {course.items.map((item) => (
+                            <li key={`${course.title}-${item.name}`} className="flex items-start justify-between gap-3">
+                              <div>
+                                <p className="font-semibold">{item.name}</p>
+                                <p className="text-xs text-emerald-50">{item.description}</p>
+                                {item.tags && (
+                                  <div className="flex flex-wrap gap-1 mt-1">
+                                    {item.tags.map((tag) => (
+                                      <span
+                                        key={tag}
+                                        className="text-[10px] px-2 py-0.5 rounded-full bg-white/20 text-white"
+                                      >
+                                        {tag}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                              <span className="text-sm font-semibold">€{item.price}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-4 grid sm:grid-cols-2 gap-3 text-emerald-50">
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-emerald-100">Pantry Highlights</p>
+                      <ul className="mt-1 space-y-1 text-xs">
+                        {activeMenu?.ingredients.slice(0, 4).map((ingredient) => (
+                          <li key={ingredient.name} className="flex items-start gap-2">
+                            <span className="mt-[2px] h-2 w-2 rounded-full bg-emerald-200" aria-hidden />
+                            <span>
+                              <span className="font-semibold">{ingredient.name}</span>
+                              {ingredient.source && ` • ${ingredient.source}`}
+                              {ingredient.notes && <span className="text-emerald-100"> — {ingredient.notes}</span>}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-emerald-100">Signature Recipes</p>
+                      <ul className="mt-1 space-y-1 text-xs">
+                        {activeMenu?.recipes.slice(0, 2).map((recipe) => (
+                          <li key={recipe.name}>
+                            <span className="font-semibold">{recipe.name}:</span> {recipe.description}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <div className="max-w-xl text-center mx-auto">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
           <Button
             onClick={() => {
               setActiveTab("login");
@@ -1033,6 +1163,7 @@ export default function Home() {
             )}
           </div>
         )}
+        </div>
       </div>
     </main>
   );
